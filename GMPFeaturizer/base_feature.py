@@ -49,7 +49,7 @@ class BaseFeature(ABC):
     ):
         images_feature_list = []
 
-        if ref_positions_list == None:
+        if ref_positions_list is None:
             ref_positions_list = [image.get_positions() for image in images]
 
         assert len(images) == len(ref_positions_list)
