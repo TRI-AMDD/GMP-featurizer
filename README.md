@@ -22,7 +22,7 @@ elements = ["Ce", "Zr", "Ti", "Mg", "O"]
 sigmas = np.linspace(0.0,width,nsigmas+1,endpoint=True)[1:]
 GMPs = {
             "GMPs": {   "orders": [-1]+list(range(GMP_order+1)), "sigmas":sigmas   },
-            "atom_gaussians": {x:"/home/raylei/Documents/GMP_tutorial/psp_pseudo_v3/{}_pseudodensity.g".format(x) for x in elements},
+            "atom_gaussians": {x:"<path_to_psp>/{}_pseudodensity.g".format(x) for x in elements},
             #"cutoff": 5.0,
             "square":False,
             "solid_harmonics": True,
