@@ -1558,7 +1558,7 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
     double vol, tmp, tmp_r2, cutoff, cutoff_sqr;
     double plane_d[3], total_shift[3];
     double cross[3][3], reci[3][3], inv[3][3];//, powtwo[nsyms];
-    std::cout <<  "test"  << std::endl;
+    // std::cout <<  "test"  << std::endl;
     // std::cout << cell[0][0] << "\t" << cell[0][1]<< "\t" << cell[0][2] <<std::endl;
     // std::cout << cell[1][0] << "\t" << cell[1][1]<< "\t" << cell[1][2] <<std::endl;
     // std::cout << cell[2][0] << "\t" << cell[2][1]<< "\t" << cell[2][2] <<std::endl;
@@ -1681,7 +1681,7 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
             
             // std::cout << mcsh_order << "\t" << num_groups  << std::endl;
             int temp_bin_i = ref_scale[ii][j] * (double) nbins[j];
-            std::cout << ii << "\t"<< j << "\t"<< ref_scale[ii][j] <<"\t"<< temp_bin_i  << std::endl;
+            // std::cout << ii << "\t"<< j << "\t"<< ref_scale[ii][j] <<"\t"<< temp_bin_i  << std::endl;
             // std::cout << ref_scale[ii][j] << "\t"<<temp_bin_i << std::endl;
             max_bin[j] = temp_bin_i + bin_range[j];
             min_bin[j] = temp_bin_i - bin_range[j];

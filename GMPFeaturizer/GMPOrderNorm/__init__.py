@@ -409,6 +409,5 @@ class GMPOrderNorm(BaseFeature):
             #     fp = np.abs(fp)
             #     fp[fp < 1e-8] = 1e-8
             #     fp = np.log10(fp)
-            print(fp)
 
             return size_info, fp, None, None, None, None
