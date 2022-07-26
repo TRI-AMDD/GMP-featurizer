@@ -5,7 +5,7 @@ from scipy import sparse
 
 from ..base_feature import BaseFeature
 from ..constants import ATOM_SYMBOL_TO_INDEX_DICT
-from ..util import _gen_2Darray_for_ffi, list_symbols_to_indices
+from ..util import _gen_2Darray_for_ffi, list_symbols_to_indices, _gen_2Darray_for_ffi2
 from ._libgmpordernorm import ffi, lib
 
 
@@ -252,7 +252,10 @@ class GMPOrderNorm(BaseFeature):
         atom_indices = list_symbols_to_indices(symbols)
         cell = atoms.cell
         scaled_ref_positions = cell.scaled_positions(ref_positions)
-
+        scaled_ref_positions = np.array(
+            [np.array(v, dtype="float64") for v in scaled_ref_positions],
+            dtype="float64",
+        )
         atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
 
         cart = np.copy(atoms.get_positions(wrap=True), order="C")
@@ -341,8 +344,8 @@ class GMPOrderNorm(BaseFeature):
             # print(np.sum(super_threshold_indices))
             # print(np.min(np.abs(scipy_sparse_fp_prime.data)))
             # print("density: {}% \n\n----------------------".format(100*len(scipy_sparse_fp_prime.data) / (fp_prime.shape[0] * fp_prime.shape[1])))
-            if self.params_set["log"]:
-                raise NotImplementedError
+            # if self.params_set["log"]:
+            #     raise NotImplementedError
 
             return (
                 size_info,
@@ -402,9 +405,10 @@ class GMPOrderNorm(BaseFeature):
                 raise NotImplementedError("Feature not implemented!")
 
             fp = np.array(x, dtype=np.float64)
-            if self.params_set["log"]:
-                fp = np.abs(fp)
-                fp[fp < 1e-8] = 1e-8
-                fp = np.log10(fp)
+            # if self.params_set["log"]:
+            #     fp = np.abs(fp)
+            #     fp[fp < 1e-8] = 1e-8
+            #     fp = np.log10(fp)
+            print(fp)
 
             return size_info, fp, None, None, None, None

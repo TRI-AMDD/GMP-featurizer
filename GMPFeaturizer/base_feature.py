@@ -230,7 +230,6 @@ class BaseFeature(ABC):
             image_dict["feature_primes"] = feature_prime_dict
 
         else:
-
             size_info, features, _, _, _, _ = self.calculate_features(
                 image,
                 ref_positions,

@@ -15,6 +15,15 @@ def _gen_2Darray_for_ffi(arr, ffi, cdata="double"):
         arr_p[i] = ffi.cast(cdata + " *", arr[i].ctypes.data)
     return arr_p
 
+def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
+    # Function to generate 2D pointer for cffi
+    shape = arr.shape
+    dsize = ffi.sizeof(cdata)
+    arr_p = ffi.new(cdata + " *[%d]" % shape[0])
+    ptr = ffi.cast(cdata + " *", arr.ctypes.data)
+    for i in range(shape[0]):
+        arr_p[i] = ptr + i * shape[1]
+    return arr_p
 
 def get_hash(image, ref_positions):
 
