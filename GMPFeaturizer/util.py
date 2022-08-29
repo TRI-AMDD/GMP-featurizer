@@ -75,3 +75,7 @@ def list_indices_to_symbols(list_of_indices):
     for index in list_of_indices:
         list_symbols.append(ATOM_INDEX_TO_SYMBOL_DICT[index])
     return list_symbols
+
+def get_scaled_position(cell, positions):
+    assert cell.shape == (3,3)
+    return np.linalg.solve(cell.T, np.transpose(positions)).T

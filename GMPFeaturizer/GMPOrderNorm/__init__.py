@@ -5,7 +5,7 @@ from scipy import sparse
 
 from ..base_feature import BaseFeature
 from ..constants import ATOM_SYMBOL_TO_INDEX_DICT
-from ..util import _gen_2Darray_for_ffi, list_symbols_to_indices, _gen_2Darray_for_ffi2
+from ..util import _gen_2Darray_for_ffi, list_symbols_to_indices, _gen_2Darray_for_ffi2, get_scaled_position
 from ._libgmpordernorm import ffi, lib
 
 
@@ -245,23 +245,40 @@ class GMPOrderNorm(BaseFeature):
                     )
                 )
 
-    def calculate_features(self, atoms, ref_positions, calc_derivatives):
-
-        symbols = np.array(atoms.get_chemical_symbols())
+    def calculate_features(self, cell, pbc, atom_positions, atom_symbols, occupancies, ref_positions, calc_derivatives):
+        assert isinstance(cell,np.ndarray)
+        assert cell.shape == (3,3)
+        assert isinstance(occupancies,np.ndarray)
+        assert isinstance(atom_positions,np.ndarray)
+        assert isinstance(ref_positions,np.ndarray)
+        assert len(atom_positions) == len(atom_symbols)
+        assert len(atom_symbols) == len(occupancies)
+        symbols = atom_symbols
         atom_num = len(symbols)
         atom_indices = list_symbols_to_indices(symbols)
-        cell = atoms.cell
-        scaled_ref_positions = cell.scaled_positions(ref_positions)
+        # cell = atoms.cell
+        # scaled_ref_positions = cell.scaled_positions(ref_positions)
+        scaled_ref_positions = get_scaled_position(cell, ref_positions)
         scaled_ref_positions = np.array(
             [np.array(v, dtype="float64") for v in scaled_ref_positions],
             dtype="float64",
         )
         atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
 
-        cart = np.copy(atoms.get_positions(wrap=True), order="C")
-        scale = np.copy(atoms.get_scaled_positions(wrap=True), order="C")
-        cell = np.copy(atoms.cell, order="C")
-        pbc = np.copy(atoms.get_pbc()).astype(np.intc)
+        occupancies_p = ffi.cast("double *", occupancies.ctypes.data)
+
+        # cart = np.copy(atoms.get_positions(wrap=True), order="C")
+        cart = np.copy(atom_positions, order="C")
+        # scale = np.copy(atoms.get_scaled_positions(wrap=True), order="C")
+        scale = get_scaled_position(cell, atom_positions)
+        scale = np.array(
+            [np.array(v, dtype="float64") for v in scale],
+            dtype="float64",
+        )
+        atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
+        cell = np.copy(cell, order="C")
+        # pbc = np.copy(atoms.get_pbc()).astype(np.intc)
+        pbc = np.copy(pbc).astype(np.intc)
 
         cart_p = _gen_2Darray_for_ffi(cart, ffi)
         scale_p = _gen_2Darray_for_ffi(scale, ffi)
@@ -290,6 +307,7 @@ class GMPOrderNorm(BaseFeature):
                 errno = lib.calculate_solid_gmpordernorm(
                     cell_p,
                     cart_p,
+                    occupancies_p,
                     ref_cart_p,
                     scale_p,
                     ref_scale_p,
@@ -311,6 +329,7 @@ class GMPOrderNorm(BaseFeature):
                 errno = lib.calculate_gmpordernorm(
                     cell_p,
                     cart_p,
+                    occupancies_p,
                     ref_cart_p,
                     scale_p,
                     ref_scale_p,
@@ -365,6 +384,7 @@ class GMPOrderNorm(BaseFeature):
                 errno = lib.calculate_solid_gmpordernorm_noderiv(
                     cell_p,
                     cart_p,
+                    occupancies_p,
                     ref_cart_p,
                     scale_p,
                     ref_scale_p,
@@ -385,6 +405,7 @@ class GMPOrderNorm(BaseFeature):
                 errno = lib.calculate_gmpordernorm_noderiv(
                     cell_p,
                     cart_p,
+                    occupancies_p,
                     ref_cart_p,
                     scale_p,
                     ref_scale_p,

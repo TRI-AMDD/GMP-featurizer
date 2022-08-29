@@ -29,7 +29,7 @@
     // ngaussian: number of gaussian for each atom type [n gaussian for type 1, n gaussian for type 2 ...]
 
 
-extern "C" int calculate_gmpordernorm(double** cell, double** cart, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+extern "C" int calculate_gmpordernorm(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num,
                                         int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, int* element_index_to_order,
                                         double** mcsh, double** dmcsh) {
@@ -138,6 +138,7 @@ extern "C" int calculate_gmpordernorm(double** cell, double** cart, double** ref
         // calculate neighbor atoms
         double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
         int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+        double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
         nneigh = 0;
 
         for (int j=0; j < 3; ++j) {
@@ -190,6 +191,7 @@ extern "C" int calculate_gmpordernorm(double** cell, double** cart, double** ref
                             nei_list_d[nneigh*4 + 3] = tmp_r2;
                             nei_list_i[nneigh*2]    = atom_i[j];
                             nei_list_i[nneigh*2 + 1] = j;
+                            nei_list_occupancy[nneigh] = occupancies[j];
                             nneigh++;
                         }
                     }
@@ -233,10 +235,11 @@ extern "C" int calculate_gmpordernorm(double** cell, double** cart, double** ref
 
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, inv_rs, m_desc, deriv);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, inv_rs, m_desc, deriv);
                             sum_miu += m_desc[0];
                             sum_dmiu_dxj[j] += deriv[0];
                             sum_dmiu_dyj[j] += deriv[1];
@@ -294,10 +297,11 @@ extern "C" int calculate_gmpordernorm(double** cell, double** cart, double** ref
                     for (int j = 0; j < nneigh; ++j) {
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, inv_rs, miu, deriv);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, inv_rs, miu, deriv);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
                             sum_miu1 += miu[0];
@@ -389,10 +393,11 @@ extern "C" int calculate_gmpordernorm(double** cell, double** cart, double** ref
                     for (int j = 0; j < nneigh; ++j) {
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, inv_rs, miu, deriv);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, inv_rs, miu, deriv);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
                             sum_miu1 += miu[0];
@@ -508,7 +513,7 @@ extern "C" int calculate_gmpordernorm(double** cell, double** cart, double** ref
 
 
 
-extern "C" int calculate_gmpordernorm_noderiv(double** cell, double** cart, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+extern "C" int calculate_gmpordernorm_noderiv(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num,
                                         int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, int* element_index_to_order,
                                         double** mcsh) {
@@ -618,6 +623,7 @@ extern "C" int calculate_gmpordernorm_noderiv(double** cell, double** cart, doub
         // calculate neighbor atoms
         double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
         int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+        double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
         nneigh = 0;
 
         for (int j=0; j < 3; ++j) {
@@ -670,6 +676,7 @@ extern "C" int calculate_gmpordernorm_noderiv(double** cell, double** cart, doub
                             nei_list_d[nneigh*4 + 3] = tmp_r2;
                             nei_list_i[nneigh*2]    = atom_i[j];
                             nei_list_i[nneigh*2 + 1] = j;
+                            nei_list_occupancy[nneigh] = occupancies[j];
                             nneigh++;
                         }
                     }
@@ -703,10 +710,11 @@ extern "C" int calculate_gmpordernorm_noderiv(double** cell, double** cart, doub
 
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, inv_rs, m_desc);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, inv_rs, m_desc);
                             sum_desc += m_desc[0];
                         }
                     }
@@ -720,10 +728,11 @@ extern "C" int calculate_gmpordernorm_noderiv(double** cell, double** cart, doub
                     for (int j = 0; j < nneigh; ++j) {
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, inv_rs, miu);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, inv_rs, miu);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
                             sum_miu1 += miu[0];
@@ -742,10 +751,11 @@ extern "C" int calculate_gmpordernorm_noderiv(double** cell, double** cart, doub
                     for (int j = 0; j < nneigh; ++j) {
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, inv_rs, miu);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, inv_rs, miu);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
                             sum_miu1 += miu[0];
@@ -1060,7 +1070,7 @@ extern "C" int calculate_gmpordernorm_noderiv(double** cell, double** cart, doub
 
 
 
-extern "C" int calculate_solid_gmpordernorm(double** cell, double** cart, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+extern "C" int calculate_solid_gmpordernorm(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num,
                                         int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, int* element_index_to_order,
                                         double** mcsh, double** dmcsh) {
@@ -1170,6 +1180,7 @@ extern "C" int calculate_solid_gmpordernorm(double** cell, double** cart, double
         // calculate neighbor atoms
         double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
         int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+        double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
         nneigh = 0;
         for (int j=0; j < 3; ++j) {
             
@@ -1228,6 +1239,7 @@ extern "C" int calculate_solid_gmpordernorm(double** cell, double** cart, double
                             nei_list_d[nneigh*4 + 3] = tmp_r2;
                             nei_list_i[nneigh*2]    = atom_i[j];
                             nei_list_i[nneigh*2 + 1] = j;
+                            nei_list_occupancy[nneigh] = occupancies[j];
                             nneigh++;
                         }
                     }
@@ -1271,10 +1283,11 @@ extern "C" int calculate_solid_gmpordernorm(double** cell, double** cart, double
 
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, m_desc, deriv);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, m_desc, deriv);
                             sum_miu += m_desc[0];
                             sum_dmiu_dxj[j] += deriv[0];
                             sum_dmiu_dyj[j] += deriv[1];
@@ -1332,10 +1345,11 @@ extern "C" int calculate_solid_gmpordernorm(double** cell, double** cart, double
                     for (int j = 0; j < nneigh; ++j) {
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, miu, deriv);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, miu, deriv);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
                             sum_miu1 += miu[0];
@@ -1427,10 +1441,11 @@ extern "C" int calculate_solid_gmpordernorm(double** cell, double** cart, double
                     for (int j = 0; j < nneigh; ++j) {
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, miu, deriv);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, miu, deriv);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
                             sum_miu1 += miu[0];
@@ -1547,7 +1562,7 @@ extern "C" int calculate_solid_gmpordernorm(double** cell, double** cart, double
 
 
 
-extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num,
                                         int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, int* element_index_to_order,
                                         double** mcsh) {
@@ -1676,6 +1691,7 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
         // calculate neighbor atoms
         double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
         int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+        double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
         nneigh = 0;
         for (int j=0; j < 3; ++j) {
             
@@ -1735,6 +1751,7 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
                             nei_list_d[nneigh*4 + 3] = tmp_r2;
                             nei_list_i[nneigh*2]    = atom_i[j];
                             nei_list_i[nneigh*2 + 1] = j;
+                            nei_list_occupancy[nneigh] = occupancies[j];
                             nneigh++;
                         }
                     }
@@ -1768,10 +1785,11 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
 
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, m_desc);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, m_desc);
                             sum_desc += m_desc[0];
                         }
                     }
@@ -1785,10 +1803,11 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
                     for (int j = 0; j < nneigh; ++j) {
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, miu);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, miu);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
                             sum_miu1 += miu[0];
@@ -1807,10 +1826,11 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
                     for (int j = 0; j < nneigh; ++j) {
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        double occ = nei_list_occupancy[j];
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                            mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, miu);
+                            mcsh_function(x0, y0, z0, r0_sqr, A, B*occ, alpha, beta, miu);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
                             sum_miu1 += miu[0];
