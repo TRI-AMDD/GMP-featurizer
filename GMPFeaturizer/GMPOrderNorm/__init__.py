@@ -15,6 +15,7 @@ class GMPOrderNorm(BaseFeature):
         GMPs,
         elements,
         # mode="atom-centered",
+        verbose=True,
     ):
         super().__init__()
         self.feature_type = "GMPOrderNorm"
@@ -54,7 +55,8 @@ class GMPOrderNorm(BaseFeature):
         alpha = 1.0 / (2.0 * max_sigma * max_sigma)
 
         cutoff = round(np.sqrt(np.log(threshold / A) / (-alpha)), 2)
-        print("default cutoff distance: {} A".format(cutoff))
+        if verbose:
+            print("default cutoff distance: {} A".format(cutoff))
 
         self.GMPs["cutoff"] = cutoff
 
