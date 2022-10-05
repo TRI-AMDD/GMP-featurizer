@@ -75,82 +75,30 @@ class BaseFeature(ABC):
                 )
                 images_feature_list.append(temp_image_dict)
             return images_feature_list
-        
+
         elif cores > 1:
             from .util import istarmap
             import multiprocessing.pool as mpp
             from multiprocessing import Pool
 
             mpp.Pool.istarmap = istarmap
-            
+
             length = len(images)
             calc_deriv_list = [calc_derivatives] * length
             save_features_list = [save_features] * length
-            args = zip(images,ref_positions_list,calc_deriv_list,save_features_list)
+            args = zip(images, ref_positions_list, calc_deriv_list, save_features_list)
             images_feature_list = []
             with Pool(cores) as p:
-                for temp_image_dict in tqdm(p.istarmap(self._calculate_single_image,args),total=length):
+                for temp_image_dict in tqdm(
+                    p.istarmap(self._calculate_single_image, args), total=length
+                ):
                     images_feature_list.append(temp_image_dict)
 
             return images_feature_list
-        
+
         else:
             raise ValueError
 
-        
-
-
-        # for image, ref_positions in tqdm(
-        #     zip(images, ref_positions_list),
-        #     total=len(images),
-        #     desc="Computing features",
-        #     disable=not verbose,
-        # ):
-        #     ref_positions = np.array(ref_positions)
-        #     validate_image(image, ref_positions)
-        #     image_hash = get_hash(image, ref_positions)
-        #     image_db_filename = "{}/{}.h5".format(
-        #         self.desc_feature_database_dir, image_hash
-        #     )
-
-        #     # if save, then read/write from db as needed
-        #     if save_features:
-        #         try:
-        #             temp_image_dict = self._compute_features(
-        #                 image,
-        #                 ref_positions,
-        #                 image_db_filename,
-        #                 calc_derivatives=calc_derivatives,
-        #                 save_features=save_features,
-        #                 cores=cores,
-        #             )
-        #         except Exception:
-        #             print(
-        #                 "File {} not loaded properly\nProceed to compute in run-time".format(
-        #                     image_db_filename
-        #                 )
-        #             )
-        #             temp_image_dict = self._compute_features_nodb(
-        #                 image,
-        #                 ref_positions,
-        #                 calc_derivatives=calc_derivatives,
-        #                 save_features=save_features,
-        #                 cores=cores,
-        #             )
-
-        #     # if not save, compute fps on-the-fly
-        #     else:
-        #         temp_image_dict = self._compute_features_nodb(
-        #             image,
-        #             ref_positions,
-        #             calc_derivatives=calc_derivatives,
-        #             save_features=save_features,
-        #             cores=cores,
-        #         )
-
-        #     images_feature_list.append(temp_image_dict)
-
-        # return images_feature_list
 
     def _calculate_single_image(
         self,
@@ -201,7 +149,7 @@ class BaseFeature(ABC):
                 save_features=save_features,
                 # cores=cores,
             )
-        
+
         return temp_image_dict
 
     def _compute_features(
@@ -211,7 +159,6 @@ class BaseFeature(ABC):
         image_db_filename,
         calc_derivatives,
         save_features,
-        # cores,
     ):
 
         with h5py.File(image_db_filename, "a") as db:
@@ -296,7 +243,11 @@ class BaseFeature(ABC):
         return image_dict
 
     def _compute_features_nodb(
-        self, image, ref_positions, calc_derivatives, save_features, #cores
+        self,
+        image,
+        ref_positions,
+        calc_derivatives,
+        save_features,
     ):
 
         image_dict = {}

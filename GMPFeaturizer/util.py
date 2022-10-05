@@ -16,6 +16,7 @@ def _gen_2Darray_for_ffi(arr, ffi, cdata="double"):
         arr_p[i] = ffi.cast(cdata + " *", arr[i].ctypes.data)
     return arr_p
 
+
 def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
     # Function to generate 2D pointer for cffi
     shape = arr.shape
@@ -25,6 +26,7 @@ def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
     for i in range(shape[0]):
         arr_p[i] = ptr + i * shape[1]
     return arr_p
+
 
 def get_hash(image, ref_positions):
 
@@ -79,21 +81,17 @@ def list_indices_to_symbols(list_of_indices):
 
 
 def istarmap(self, func, iterable, chunksize=1):
-    """starmap-version of imap
-    """
+    """starmap-version of imap"""
     self._check_running()
     if chunksize < 1:
-        raise ValueError(
-            "Chunksize must be 1+, not {0:n}".format(
-                chunksize))
+        raise ValueError("Chunksize must be 1+, not {0:n}".format(chunksize))
 
     task_batches = mpp.Pool._get_tasks(func, iterable, chunksize)
     result = mpp.IMapIterator(self)
     self._taskqueue.put(
         (
-            self._guarded_task_generation(result._job,
-                                          mpp.starmapstar,
-                                          task_batches),
-            result._set_length
-        ))
+            self._guarded_task_generation(result._job, mpp.starmapstar, task_batches),
+            result._set_length,
+        )
+    )
     return (item for chunk in result for item in chunk)

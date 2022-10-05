@@ -3,6 +3,7 @@ import numpy as np
 from .base_feature import BaseFeature
 from .GMPOrderNorm import GMPOrderNorm
 
+
 class GMPFeaturizer:
     def __init__(
         self,
@@ -69,10 +70,3 @@ class GMPFeaturizer:
     # TODO
     def get_stats(self):
         raise NotImplementedError
-
-
-
-
-
-
-
