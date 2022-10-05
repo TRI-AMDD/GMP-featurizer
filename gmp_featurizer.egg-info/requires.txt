@@ -1,5 +1,0 @@
-ase
-tqdm
-numpy
-h5py
-cffi

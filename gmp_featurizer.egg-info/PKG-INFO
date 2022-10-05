@@ -1,9 +1,0 @@
-Metadata-Version: 2.1
-Name: gmp-featurizer
-Version: 0.1
-Summary: Feature calculator for GMP features
-Home-page: https://github.com/TRI-AMDD/GMP-featurizer
-Author: Xiangyun Lei
-Author-email: ray.lei@tri.global
-Requires-Python: >=3.6, <4
-License-File: LICENSE
