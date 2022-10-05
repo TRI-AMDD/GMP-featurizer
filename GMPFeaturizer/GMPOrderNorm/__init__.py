@@ -404,6 +404,8 @@ class GMPOrderNorm(BaseFeature):
             if errno == 1:
                 raise NotImplementedError("Feature not implemented!")
 
+            # print("calculation done")
+
             fp = np.array(x, dtype=np.float64)
             # if self.params_set["log"]:
             #     fp = np.abs(fp)
