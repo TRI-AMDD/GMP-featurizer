@@ -27,7 +27,7 @@ class BaseFeature(ABC):
         pass
 
     @abstractmethod
-    def get_feature_setup_hash(self):
+    def _get_feature_setup_hash(self):
         # set self.feature_setup_hash
         pass
 
