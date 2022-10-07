@@ -15,7 +15,17 @@ import cffi
 ffibuilder = cffi.FFI()
 ffibuilder.cdef(
     """
-        int calculate_solid_gmpordernorm_noderiv(double**, double**, double**, double**, double**, int*,
+        int calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(double**, double**, double**, double**, double**, int*,
+                                        int*, int, int, int,
+                                        int**, double**, int, double**, int*, double**, int*,
+                                        double**);
+
+        int calculate_solid_gmpordernorm_noderiv_sigma_cutoff(double**, double**, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**);
+        
+        int calculate_solid_gmpordernorm_noderiv_original(double**, double**, double**, double**, double**, int*,
                                         int*, int, int,
                                         int**, double**, int, double**, int*, int*,
                                         double**);

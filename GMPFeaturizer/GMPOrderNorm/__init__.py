@@ -20,19 +20,22 @@ class GMPOrderNorm(BaseFeature):
         super().__init__()
         self.feature_type = "GMPOrderNorm"
         self.GMPs = GMPs
+        self.custom_cutoff = self.GMPs.get("custom_cutoff",2)
         self.elements = elements
         self.element_indices = list_symbols_to_indices(elements)
 
         self._load_psp_files()
-        self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-8)
+        self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-6)
         self._get_sigma_cutoffs()
         self._prepare_feature_parameters()
+
+        
         # if "cutoff" not in self.GMPs:
         #     self.set_max_cutoff()
 
         # self.prepare_feature_parameters()
 
-        self._get_feature_setup_hash()
+        # self.get_feature_setup_hash()
 
     def __eq__(self, other):
         """Overrides the default implementation"""
@@ -50,7 +53,7 @@ class GMPOrderNorm(BaseFeature):
     # related to cutoff calculation
     # *******************************************************
 
-    def _get_C1_C2(A,B,alpha,beta):
+    def _get_C1_C2(self,A,B,alpha,beta):
         if alpha == 0:
             C1 = B
             C2 = -1.0 * beta
@@ -74,13 +77,13 @@ class GMPOrderNorm(BaseFeature):
         distances_list = []
         for gaussian in psp:
             B,beta = gaussian
-            C1, C2 = _get_C1_C2(A,B,alpha,beta)
+            C1, C2 = self._get_C1_C2(A,B,alpha,beta)
             C1 = abs(C1)
             temp_distance = math.sqrt((log_threshold - C1) / C2)
             # print(temp_distance)
             distances_list.append(temp_distance)
 
-        return np.max(distances_list)
+        return np.max(distances_list).item()
     
     def _get_sigma_list(self):
         if "GMPs_detailed_list" in self.GMPs:
@@ -92,16 +95,41 @@ class GMPOrderNorm(BaseFeature):
         return sigmas 
 
     def _get_sigma_cutoffs(self):
+        self.params_set["element_index_to_order"]
+        elemental_sigma_cutoffs = []
         sigmas = self._get_sigma_list()
+        self.nsigmas = len(sigmas)
+        sigma_index_dict = {}
         result = {}
-        for sigma in sigmas:
+        for sigma_index, sigma in enumerate(sigmas):
+            sigma_index_dict[sigma] = sigma_index
             element_distances = []
-            for _,psp in self.atomic_gaussian_setup.items():
+            for element,psp in self.atomic_psp.items():
                 element_distance = self._get_default_cutoff_single_element(sigma, psp, threshold=self.overlap_threshold)
                 element_distances.append(element_distance)
+                print(sigma, element, element_distance)
+            elemental_sigma_cutoffs.append(element_distances)
             result[sigma] = np.max(element_distances)
+            
         self.sigma_cutoffs = result
-        print(sigma_cutoffs)
+        # print(self.sigma_cutoffs)
+        self.sigma_index_dict = sigma_index_dict
+        print(sigma_index_dict)
+
+        elemental_sigma_cutoffs = np.asarray(
+            elemental_sigma_cutoffs, dtype=np.float64, order="C"
+        )
+
+        print(elemental_sigma_cutoffs)
+        
+        self.params_set["elemental_sigma_cutoffs"] = elemental_sigma_cutoffs
+        # [[sigma1_element1_cutoff, sigma1_element2_cutoff,...]
+        #  [sigma2_element1_cutoff, sigma2_element2_cutoff,...]
+        #  ...
+        #  [sigman_element1_cutoff, sigman_element2_cutoff,...]]
+        self.params_set["elemental_sigma_cutoffs_p"] = _gen_2Darray_for_ffi(
+            elemental_sigma_cutoffs, ffi
+        )
         return
 
     # def set_max_cutoff(self, threshold=1e-8):
@@ -144,20 +172,24 @@ class GMPOrderNorm(BaseFeature):
 
     def _load_psp_files(self):
         atomic_gaussian_setup = {}
+        atomic_psp = {}
         for element in self.elements:
             params = list()
+            atomic_psp[element] = []
             # count = 0
             filename = self.GMPs["atom_gaussians"][element]
             with open(filename, "r") as fil:
                 for line in fil:
                     tmp = line.split()
                     params += [float(tmp[0]), float(tmp[1])]
+                    atomic_psp[element].append([float(tmp[0]), float(tmp[1])])
                     # count += 1
             element_index = ATOM_SYMBOL_TO_INDEX_DICT[element]
             params = np.asarray(params, dtype=np.float64, order="C")
             atomic_gaussian_setup[element_index] = params
 
         self.atomic_gaussian_setup = atomic_gaussian_setup
+        self.atomic_psp = atomic_psp
 
         max_gaussian_count = 0
         ngaussian_list = list()
@@ -212,7 +244,7 @@ class GMPOrderNorm(BaseFeature):
 
     def _prepare_feature_parameters(self):
         feature_setup = []
-        cutoff = self.GMPs["cutoff"]
+        # cutoff = self.GMPs["cutoff"]
         self.solid_harmonic = self.GMPs.get("solid_harmonics", False)
         solid_harmonic_i = 1 if self.solid_harmonic else 0
         square = self.GMPs.get("square", True)
@@ -248,48 +280,93 @@ class GMPOrderNorm(BaseFeature):
             #     ]
 
         else:
-            for i in self.GMPs["GMPs"]["orders"]:
-                if i == -1:
-                    feature_setup += [
-                        [
-                            i,
-                            square_i,
-                            solid_harmonic_i,
-                            0.0,
-                            1.0,
-                            1.0,  # A
-                            0.0,  # alpha
-                            self.sigma_cutoffs[0],
-                            1.0,  # inv_Rs
+            if self.custom_cutoff <= 1:
+                for i in self.GMPs["GMPs"]["orders"]:
+                    if i == -1:
+                        feature_setup += [
+                            [
+                                i,
+                                square_i,
+                                solid_harmonic_i,
+                                0.0,
+                                1.0,
+                                1.0,  # A
+                                0.0,  # alpha
+                                self.sigma_cutoffs[0],
+                                1.0,  # inv_Rs
+                            ]
                         ]
-                    ]
-                else:
-                    feature_setup += [
-                        [
-                            i,
-                            square_i,
-                            solid_harmonic_i,
-                            sigma,
-                            1.0,
-                            (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
-                            1.0 / (2.0 * sigma * sigma),
-                            self.sigma_cutoffs[sigma],
-                            (1.0 / (rs_scale * sigma))
-                            if rs_scale > 0
-                            else (1.0 / (-1.0 * rs_scale)),
+                    else:
+                        feature_setup += [
+                            [
+                                i,
+                                square_i,
+                                solid_harmonic_i,
+                                sigma,
+                                1.0,
+                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                                1.0 / (2.0 * sigma * sigma),
+                                self.sigma_cutoffs[sigma],
+                                (1.0 / (rs_scale * sigma))
+                                if rs_scale > 0
+                                else (1.0 / (-1.0 * rs_scale)),
+                            ]
+                            for sigma in self.GMPs["GMPs"]["sigmas"]
                         ]
-                        for sigma in self.GMPs["GMPs"]["sigmas"]
-                    ]
+            elif self.custom_cutoff == 2:
+                for i in self.GMPs["GMPs"]["orders"]:
+                    if i == -1:
+                        feature_setup += [
+                            [
+                                i,
+                                square_i,
+                                solid_harmonic_i,
+                                self.sigma_index_dict[0],
+                                0.0,
+                                1.0,
+                                1.0,  # A
+                                0.0,  # alpha
+                                1.0,  # inv_Rs
+                            ]
+                        ]
+                    else:
+                        feature_setup += [
+                            [
+                                i,
+                                square_i,
+                                solid_harmonic_i,
+                                self.sigma_index_dict[sigma],
+                                sigma,
+                                1.0,
+                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                                1.0 / (2.0 * sigma * sigma),
+                                (1.0 / (rs_scale * sigma))
+                                if rs_scale > 0
+                                else (1.0 / (-1.0 * rs_scale)),
+                            ]
+                            for sigma in self.GMPs["GMPs"]["sigmas"]
+                        ]
+            else:
+                raise NotImplementedError
+
 
         self.feature_setup = np.array(feature_setup)
-        # print(self.feature_setup)
-
-        params_i = np.asarray(
-            self.feature_setup[:, :3].copy(), dtype=np.intc, order="C"
-        )
-        params_d = np.asarray(
-            self.feature_setup[:, 3:].copy(), dtype=np.float64, order="C"
-        )
+        print(self.feature_setup)
+        if self.custom_cutoff <= 1:
+            params_i = np.asarray(
+                self.feature_setup[:, :3].copy(), dtype=np.intc, order="C"
+            )
+            params_d = np.asarray(
+                self.feature_setup[:, 3:].copy(), dtype=np.float64, order="C"
+            )
+        elif self.custom_cutoff == 2:
+            params_i = np.asarray(
+                self.feature_setup[:, :4].copy(), dtype=np.intc, order="C"
+            )
+            params_d = np.asarray(
+                self.feature_setup[:, 4:].copy(), dtype=np.float64, order="C"
+            )
+        print(params_d)
         self.params_set["i"] = params_i
         self.params_set["d"] = params_d
 
@@ -307,7 +384,7 @@ class GMPOrderNorm(BaseFeature):
 
         return
 
-    def _get_feature_setup_hash(self):
+    def get_feature_setup_hash(self):
         # set self.feature_setup_hash
         string = ""
         for desc in self.feature_setup:
@@ -454,24 +531,68 @@ class GMPOrderNorm(BaseFeature):
             x_p = _gen_2Darray_for_ffi(x, ffi)
 
             if self.solid_harmonic:
-                errno = lib.calculate_solid_gmpordernorm_noderiv(
-                    cell_p,
-                    cart_p,
-                    ref_cart_p,
-                    scale_p,
-                    ref_scale_p,
-                    pbc_p,
-                    atom_indices_p,
-                    atom_num,
-                    cal_num,
-                    self.params_set["ip"],
-                    self.params_set["dp"],
-                    self.params_set["num"],
-                    self.params_set["gaussian_params_p"],
-                    self.params_set["ngaussians_p"],
-                    self.params_set["element_index_to_order_p"],
-                    x_p,
-                )
+                if self.custom_cutoff == 1:
+                    errno = lib.calculate_solid_gmpordernorm_noderiv_sigma_cutoff(
+                        cell_p,
+                        cart_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+                elif self.custom_cutoff == 2:
+                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+                        cell_p,
+                        cart_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+                elif self.custom_cutoff == 0:
+                    errno = lib.calculate_solid_gmpordernorm_noderiv_original(
+                        cell_p,
+                        cart_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+                else:
+                    raise NotImplementedError
+
 
             else:
                 errno = lib.calculate_gmpordernorm_noderiv(
