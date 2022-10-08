@@ -107,20 +107,20 @@ class GMPOrderNorm(BaseFeature):
             for element,psp in self.atomic_psp.items():
                 element_distance = self._get_default_cutoff_single_element(sigma, psp, threshold=self.overlap_threshold)
                 element_distances.append(element_distance)
-                print(sigma, element, element_distance)
+                # print(sigma, element, element_distance)
             elemental_sigma_cutoffs.append(element_distances)
             result[sigma] = np.max(element_distances)
             
         self.sigma_cutoffs = result
         # print(self.sigma_cutoffs)
         self.sigma_index_dict = sigma_index_dict
-        print(sigma_index_dict)
+        # print(sigma_index_dict)
 
         elemental_sigma_cutoffs = np.asarray(
             elemental_sigma_cutoffs, dtype=np.float64, order="C"
         )
 
-        print(elemental_sigma_cutoffs)
+        # print(elemental_sigma_cutoffs)
         
         self.params_set["elemental_sigma_cutoffs"] = elemental_sigma_cutoffs
         # [[sigma1_element1_cutoff, sigma1_element2_cutoff,...]
@@ -351,7 +351,7 @@ class GMPOrderNorm(BaseFeature):
 
 
         self.feature_setup = np.array(feature_setup)
-        print(self.feature_setup)
+        # print(self.feature_setup)
         if self.custom_cutoff <= 1:
             params_i = np.asarray(
                 self.feature_setup[:, :3].copy(), dtype=np.intc, order="C"
@@ -366,7 +366,7 @@ class GMPOrderNorm(BaseFeature):
             params_d = np.asarray(
                 self.feature_setup[:, 4:].copy(), dtype=np.float64, order="C"
             )
-        print(params_d)
+        # print(params_d)
         self.params_set["i"] = params_i
         self.params_set["d"] = params_d
 

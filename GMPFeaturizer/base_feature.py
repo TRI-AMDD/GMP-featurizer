@@ -1,5 +1,6 @@
 import os
-import multiprocessing.pool as mpp
+# import multiprocessing.pool as mpp
+import ray
 from multiprocessing import Pool
 from abc import ABC, abstractmethod
 
@@ -19,7 +20,8 @@ class BaseFeature(ABC):
         self.feature_type = "default"
         self.feature_setup_hash = "default"
 
-        self.elements = []
+        # self.elements = []
+        self.database_initialized = False 
 
     @abstractmethod
     def calculate_features(self, image, params_set, calculate_derivatives=True):
@@ -77,28 +79,38 @@ class BaseFeature(ABC):
             return images_feature_list
 
         elif cores > 1:
-            from .util import istarmap
-            import multiprocessing.pool as mpp
-            from multiprocessing import Pool
-
-            mpp.Pool.istarmap = istarmap
-
+            from .util import to_iterator
+            remote_function = ray.remote(self._calculate_single_image)
+            
+            ray.init(num_cpus=cores)
             length = len(images)
-            calc_deriv_list = [calc_derivatives] * length
-            save_features_list = [save_features] * length
-            args = zip(images, ref_positions_list, calc_deriv_list, save_features_list)
-            images_feature_list = []
-            with Pool(cores) as p:
-                for temp_image_dict in tqdm(
-                    p.istarmap(self._calculate_single_image, args), total=length
-                ):
-                    images_feature_list.append(temp_image_dict)
+            obj_ids = [remote_function.remote(image, ref_positions, calc_derivatives, save_features) for image, ref_positions in zip(images, ref_positions_list)]
 
-            return images_feature_list
+            for x in tqdm(to_iterator(obj_ids), total=length):
+                pass
+
+
+            # from .util import istarmap
+            # import multiprocessing.pool as mpp
+            # from multiprocessing import Pool
+
+            # mpp.Pool.istarmap = istarmap
+
+            # length = len(images)
+            # calc_deriv_list = [calc_derivatives] * length
+            # save_features_list = [save_features] * length
+            # args = zip(images, ref_positions_list, calc_deriv_list, save_features_list)
+            # images_feature_list = []
+            # with Pool(cores) as p:
+            #     for temp_image_dict in tqdm(
+            #         p.istarmap(self._calculate_single_image, args), total=length
+            #     ):
+            #         images_feature_list.append(temp_image_dict)
+
+            # return images_feature_list
 
         else:
             raise ValueError
-
 
     def _calculate_single_image(
         self,
@@ -110,13 +122,15 @@ class BaseFeature(ABC):
         # print("start")
         ref_positions = np.array(ref_positions)
         validate_image(image, ref_positions)
-        image_hash = get_hash(image, ref_positions)
-        image_db_filename = "{}/{}.h5".format(
-            self.desc_feature_database_dir, image_hash
-        )
+        
 
         # if save, then read/write from db as needed
         if save_features:
+            self._setup_feature_database(save_features = save_features)
+            image_hash = get_hash(image, ref_positions)
+            image_db_filename = "{}/{}.h5".format(
+                self.desc_feature_database_dir, image_hash
+            )
             try:
                 temp_image_dict = self._compute_features(
                     image,
@@ -300,24 +314,27 @@ class BaseFeature(ABC):
         return new_row
 
     def _setup_feature_database(self, save_features):
-        self.get_feature_setup_hash()
-        self.desc_type_database_dir = "{}/{}".format(
-            self.feature_database, self.feature_type
-        )
-
-        self.desc_feature_database_dir = "{}/{}".format(
-            self.desc_type_database_dir, self.feature_setup_hash
-        )
-
+        
         if save_features:
+            if self.database_initialized == True:
+                return
+            self.get_feature_setup_hash()
+            self.desc_type_database_dir = "{}/{}".format(
+                self.feature_database, self.feature_type
+            )
+
+            self.desc_feature_database_dir = "{}/{}".format(
+                self.desc_type_database_dir, self.feature_setup_hash
+            )
             os.makedirs(self.feature_database, exist_ok=True)
             os.makedirs(self.desc_type_database_dir, exist_ok=True)
             os.makedirs(self.desc_feature_database_dir, exist_ok=True)
-            feature_setup_filename = "feature_log.txt"
-            feature_setup_path = "{}/{}".format(
-                self.desc_feature_database_dir, feature_setup_filename
-            )
-            self.save_feature_setup(feature_setup_path)
+            self.database_initialized = True
+            # feature_setup_filename = "feature_log.txt"
+            # feature_setup_path = "{}/{}".format(
+            #     self.desc_feature_database_dir, feature_setup_filename
+            # )
+            # self.save_feature_setup(feature_setup_path)
 
     def _get_element_list(self):
         return self.elements
