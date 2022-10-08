@@ -1,4 +1,5 @@
 import os
+
 # import multiprocessing.pool as mpp
 import ray
 from multiprocessing import Pool
@@ -21,7 +22,7 @@ class BaseFeature(ABC):
         self.feature_setup_hash = "default"
 
         # self.elements = []
-        self.database_initialized = False 
+        self.database_initialized = False
 
     @abstractmethod
     def calculate_features(self, image, params_set, calculate_derivatives=True):
@@ -80,15 +81,20 @@ class BaseFeature(ABC):
 
         elif cores > 1:
             from .util import to_iterator
+
             remote_function = ray.remote(self._calculate_single_image)
-            
+
             ray.init(num_cpus=cores)
             length = len(images)
-            obj_ids = [remote_function.remote(image, ref_positions, calc_derivatives, save_features) for image, ref_positions in zip(images, ref_positions_list)]
+            obj_ids = [
+                remote_function.remote(
+                    image, ref_positions, calc_derivatives, save_features
+                )
+                for image, ref_positions in zip(images, ref_positions_list)
+            ]
 
             for x in tqdm(to_iterator(obj_ids), total=length):
                 pass
-
 
             # from .util import istarmap
             # import multiprocessing.pool as mpp
@@ -122,11 +128,10 @@ class BaseFeature(ABC):
         # print("start")
         ref_positions = np.array(ref_positions)
         validate_image(image, ref_positions)
-        
 
         # if save, then read/write from db as needed
         if save_features:
-            self._setup_feature_database(save_features = save_features)
+            self._setup_feature_database(save_features=save_features)
             image_hash = get_hash(image, ref_positions)
             image_db_filename = "{}/{}.h5".format(
                 self.desc_feature_database_dir, image_hash
@@ -314,7 +319,7 @@ class BaseFeature(ABC):
         return new_row
 
     def _setup_feature_database(self, save_features):
-        
+
         if save_features:
             if self.database_initialized == True:
                 return

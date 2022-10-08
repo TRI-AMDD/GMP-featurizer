@@ -8,6 +8,7 @@ from tqdm import tqdm
 from ray.util import ActorPool
 from .util import get_hash, list_symbols_to_indices, validate_image
 
+
 def calculate_GMP_features(
     feature_setup,
     elements,
@@ -17,8 +18,8 @@ def calculate_GMP_features(
     save_features=False,
     verbose=False,
     cores=1,
-):  
-    
+):
+
     # images_feature_list = []
 
     if ref_positions_list is None:
@@ -49,21 +50,25 @@ def calculate_GMP_features(
 
     elif cores > 1:
         from .util import to_iterator
+
         remote_feature_actor = ray.remote(GMPOrderNorm)
         length = len(images)
         calc_deriv_list = [calc_derivatives] * length
         save_features_list = [save_features] * length
         args = zip(images, ref_positions_list, calc_deriv_list, save_features_list)
-        
+
         ray.init(num_cpus=cores)
-        actors = [remote_feature_actor.remote(feature_setup, elements) for _ in range(cores)]
+        actors = [
+            remote_feature_actor.remote(feature_setup, elements) for _ in range(cores)
+        ]
         pool = ActorPool(actors)
-        poolmap = pool.map(lambda a, v: a._calculate_single_image.remote(v[0],v[1],v[2],v[3]),args)
+        poolmap = pool.map(
+            lambda a, v: a._calculate_single_image.remote(v[0], v[1], v[2], v[3]), args
+        )
         images_feature_list = [a for a in tqdm(poolmap, total=length)]
-            
+
         ray.shutdown()
         return images_feature_list
-
 
         # length = len(images)
         # obj_ids = [remote_actor.remote(feature, image, ref_positions, calc_derivatives, save_features) for image, ref_positions in zip(images, ref_positions_list)]
@@ -117,8 +122,6 @@ class GMPFeaturizer:
         self.features_ready = False
 
     def prepare_features(self, images, ref_positions_list=None):
-
-        
 
         if ref_positions_list == None:
             ref_positions_list = [image.get_positions() for image in images]

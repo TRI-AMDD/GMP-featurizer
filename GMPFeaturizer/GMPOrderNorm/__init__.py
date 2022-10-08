@@ -20,7 +20,7 @@ class GMPOrderNorm(BaseFeature):
         super().__init__()
         self.feature_type = "GMPOrderNorm"
         self.GMPs = GMPs
-        self.custom_cutoff = self.GMPs.get("custom_cutoff",2)
+        self.custom_cutoff = self.GMPs.get("custom_cutoff", 2)
         self.elements = elements
         self.element_indices = list_symbols_to_indices(elements)
 
@@ -29,7 +29,6 @@ class GMPOrderNorm(BaseFeature):
         self._get_sigma_cutoffs()
         self._prepare_feature_parameters()
 
-        
         # if "cutoff" not in self.GMPs:
         #     self.set_max_cutoff()
 
@@ -53,7 +52,7 @@ class GMPOrderNorm(BaseFeature):
     # related to cutoff calculation
     # *******************************************************
 
-    def _get_C1_C2(self,A,B,alpha,beta):
+    def _get_C1_C2(self, A, B, alpha, beta):
         if alpha == 0:
             C1 = B
             C2 = -1.0 * beta
@@ -62,7 +61,7 @@ class GMPOrderNorm(BaseFeature):
             C1 = A * B * temp * temp * temp
             C2 = -1.0 * (alpha * beta / (alpha + beta))
         return C1, C2
-    
+
     def _get_default_cutoff_single_element(self, sigma, psp, threshold=1e-8):
         if sigma == 0:
             A = 0
@@ -71,20 +70,20 @@ class GMPOrderNorm(BaseFeature):
             A = 1.0 / (sigma * math.sqrt(2.0 * math.pi))
             alpha = 1.0 / (2.0 * sigma * sigma)
         log_threshold = math.log(threshold)
-        
+
         total_log_C1 = 0
         total_C2 = 0
         distances_list = []
         for gaussian in psp:
-            B,beta = gaussian
-            C1, C2 = self._get_C1_C2(A,B,alpha,beta)
+            B, beta = gaussian
+            C1, C2 = self._get_C1_C2(A, B, alpha, beta)
             C1 = abs(C1)
             temp_distance = math.sqrt((log_threshold - C1) / C2)
             # print(temp_distance)
             distances_list.append(temp_distance)
 
         return np.max(distances_list).item()
-    
+
     def _get_sigma_list(self):
         if "GMPs_detailed_list" in self.GMPs:
             raise NotImplementedError
@@ -92,7 +91,7 @@ class GMPOrderNorm(BaseFeature):
             sigmas = list(self.GMPs["GMPs"]["sigmas"]).copy()
             if -1 in self.GMPs["GMPs"]["orders"]:
                 sigmas.append(0)
-        return sigmas 
+        return sigmas
 
     def _get_sigma_cutoffs(self):
         self.params_set["element_index_to_order"]
@@ -104,13 +103,15 @@ class GMPOrderNorm(BaseFeature):
         for sigma_index, sigma in enumerate(sigmas):
             sigma_index_dict[sigma] = sigma_index
             element_distances = []
-            for element,psp in self.atomic_psp.items():
-                element_distance = self._get_default_cutoff_single_element(sigma, psp, threshold=self.overlap_threshold)
+            for element, psp in self.atomic_psp.items():
+                element_distance = self._get_default_cutoff_single_element(
+                    sigma, psp, threshold=self.overlap_threshold
+                )
                 element_distances.append(element_distance)
                 # print(sigma, element, element_distance)
             elemental_sigma_cutoffs.append(element_distances)
             result[sigma] = np.max(element_distances)
-            
+
         self.sigma_cutoffs = result
         # print(self.sigma_cutoffs)
         self.sigma_index_dict = sigma_index_dict
@@ -121,7 +122,7 @@ class GMPOrderNorm(BaseFeature):
         )
 
         # print(elemental_sigma_cutoffs)
-        
+
         self.params_set["elemental_sigma_cutoffs"] = elemental_sigma_cutoffs
         # [[sigma1_element1_cutoff, sigma1_element2_cutoff,...]
         #  [sigma2_element1_cutoff, sigma2_element2_cutoff,...]
@@ -151,7 +152,7 @@ class GMPOrderNorm(BaseFeature):
     #     self.max_cutoff = max_cutoff
 
     #     return
-    
+
     # def get_cutoff(self, sigma):
 
     #     A = 1.0 / (sigma * np.sqrt(2.0 * math.pi))
@@ -164,7 +165,6 @@ class GMPOrderNorm(BaseFeature):
     #     C1 = A * B * temp * temp * temp
     #     C2 = -1.0 * (alpha * beta / (alpha + beta))
     #     return C1 * exp( C2 * r0_sqr)
-
 
     # *******************************************************
     # setup parameters
@@ -239,8 +239,6 @@ class GMPOrderNorm(BaseFeature):
         # print("ngaussians: {}".format(self.params_set["ngaussians"]))
         # print("gaussian_params: {}".format(self.params_set["gaussian_params"]))
         return
-    
-
 
     def _prepare_feature_parameters(self):
         feature_setup = []
@@ -349,7 +347,6 @@ class GMPOrderNorm(BaseFeature):
             else:
                 raise NotImplementedError
 
-
         self.feature_setup = np.array(feature_setup)
         # print(self.feature_setup)
         if self.custom_cutoff <= 1:
@@ -408,7 +405,6 @@ class GMPOrderNorm(BaseFeature):
                         desc[6],
                     )
                 )
-
 
     # *******************************************************
     # calculate features
@@ -551,25 +547,27 @@ class GMPOrderNorm(BaseFeature):
                         x_p,
                     )
                 elif self.custom_cutoff == 2:
-                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
-                        cell_p,
-                        cart_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.nsigmas,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["elemental_sigma_cutoffs_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
+                    errno = (
+                        lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+                            cell_p,
+                            cart_p,
+                            ref_cart_p,
+                            scale_p,
+                            ref_scale_p,
+                            pbc_p,
+                            atom_indices_p,
+                            atom_num,
+                            cal_num,
+                            self.nsigmas,
+                            self.params_set["ip"],
+                            self.params_set["dp"],
+                            self.params_set["num"],
+                            self.params_set["gaussian_params_p"],
+                            self.params_set["ngaussians_p"],
+                            self.params_set["elemental_sigma_cutoffs_p"],
+                            self.params_set["element_index_to_order_p"],
+                            x_p,
+                        )
                     )
                 elif self.custom_cutoff == 0:
                     errno = lib.calculate_solid_gmpordernorm_noderiv_original(
@@ -592,7 +590,6 @@ class GMPOrderNorm(BaseFeature):
                     )
                 else:
                     raise NotImplementedError
-
 
             else:
                 errno = lib.calculate_gmpordernorm_noderiv(

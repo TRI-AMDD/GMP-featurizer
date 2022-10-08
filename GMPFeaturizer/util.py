@@ -97,6 +97,7 @@ def istarmap(self, func, iterable, chunksize=1):
     )
     return (item for chunk in result for item in chunk)
 
+
 def to_iterator(obj_ids):
     while obj_ids:
         done, obj_ids = ray.wait(obj_ids)
