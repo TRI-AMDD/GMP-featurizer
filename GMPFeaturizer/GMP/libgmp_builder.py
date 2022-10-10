@@ -47,17 +47,17 @@ ffibuilder.cdef(
     """
 )
 ffibuilder.set_source(
-    "GMPFeaturizer.GMPOrderNorm._libgmpordernorm",
+    "GMPFeaturizer.GMP._libgmp",
     '#include "calculate_gmpordernorm.h"',
     sources=[
-        "GMPFeaturizer/GMPOrderNorm/calculate_gmpordernorm.cpp",
+        "GMPFeaturizer/GMP/calculate_gmpordernorm.cpp",
         # "GMP-featurizer/GMPOrderNorm/gmpordernorm.cpp",
-        "GMPFeaturizer/GMPOrderNorm/helper.cpp",
-        "GMPFeaturizer/GMPOrderNorm/surface_harmonics.cpp",
-        "GMPFeaturizer/GMPOrderNorm/solid_harmonics.cpp",
+        "GMPFeaturizer/GMP/helper.cpp",
+        "GMPFeaturizer/GMP/surface_harmonics.cpp",
+        "GMPFeaturizer/GMP/solid_harmonics.cpp",
     ],
     source_extension=".cpp",
-    include_dirs=["GMPFeaturizer/GMPOrderNorm/"],
+    include_dirs=["GMPFeaturizer/GMP/"],
 )
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ install_requires = [
     "numpy",
     "h5py",
     "cffi",
+    "ray",
 ]
 
 setup(
@@ -26,6 +27,6 @@ setup(
     setup_requires=setup_requires,
     install_requires=install_requires,
     cffi_modules=[
-        "GMPFeaturizer/GMPOrderNorm/libgmpordernorm_builder.py:ffibuilder",
+        "GMPFeaturizer/GMP/libgmp_builder.py:ffibuilder",
     ],
 )

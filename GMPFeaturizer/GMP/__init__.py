@@ -7,10 +7,10 @@ from scipy import sparse
 from ..base_feature import BaseFeature
 from ..constants import ATOM_SYMBOL_TO_INDEX_DICT
 from ..util import _gen_2Darray_for_ffi, list_symbols_to_indices, _gen_2Darray_for_ffi2
-from ._libgmpordernorm import ffi, lib
+from ._libgmp import ffi, lib
 
 
-class GMPOrderNorm(BaseFeature):
+class GMP(BaseFeature):
     def __init__(
         self,
         GMPs,
@@ -18,14 +18,14 @@ class GMPOrderNorm(BaseFeature):
         # mode="atom-centered",
     ):
         super().__init__()
-        self.feature_type = "GMPOrderNorm"
+        self.feature_type = "GMP"
         self.GMPs = GMPs
         self.custom_cutoff = self.GMPs.get("custom_cutoff", 2)
         self.elements = elements
         self.element_indices = list_symbols_to_indices(elements)
 
         self._load_psp_files()
-        self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-6)
+        self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-12)
         self._get_sigma_cutoffs()
         self._prepare_feature_parameters()
 
@@ -93,12 +93,20 @@ class GMPOrderNorm(BaseFeature):
                 sigmas.append(0)
         return sigmas
 
+    def _get_order_list(self):
+        if "GMPs_detailed_list" in self.GMPs:
+            raise NotImplementedError
+        orders = list(self.GMPs["GMPs"]["orders"])
+        return orders
+
     def _get_sigma_cutoffs(self):
         self.params_set["element_index_to_order"]
         elemental_sigma_cutoffs = []
         sigmas = self._get_sigma_list()
+        orders = self._get_order_list()
         self.nsigmas = len(sigmas)
         sigma_index_dict = {}
+        sigma_order_index_dict = {}
         result = {}
         for sigma_index, sigma in enumerate(sigmas):
             sigma_index_dict[sigma] = sigma_index

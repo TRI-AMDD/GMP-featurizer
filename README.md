@@ -4,7 +4,7 @@ Feature calculator for GMP features
 ## basic usage
 ```
 import numpy as np
-from GMPFeaturizer.GMPOrderNorm import GMPOrderNorm
+from GMPFeaturizer.GMP import GMP
 
 # load data
 from ase.io import read as aseread
@@ -28,7 +28,7 @@ GMPs = {
             "solid_harmonics": True,
 }
 
-featurizer = GMPOrderNorm(GMPs=GMPs, elements=elements)
+featurizer = GMP(GMPs=GMPs, elements=elements)
 
 
 # calculate features

@@ -1,11 +1,11 @@
 import numpy as np
 import ray
+from ray.util import ActorPool
 from .base_feature import BaseFeature
-from .GMPOrderNorm import GMPOrderNorm
+from .GMP import GMP
 
 import h5py
 from tqdm import tqdm
-from ray.util import ActorPool
 from .util import get_hash, list_symbols_to_indices, validate_image
 
 
@@ -31,7 +31,7 @@ def calculate_GMP_features(
     # feature._setup_feature_database(save_features=save_features)
 
     if cores <= 1:
-        feature = GMPOrderNorm(feature_setup, elements)
+        feature = GMP(feature_setup, elements)
         images_feature_list = []
         for image, ref_positions in tqdm(
             zip(images, ref_positions_list),
@@ -49,9 +49,8 @@ def calculate_GMP_features(
         return images_feature_list
 
     elif cores > 1:
-        from .util import to_iterator
 
-        remote_feature_actor = ray.remote(GMPOrderNorm)
+        remote_feature_actor = ray.remote(GMP)
         length = len(images)
         calc_deriv_list = [calc_derivatives] * length
         save_features_list = [save_features] * length
@@ -107,21 +106,21 @@ class GMPFeaturizer:
         calc_derivatives=False,
         save_features=False,
         verbose=True,
-        cores=1,
+        # cores=1,
     ):
 
-        # self.feature = GMPOrderNorm(GMPs, elements)
+        # self.feature = GMP(GMPs, elements)
         self.feature_setup = GMPs
         self.elements = elements
         self.calc_derivatives = calc_derivatives
         self.save_features = save_features
-        self.cores = cores
+        # self.cores = cores
         self.verbose = verbose
 
         # self.element_list = self.feature._get_element_list()
         self.features_ready = False
 
-    def prepare_features(self, images, ref_positions_list=None):
+    def prepare_features(self, images, ref_positions_list=None, cores=1):
 
         if ref_positions_list == None:
             ref_positions_list = [image.get_positions() for image in images]
@@ -134,7 +133,7 @@ class GMPFeaturizer:
             ref_positions_list,
             calc_derivatives=self.calc_derivatives,
             save_features=self.save_features,
-            cores=self.cores,
+            cores=cores,
             verbose=self.verbose,
         )
 
