@@ -120,7 +120,7 @@ class GMPFeaturizer:
         self.verbose = verbose
 
         # self.element_list = self.feature._get_element_list()
-        self.features_ready = False
+        # self.features_ready = False
 
     def prepare_features(self, image_objects, ref_positions_list=None, cores=1, converter=None):
 
@@ -130,7 +130,7 @@ class GMPFeaturizer:
             ref_positions_list = [image["atom_positions"] for image in images]
 
         # self.calculated_features_list = self.feature.calculate(
-        self.calculated_features_list = calculate_GMP_features(
+        calculated_features_list = calculate_GMP_features(
             self.feature_setup,
             self.elements,
             images,
@@ -141,19 +141,19 @@ class GMPFeaturizer:
             verbose=self.verbose,
         )
 
-        self.features_ready = True
+        # self.features_ready = True
 
-        return self.calculated_features_list
+        return calculated_features_list
 
-    def get_features(self):
-        if not self.features_ready:
-            print(
-                "ERROR, features not calculated yet, please call prepare_features() function first"
-            )
-            return None
+    # def get_features(self):
+    #     if not self.features_ready:
+    #         print(
+    #             "ERROR, features not calculated yet, please call prepare_features() function first"
+    #         )
+    #         return None
 
-        else:
-            return self.calculated_features_list
+    #     else:
+    #         return self.calculated_features_list
 
     def _convert_validate_image_objects(self, image_objects, converter):
         if converter is None:
