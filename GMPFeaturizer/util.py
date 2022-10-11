@@ -56,6 +56,7 @@ def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
 
 #     return "{}-{}".format(hash1, hash2)
 
+
 def get_hash(image, ref_positions):
 
     string = ""
@@ -132,5 +133,5 @@ def to_iterator(obj_ids):
 
 
 def get_scaled_position(cell, positions):
-    assert cell.shape == (3,3)
+    assert cell.shape == (3, 3)
     return np.linalg.solve(cell.T, np.transpose(positions)).T

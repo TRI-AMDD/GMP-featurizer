@@ -6,7 +6,12 @@ from scipy import sparse
 
 from ..base_feature import BaseFeature
 from ..constants import ATOM_SYMBOL_TO_INDEX_DICT
-from ..util import _gen_2Darray_for_ffi, list_symbols_to_indices, _gen_2Darray_for_ffi2, get_scaled_position
+from ..util import (
+    _gen_2Darray_for_ffi,
+    list_symbols_to_indices,
+    _gen_2Darray_for_ffi2,
+    get_scaled_position,
+)
 from ._libgmp import ffi, lib
 
 
@@ -140,39 +145,6 @@ class GMP(BaseFeature):
             elemental_sigma_cutoffs, ffi
         )
         return
-
-    # def set_max_cutoff(self, threshold=1e-8):
-    #     max_sigma = 0.0
-    #     if "GMPs_detailed_list" in self.GMPs:
-    #         for detail_setup in self.GMPs["GMPs_detailed_list"]:
-    #             sigmas = detail_setup["sigmas"]
-    #             max_sigma = max(max(sigmas), max_sigma)
-
-    #     else:
-    #         sigmas = self.GMPs["GMPs"]["sigmas"]
-    #         max_sigma = max(max(sigmas), max_sigma)
-
-    #     max_cutoff = self.get_cutoff(max_sigma)
-
-    #     print("max cutoff distance: {} A".format(max_cutoff))
-
-    #     # self.GMPs["max_cutoff"] = max_cutoff
-    #     self.max_cutoff = max_cutoff
-
-    #     return
-
-    # def get_cutoff(self, sigma):
-
-    #     A = 1.0 / (sigma * np.sqrt(2.0 * math.pi))
-    #     alpha = 1.0 / (2.0 * sigma * sigma)
-
-    #     cutoff = round(np.sqrt(np.log(self.cutoff_threshold / A) / (-alpha)), 3)
-
-    # def _get_single_overlap(A,B,alpha,beta):
-    #     temp = math.sqrt(M_PI / (alpha + beta))
-    #     C1 = A * B * temp * temp * temp
-    #     C2 = -1.0 * (alpha * beta / (alpha + beta))
-    #     return C1 * exp( C2 * r0_sqr)
 
     # *******************************************************
     # setup parameters
@@ -417,12 +389,21 @@ class GMP(BaseFeature):
     # *******************************************************
     # calculate features
     # *******************************************************
-    def calculate_features(self, cell, pbc, atom_positions, atom_symbols, occupancies, ref_positions, calc_derivatives):
-        assert isinstance(cell,np.ndarray)
-        assert cell.shape == (3,3)
-        assert isinstance(occupancies,np.ndarray)
-        assert isinstance(atom_positions,np.ndarray)
-        assert isinstance(ref_positions,np.ndarray)
+    def calculate_features(
+        self,
+        cell,
+        pbc,
+        atom_positions,
+        atom_symbols,
+        occupancies,
+        ref_positions,
+        calc_derivatives,
+    ):
+        assert isinstance(cell, np.ndarray)
+        assert cell.shape == (3, 3)
+        assert isinstance(occupancies, np.ndarray)
+        assert isinstance(atom_positions, np.ndarray)
+        assert isinstance(ref_positions, np.ndarray)
         assert len(atom_positions) == len(atom_symbols)
         assert len(atom_symbols) == len(occupancies)
         symbols = atom_symbols
@@ -441,7 +422,7 @@ class GMP(BaseFeature):
             [np.array(v, dtype="float64") for v in scaled_ref_positions],
             dtype="float64",
         )
-        
+
         atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
 
         occupancies_p = ffi.cast("double *", occupancies.ctypes.data)
@@ -451,8 +432,7 @@ class GMP(BaseFeature):
         # scale = np.copy(atoms.get_scaled_positions(wrap=True), order="C")
         scale = get_scaled_position(cell, atom_positions)
         scale = np.array(
-            [np.array(v, dtype="float64") for v in scale],
-            dtype="float64",
+            [np.array(v, dtype="float64") for v in scale], dtype="float64",
         )
         atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
         cell = np.copy(cell, order="C")
@@ -470,34 +450,34 @@ class GMP(BaseFeature):
 
         size_info = np.array([atom_num, cal_num, self.params_set["num"]])
 
-    # def calculate_features(self, atoms, ref_positions, calc_derivatives):
+        # def calculate_features(self, atoms, ref_positions, calc_derivatives):
 
-    #     symbols = np.array(atoms.get_chemical_symbols())
-    #     atom_num = len(symbols)
-    #     atom_indices = list_symbols_to_indices(symbols)
-    #     cell = atoms.cell
-    #     scaled_ref_positions = cell.scaled_positions(ref_positions)
-    #     scaled_ref_positions = np.array(
-    #         [np.array(v, dtype="float64") for v in scaled_ref_positions],
-    #         dtype="float64",
-    #     )
-    #     atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
+        #     symbols = np.array(atoms.get_chemical_symbols())
+        #     atom_num = len(symbols)
+        #     atom_indices = list_symbols_to_indices(symbols)
+        #     cell = atoms.cell
+        #     scaled_ref_positions = cell.scaled_positions(ref_positions)
+        #     scaled_ref_positions = np.array(
+        #         [np.array(v, dtype="float64") for v in scaled_ref_positions],
+        #         dtype="float64",
+        #     )
+        #     atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
 
-    #     cart = np.copy(atoms.get_positions(wrap=True), order="C")
-    #     scale = np.copy(atoms.get_scaled_positions(wrap=True), order="C")
-    #     cell = np.copy(atoms.cell, order="C")
-    #     pbc = np.copy(atoms.get_pbc()).astype(np.intc)
+        #     cart = np.copy(atoms.get_positions(wrap=True), order="C")
+        #     scale = np.copy(atoms.get_scaled_positions(wrap=True), order="C")
+        #     cell = np.copy(atoms.cell, order="C")
+        #     pbc = np.copy(atoms.get_pbc()).astype(np.intc)
 
-    #     cart_p = _gen_2Darray_for_ffi(cart, ffi)
-    #     scale_p = _gen_2Darray_for_ffi(scale, ffi)
-    #     cell_p = _gen_2Darray_for_ffi(cell, ffi)
-    #     pbc_p = ffi.cast("int *", pbc.ctypes.data)
+        #     cart_p = _gen_2Darray_for_ffi(cart, ffi)
+        #     scale_p = _gen_2Darray_for_ffi(scale, ffi)
+        #     cell_p = _gen_2Darray_for_ffi(cell, ffi)
+        #     pbc_p = ffi.cast("int *", pbc.ctypes.data)
 
-    #     ref_cart_p = _gen_2Darray_for_ffi(ref_positions, ffi)
-    #     ref_scale_p = _gen_2Darray_for_ffi(scaled_ref_positions, ffi)
-    #     cal_num = len(ref_positions)
+        #     ref_cart_p = _gen_2Darray_for_ffi(ref_positions, ffi)
+        #     ref_scale_p = _gen_2Darray_for_ffi(scaled_ref_positions, ffi)
+        #     cal_num = len(ref_positions)
 
-    #     size_info = np.array([atom_num, cal_num, self.params_set["num"]])
+        #     size_info = np.array([atom_num, cal_num, self.params_set["num"]])
 
         if calc_derivatives:
 
@@ -610,28 +590,26 @@ class GMP(BaseFeature):
                         x_p,
                     )
                 elif self.custom_cutoff == 2:
-                    errno = (
-                        lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
-                            cell_p,
-                            cart_p,
-                            occupancies_p,
-                            ref_cart_p,
-                            scale_p,
-                            ref_scale_p,
-                            pbc_p,
-                            atom_indices_p,
-                            atom_num,
-                            cal_num,
-                            self.nsigmas,
-                            self.params_set["ip"],
-                            self.params_set["dp"],
-                            self.params_set["num"],
-                            self.params_set["gaussian_params_p"],
-                            self.params_set["ngaussians_p"],
-                            self.params_set["elemental_sigma_cutoffs_p"],
-                            self.params_set["element_index_to_order_p"],
-                            x_p,
-                        )
+                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
                     )
                 elif self.custom_cutoff == 0:
                     errno = lib.calculate_solid_gmpordernorm_noderiv_original(

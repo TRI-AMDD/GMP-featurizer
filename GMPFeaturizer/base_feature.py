@@ -9,7 +9,7 @@ import h5py
 import numpy as np
 from tqdm import tqdm
 
-from .util import get_hash, list_symbols_to_indices#, validate_image
+from .util import get_hash, list_symbols_to_indices  # , validate_image
 
 
 class BaseFeature(ABC):
@@ -71,10 +71,7 @@ class BaseFeature(ABC):
                 disable=not verbose,
             ):
                 temp_image_dict = self._calculate_single_image(
-                    image,
-                    ref_positions,
-                    calc_derivatives,
-                    save_features,
+                    image, ref_positions, calc_derivatives, save_features,
                 )
                 images_feature_list.append(temp_image_dict)
             return images_feature_list
@@ -119,11 +116,7 @@ class BaseFeature(ABC):
             raise ValueError
 
     def _calculate_single_image(
-        self,
-        image,
-        ref_positions,
-        calc_derivatives,
-        save_features,
+        self, image, ref_positions, calc_derivatives, save_features,
     ):
         # print("start")
         ref_positions = np.array(ref_positions)
@@ -172,12 +165,7 @@ class BaseFeature(ABC):
         return temp_image_dict
 
     def _compute_features(
-        self,
-        image,
-        ref_positions,
-        image_db_filename,
-        calc_derivatives,
-        save_features,
+        self, image, ref_positions, image_db_filename, calc_derivatives, save_features,
     ):
 
         with h5py.File(image_db_filename, "a") as db:
@@ -270,11 +258,7 @@ class BaseFeature(ABC):
         return image_dict
 
     def _compute_features_nodb(
-        self,
-        image,
-        ref_positions,
-        calc_derivatives,
-        save_features,
+        self, image, ref_positions, calc_derivatives, save_features,
     ):
 
         image_dict = {}
