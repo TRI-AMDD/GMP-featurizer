@@ -9,7 +9,7 @@ import h5py
 import numpy as np
 from tqdm import tqdm
 
-from .util import get_hash, list_symbols_to_indices, validate_image
+from .util import get_hash, list_symbols_to_indices#, validate_image
 
 
 class BaseFeature(ABC):
@@ -127,7 +127,7 @@ class BaseFeature(ABC):
     ):
         # print("start")
         ref_positions = np.array(ref_positions)
-        validate_image(image, ref_positions)
+        # validate_image(image, ref_positions)
 
         # if save, then read/write from db as needed
         if save_features:
@@ -213,7 +213,11 @@ class BaseFeature(ABC):
                         feature_primes_col,
                         feature_primes_size,
                     ) = self.calculate_features(
-                        image,
+                        image["cell"],
+                        image["pbc"],
+                        image["atom_positions"],
+                        image["atom_symbols"],
+                        image["occupancies"],
                         ref_positions,
                         calc_derivatives=calc_derivatives,
                     )
@@ -248,7 +252,11 @@ class BaseFeature(ABC):
                     features = np.array(current_snapshot_grp["features"])
                 except Exception:
                     size_info, features, _, _, _, _ = self.calculate_features(
-                        image,
+                        image["cell"],
+                        image["pbc"],
+                        image["atom_positions"],
+                        image["atom_symbols"],
+                        image["occupancies"],
                         ref_positions,
                         calc_derivatives=calc_derivatives,
                     )
@@ -281,7 +289,11 @@ class BaseFeature(ABC):
                 feature_primes_col,
                 feature_primes_size,
             ) = self.calculate_features(
-                image,
+                image["cell"],
+                image["pbc"],
+                image["atom_positions"],
+                image["atom_symbols"],
+                image["occupancies"],
                 ref_positions,
                 calc_derivatives=calc_derivatives,
             )
@@ -297,7 +309,11 @@ class BaseFeature(ABC):
 
         else:
             size_info, features, _, _, _, _ = self.calculate_features(
-                image,
+                image["cell"],
+                image["pbc"],
+                image["atom_positions"],
+                image["atom_symbols"],
+                image["occupancies"],
                 ref_positions,
                 calc_derivatives=calc_derivatives,
             )

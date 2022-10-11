@@ -29,19 +29,46 @@ def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
     return arr_p
 
 
+# def get_hash(image, ref_positions):
+
+#     string = ""
+#     string += str(image.pbc)
+#     try:
+#         flattened_cell = image.cell.array.flatten()
+#     except AttributeError:  # older ASE
+#         flattened_cell = image.cell.flatten()
+#     for number in flattened_cell:
+#         string += "%.15f" % number
+#     for number in image.get_atomic_numbers():
+#         string += "%3d" % number
+#     for number in image.get_positions(wrap=True).flatten():
+#         string += "%.15f" % number
+
+#     md5_1 = hashlib.md5(string.encode("utf-8"))
+#     hash1 = md5_1.hexdigest()
+
+#     pos_string = ""
+#     for number in ref_positions.flatten():
+#         pos_string += "%.15f" % number
+
+#     md5_2 = hashlib.md5(pos_string.encode("utf-8"))
+#     hash2 = md5_2.hexdigest()
+
+#     return "{}-{}".format(hash1, hash2)
+
 def get_hash(image, ref_positions):
 
     string = ""
-    string += str(image.pbc)
-    try:
-        flattened_cell = image.cell.array.flatten()
-    except AttributeError:  # older ASE
-        flattened_cell = image.cell.flatten()
+    string += str(image["pbc"])
+
+    flattened_cell = image["cell"].flatten()
     for number in flattened_cell:
         string += "%.15f" % number
-    for number in image.get_atomic_numbers():
-        string += "%3d" % number
-    for number in image.get_positions(wrap=True).flatten():
+    for symbol in image["atom_symbols"]:
+        string += symbol
+    for number in image["atom_positions"].flatten():
+        string += "%.15f" % number
+    for number in image["occupancies"]:
         string += "%.15f" % number
 
     md5_1 = hashlib.md5(string.encode("utf-8"))
@@ -57,14 +84,14 @@ def get_hash(image, ref_positions):
     return "{}-{}".format(hash1, hash2)
 
 
-def validate_image(image, ref_positions):
-    for number in image.get_scaled_positions(wrap=True).flatten():
-        if number > 1.0 or number < 0.0:
-            raise ValueError(
-                "****ERROR: scaled position not strictly between [0, 1]"
-                "Please check atom position and system cell size are set up correctly"
-            )
-    return
+# def validate_image(image, ref_positions):
+#     for number in image.get_scaled_positions(wrap=True).flatten():
+#         if number > 1.0 or number < 0.0:
+#             raise ValueError(
+#                 "****ERROR: scaled position not strictly between [0, 1]"
+#                 "Please check atom position and system cell size are set up correctly"
+#             )
+#     return
 
 
 def list_symbols_to_indices(list_of_symbols):
@@ -102,3 +129,8 @@ def to_iterator(obj_ids):
     while obj_ids:
         done, obj_ids = ray.wait(obj_ids)
         yield ray.get(done[0])
+
+
+def get_scaled_position(cell, positions):
+    assert cell.shape == (3,3)
+    return np.linalg.solve(cell.T, np.transpose(positions)).T
