@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import ase
 import ray
@@ -34,6 +35,9 @@ class GMPFeaturizer:
             ref_positions_list = [image["atom_positions"] for image in images]
 
         assert len(images) == len(ref_positions_list)
+
+        if cores == 0:
+            cores = os.cpu_count()
 
         # self.calculated_features_list = self.feature.calculate(
         # calculated_features_list = calculate_GMP_features(
