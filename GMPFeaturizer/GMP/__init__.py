@@ -25,12 +25,12 @@ class GMP(BaseFeature):
         super().__init__()
         self.feature_type = "GMP"
         self.GMPs = GMPs
-        self.custom_cutoff = self.GMPs.get("custom_cutoff", 2)
+        self.custom_cutoff = self.GMPs.get("custom_cutoff", 3)
         self.elements = elements
         self.element_indices = list_symbols_to_indices(elements)
 
         self._load_psp_files()
-        self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-12)
+        self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-9)
         self._get_cutoffs()
         self._prepare_feature_parameters()
 
