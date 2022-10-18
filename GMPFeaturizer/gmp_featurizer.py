@@ -26,7 +26,12 @@ class GMPFeaturizer:
         self.verbose = verbose
 
     def prepare_features(
-        self, image_objects, ref_positions_list=None, cores=1, save_features=False, converter=None
+        self,
+        image_objects,
+        ref_positions_list=None,
+        cores=1,
+        save_features=False,
+        converter=None,
     ):
 
         images = self._convert_validate_image_objects(image_objects, converter)
