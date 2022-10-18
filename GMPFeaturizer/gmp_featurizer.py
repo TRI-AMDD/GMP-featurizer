@@ -14,19 +14,19 @@ from .converters import ASEAtomsConverter, PymatgenStructureConverter
 
 class GMPFeaturizer:
     def __init__(
-        self, GMPs, elements, calc_derivatives=False, save_features=False, verbose=True,
+        self, GMPs, elements, calc_derivatives=False, verbose=True,
     ):
 
         # self.feature = GMP(GMPs, elements)
         self.feature_setup = GMPs
         self.elements = elements
         self.calc_derivatives = calc_derivatives
-        self.save_features = save_features
+        # self.save_features = save_features
         # self.cores = cores
         self.verbose = verbose
 
     def prepare_features(
-        self, image_objects, ref_positions_list=None, cores=1, converter=None
+        self, image_objects, ref_positions_list=None, cores=1, save_features=False, converter=None
     ):
 
         images = self._convert_validate_image_objects(image_objects, converter)
@@ -45,7 +45,7 @@ class GMPFeaturizer:
             images,
             ref_positions_list=ref_positions_list,
             calc_derivatives=self.calc_derivatives,
-            save_features=self.save_features,
+            save_features=save_features,
             cores=cores,
             verbose=self.verbose,
         )
