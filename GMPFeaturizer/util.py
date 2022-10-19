@@ -134,4 +134,4 @@ def to_iterator(obj_ids):
 
 def get_scaled_position(cell, positions):
     assert cell.shape == (3, 3)
-    return np.linalg.solve(cell.T, np.transpose(positions)).T.round(10)
+    return np.linalg.solve(cell.T, np.transpose(positions)).T.round(7)
