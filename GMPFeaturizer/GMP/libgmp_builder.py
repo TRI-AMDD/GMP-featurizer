@@ -35,6 +35,11 @@ ffibuilder.cdef(
                                         int**, double**, int, double**, int*, int*,
                                         double**);
 
+        int calculate_solid_gmpordernorm_elemental_sigma_cutoff(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int,
+                                        int**, double**, int, double**, int*, double**, int*,
+                                        double**, double**);
+
         int calculate_solid_gmpordernorm(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int,
                                         int**, double**, int, double**, int*, int*,

@@ -26,6 +26,7 @@ class GMP(BaseFeature):
         self.feature_type = "GMP"
         self.GMPs = GMPs
         self.custom_cutoff = self.GMPs.get("custom_cutoff", 3)
+        print("cutoff: {}".format(self.custom_cutoff))
         self.elements = elements
         self.element_indices = list_symbols_to_indices(elements)
 
@@ -143,6 +144,7 @@ class GMP(BaseFeature):
                         0, psp, threshold=self.overlap_threshold
                     )
                     element_distances.append(element_distance)
+                    print(order, 0, element, element_distance)
                 elemental_order_sigma_cutoffs.append(element_distances)
                 order_sigma_index_dict[0] = order_sigma_index
                 order_sigma_index += 1
@@ -157,7 +159,7 @@ class GMP(BaseFeature):
                             threshold=self.overlap_threshold * factors[order],
                         )
                         element_distances.append(element_distance)
-                        # print(sigma, element, element_distance)
+                        print(order, sigma, element, element_distance)
                     elemental_order_sigma_cutoffs.append(element_distances)
                     order_sigma_index_dict[(order, sigma)] = order_sigma_index
                     order_sigma_index += 1
@@ -680,26 +682,50 @@ class GMP(BaseFeature):
             dx_p = _gen_2Darray_for_ffi(dx, ffi)
 
             if self.solid_harmonic:
-                errno = lib.calculate_solid_gmpordernorm(
-                    cell_p,
-                    cart_p,
-                    occupancies_p,
-                    ref_cart_p,
-                    scale_p,
-                    ref_scale_p,
-                    pbc_p,
-                    atom_indices_p,
-                    atom_num,
-                    cal_num,
-                    self.params_set["ip"],
-                    self.params_set["dp"],
-                    self.params_set["num"],
-                    self.params_set["gaussian_params_p"],
-                    self.params_set["ngaussians_p"],
-                    self.params_set["element_index_to_order_p"],
-                    x_p,
-                    dx_p,
-                )
+                if self.custom_cutoff == 0:
+                    errno = lib.calculate_solid_gmpordernorm(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                    )
+                elif self.custom_cutoff == 3:
+                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p
+                    )
 
             else:
                 errno = lib.calculate_gmpordernorm(
