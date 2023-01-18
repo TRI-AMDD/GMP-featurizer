@@ -26,7 +26,7 @@ class GMP(BaseFeature):
         self.feature_type = "GMP"
         self.GMPs = GMPs
         self.custom_cutoff = self.GMPs.get("custom_cutoff", 4)
-        print("cutoff: {}".format(self.custom_cutoff))
+        # print("cutoff: {}".format(self.custom_cutoff))
         self.elements = elements
         self.element_indices = list_symbols_to_indices(elements)
 
