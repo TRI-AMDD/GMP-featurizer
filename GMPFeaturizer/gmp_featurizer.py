@@ -14,7 +14,11 @@ from .converters import ASEAtomsConverter, PymatgenStructureConverter
 
 class GMPFeaturizer:
     def __init__(
-        self, GMPs, elements, calc_derivatives=False, verbose=True,
+        self,
+        GMPs,
+        elements,
+        calc_derivatives=False,
+        verbose=True,
     ):
 
         # self.feature = GMP(GMPs, elements)
@@ -128,7 +132,10 @@ class GMPFeaturizer:
                 disable=not verbose,
             ):
                 temp_image_dict = feature._calculate_single_image(
-                    image, ref_positions, calc_derivatives, save_features,
+                    image,
+                    ref_positions,
+                    calc_derivatives,
+                    save_features,
                 )
                 images_feature_list.append(temp_image_dict)
             return images_feature_list

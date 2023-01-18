@@ -44,7 +44,11 @@ class BaseFeature(ABC):
         pass
 
     def _calculate_single_image(
-        self, image, ref_positions, calc_derivatives, save_features,
+        self,
+        image,
+        ref_positions,
+        calc_derivatives,
+        save_features,
     ):
         # print("start")
         ref_positions = np.array(ref_positions)
@@ -93,7 +97,12 @@ class BaseFeature(ABC):
         return temp_image_dict
 
     def _compute_features(
-        self, image, ref_positions, image_db_filename, calc_derivatives, save_features,
+        self,
+        image,
+        ref_positions,
+        image_db_filename,
+        calc_derivatives,
+        save_features,
     ):
 
         with h5py.File(image_db_filename, "a") as db:
@@ -186,7 +195,11 @@ class BaseFeature(ABC):
         return image_dict
 
     def _compute_features_nodb(
-        self, image, ref_positions, calc_derivatives, save_features,
+        self,
+        image,
+        ref_positions,
+        calc_derivatives,
+        save_features,
     ):
 
         image_dict = {}

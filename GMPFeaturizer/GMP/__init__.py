@@ -25,13 +25,13 @@ class GMP(BaseFeature):
         super().__init__()
         self.feature_type = "GMP"
         self.GMPs = GMPs
-        self.custom_cutoff = self.GMPs.get("custom_cutoff", 3)
+        self.custom_cutoff = self.GMPs.get("custom_cutoff", 4)
         print("cutoff: {}".format(self.custom_cutoff))
         self.elements = elements
         self.element_indices = list_symbols_to_indices(elements)
 
         self._load_psp_files()
-        self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-9)
+        self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-11)
         self._get_cutoffs()
         self._prepare_feature_parameters()
 
@@ -62,6 +62,29 @@ class GMP(BaseFeature):
             C1 = A * B * temp * temp * temp
             C2 = -1.0 * (alpha * beta / (alpha + beta))
         return C1, C2
+
+    def _get_default_cutoff_element_gaussians(
+        self, sigma, psp, max_num_gaussians, threshold=1e-8
+    ):
+        if sigma == 0:
+            A = 0
+            alpha = 0
+        else:
+            A = 1.0 / (sigma * math.sqrt(2.0 * math.pi))
+            alpha = 1.0 / (2.0 * sigma * sigma)
+        log_threshold = math.log(threshold)
+
+        total_log_C1 = 0
+        total_C2 = 0
+        distances_list = np.zeros(max_num_gaussians)
+        for i, gaussian in enumerate(psp):
+            B, beta = gaussian
+            C1, C2 = self._get_C1_C2(A, B, alpha, beta)
+            C1 = abs(C1)
+            temp_distance = math.sqrt((log_threshold - C1) / C2)
+            distances_list[i] = temp_distance
+
+        return distances_list.tolist()
 
     def _get_default_cutoff_single_element(self, sigma, psp, threshold=1e-8):
         if sigma == 0:
@@ -112,6 +135,8 @@ class GMP(BaseFeature):
             self._get_sigma_elemental_cutoffs()
         elif self.custom_cutoff == 3:
             self._get_order_sigma_elemental_cutoffs()
+        elif self.custom_cutoff == 4:
+            self._get_order_sigma_elemental_gaussian_cutoffs()
 
     def _get_order_sigma_elemental_cutoffs(self):
         factors = {
@@ -127,7 +152,7 @@ class GMP(BaseFeature):
             8: 1e-9,
             9: 1e-11,
         }
-        self.params_set["element_index_to_order"]
+        # self.params_set["element_index_to_order"]
         elemental_order_sigma_cutoffs = []
         sigmas = self._get_sigma_list(attach_zero=False)
         orders = self._get_order_list()
@@ -170,6 +195,108 @@ class GMP(BaseFeature):
         elemental_order_sigma_cutoffs = np.asarray(
             elemental_order_sigma_cutoffs, dtype=np.float64, order="C"
         )
+
+        self.params_set["elemental_order_sigma_cutoffs"] = elemental_order_sigma_cutoffs
+        # [[sigma1_element1_cutoff, sigma1_element2_cutoff,...]
+        #  [sigma2_element1_cutoff, sigma2_element2_cutoff,...]
+        #  ...
+        #  [sigman_element1_cutoff, sigman_element2_cutoff,...]]
+        self.params_set["elemental_order_sigma_cutoffs_p"] = _gen_2Darray_for_ffi(
+            elemental_order_sigma_cutoffs, ffi
+        )
+        return
+
+    def _get_order_sigma_elemental_gaussian_cutoffs(self):
+        factors = {
+            -1: 1,
+            0: 1,
+            1: 1,
+            2: 1,
+            3: 1e-1,
+            4: 1e-2,
+            5: 1e-4,
+            6: 1e-5,
+            7: 1e-7,
+            8: 1e-9,
+            9: 1e-11,
+        }
+        # self.params_set["element_index_to_order"]
+        elemental_order_sigma_cutoffs = []
+        elemental_order_sigma_gaussian_cutoffs = []
+        sigmas = self._get_sigma_list(attach_zero=False)
+        orders = self._get_order_list()
+
+        self.max_num_gaussians = 0
+        for psp in self.atomic_psp.values():
+            if len(psp) > self.max_num_gaussians:
+                self.max_num_gaussians = len(psp)
+
+        # sigma_index_dict = {}
+        order_sigma_index_dict = {}
+        result = {}
+        order_sigma_index = 0
+        for order in orders:
+            if order == -1:
+                element_gaussian_distances = []
+                element_distances = []
+                for element, psp in self.atomic_psp.items():
+                    gaussian_distances = self._get_default_cutoff_element_gaussians(
+                        0, psp, self.max_num_gaussians, threshold=self.overlap_threshold
+                    )
+                    element_distance = np.max(gaussian_distances).item()
+                    element_distances.append(element_distance)
+                    element_gaussian_distances += gaussian_distances
+                    # print(order, 0, element, element_distances)
+                elemental_order_sigma_gaussian_cutoffs.append(
+                    element_gaussian_distances
+                )
+                elemental_order_sigma_cutoffs.append(element_distances)
+                order_sigma_index_dict[0] = order_sigma_index
+                order_sigma_index += 1
+
+            else:
+                for sigma in sigmas:
+                    element_gaussian_distances = []
+                    element_distances = []
+                    for element, psp in self.atomic_psp.items():
+                        gaussian_distances = self._get_default_cutoff_element_gaussians(
+                            sigma,
+                            psp,
+                            self.max_num_gaussians,
+                            threshold=self.overlap_threshold * factors[order],
+                        )
+                        element_distance = np.max(gaussian_distances).item()
+                        element_distances.append(element_distance)
+                        element_gaussian_distances += gaussian_distances
+                        # print(order, sigma, element, element_distances)
+                    elemental_order_sigma_gaussian_cutoffs.append(
+                        element_gaussian_distances
+                    )
+                    elemental_order_sigma_cutoffs.append(element_distances)
+                    order_sigma_index_dict[(order, sigma)] = order_sigma_index
+                    order_sigma_index += 1
+
+        self.order_sigma_index_dict = order_sigma_index_dict
+        self.nsigmas = len(elemental_order_sigma_gaussian_cutoffs)
+
+        elemental_order_sigma_gaussian_cutoffs = np.asarray(
+            elemental_order_sigma_gaussian_cutoffs, dtype=np.float64, order="C"
+        )
+
+        elemental_order_sigma_cutoffs = np.asarray(
+            elemental_order_sigma_cutoffs, dtype=np.float64, order="C"
+        )
+
+        self.params_set[
+            "elemental_order_sigma_gaussian_cutoffs"
+        ] = elemental_order_sigma_gaussian_cutoffs
+        # [[ordersigma1_element1_gaussian1_cutoff, ordersigma1_element1_gaussian2_cutoff,...ordersigma1_element2_gaussian1_cutoff,,...]
+        #  [ordersigma2_element1_gaussian1_cutoff, ordersigma2_element1_gaussian2_cutoff,...ordersigma2_element2_gaussian1_cutoff,,...]
+        #  ...
+        #  [ordersigman_element1_gaussian1_cutoff, ordersigman_element1_gaussian2_cutoff,...ordersigman_element2_gaussian1_cutoff,,...]]
+        self.params_set[
+            "elemental_order_sigma_gaussian_cutoffs_p"
+        ] = _gen_2Darray_for_ffi(elemental_order_sigma_gaussian_cutoffs, ffi)
 
         self.params_set["elemental_order_sigma_cutoffs"] = elemental_order_sigma_cutoffs
         # [[sigma1_element1_cutoff, sigma1_element2_cutoff,...]
@@ -514,6 +641,39 @@ class GMP(BaseFeature):
                             ]
                             for sigma in self.GMPs["GMPs"]["sigmas"]
                         ]
+            elif self.custom_cutoff == 4:
+                for i in self.GMPs["GMPs"]["orders"]:
+                    if i == -1:
+                        feature_setup += [
+                            [
+                                i,
+                                square_i,
+                                solid_harmonic_i,
+                                self.order_sigma_index_dict[0],
+                                0.0,
+                                1.0,
+                                1.0,  # A
+                                0.0,  # alpha
+                                1.0,  # inv_Rs
+                            ]
+                        ]
+                    else:
+                        feature_setup += [
+                            [
+                                i,
+                                square_i,
+                                solid_harmonic_i,
+                                self.order_sigma_index_dict[(i, sigma)],
+                                sigma,
+                                1.0,
+                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                                1.0 / (2.0 * sigma * sigma),
+                                (1.0 / (rs_scale * sigma))
+                                if rs_scale > 0
+                                else (1.0 / (-1.0 * rs_scale)),
+                            ]
+                            for sigma in self.GMPs["GMPs"]["sigmas"]
+                        ]
             else:
                 raise NotImplementedError
 
@@ -526,7 +686,11 @@ class GMP(BaseFeature):
             params_d = np.asarray(
                 self.feature_setup[:, 3:].copy(), dtype=np.float64, order="C"
             )
-        elif self.custom_cutoff == 2 or self.custom_cutoff == 3:
+        elif (
+            self.custom_cutoff == 2
+            or self.custom_cutoff == 3
+            or self.custom_cutoff == 4
+        ):
             params_i = np.asarray(
                 self.feature_setup[:, :4].copy(), dtype=np.intc, order="C"
             )
@@ -588,6 +752,7 @@ class GMP(BaseFeature):
         occupancies,
         ref_positions,
         calc_derivatives,
+        calc_derivatives_occ=False,
     ):
         assert isinstance(cell, np.ndarray)
         assert cell.shape == (3, 3)
@@ -622,7 +787,8 @@ class GMP(BaseFeature):
         # scale = np.copy(atoms.get_scaled_positions(wrap=True), order="C")
         scale = get_scaled_position(cell, atom_positions)
         scale = np.array(
-            [np.array(v, dtype="float64") for v in scale], dtype="float64",
+            [np.array(v, dtype="float64") for v in scale],
+            dtype="float64",
         )
         atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
         cell = np.copy(cell, order="C")
@@ -669,6 +835,72 @@ class GMP(BaseFeature):
 
         #     size_info = np.array([atom_num, cal_num, self.params_set["num"]])
 
+        if calc_derivatives_occ:
+            x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+            dx = np.zeros(
+                [cal_num * self.params_set["num"], atom_num * 3],
+                dtype=np.float64,
+                order="C",
+            )
+            dxdocc = np.zeros(
+                [cal_num * self.params_set["num"], atom_num],
+                dtype=np.float64,
+                order="C",
+            )
+
+            x_p = _gen_2Darray_for_ffi(x, ffi)
+            dx_p = _gen_2Darray_for_ffi(dx, ffi)
+            dxdocc_p = _gen_2Darray_for_ffi(dxdocc, ffi)
+
+            if self.solid_harmonic:
+                if self.custom_cutoff == 3:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_derivative(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                        dxdocc_p,
+                    )
+                else:
+                    raise NotImplementedError
+
+            else:
+                raise NotImplementedError
+
+            if errno == 1:
+                raise NotImplementedError("Feature not implemented!")
+            fp = np.array(x, dtype=np.float64)
+            fp_prime = np.array(dx, dtype=np.float64)
+            fp_occ_prime = np.array(dxdocc, dtype=np.float64)
+
+            scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
+
+            return (
+                size_info,
+                fp,
+                scipy_sparse_fp_prime.data,
+                scipy_sparse_fp_prime.row,
+                scipy_sparse_fp_prime.col,
+                np.array(fp_prime.shape),
+                fp_occ_prime,
+            )
+
         if calc_derivatives:
 
             x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
@@ -704,7 +936,7 @@ class GMP(BaseFeature):
                         dx_p,
                     )
                 elif self.custom_cutoff == 3:
-                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff(
                         cell_p,
                         cart_p,
                         occupancies_p,
@@ -724,7 +956,33 @@ class GMP(BaseFeature):
                         self.params_set["elemental_order_sigma_cutoffs_p"],
                         self.params_set["element_index_to_order_p"],
                         x_p,
-                        dx_p
+                        dx_p,
+                    )
+
+                elif self.custom_cutoff == 4:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.max_num_gaussians,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
                     )
 
             else:
@@ -758,7 +1016,7 @@ class GMP(BaseFeature):
             # super_threshold_indices_prime = np.abs(fp_prime) < threshold
             # print("threshold: {} \tnum points set to zero:{} \t outof: {}".format(threshold, np.sum(super_threshold_indices_prime), fp_prime.shape[0] * fp_prime.shape[1]))
             # fp_prime[super_threshold_indices_prime] = 0.0
-
+            # print(fp_prime)
             scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
             # print(fp)
             # print(fp.shape)
@@ -804,29 +1062,55 @@ class GMP(BaseFeature):
                         x_p,
                     )
                 elif self.custom_cutoff == 2:
-                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.nsigmas,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["elemental_sigma_cutoffs_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
+                    errno = (
+                        lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+                            cell_p,
+                            cart_p,
+                            occupancies_p,
+                            ref_cart_p,
+                            scale_p,
+                            ref_scale_p,
+                            pbc_p,
+                            atom_indices_p,
+                            atom_num,
+                            cal_num,
+                            self.nsigmas,
+                            self.params_set["ip"],
+                            self.params_set["dp"],
+                            self.params_set["num"],
+                            self.params_set["gaussian_params_p"],
+                            self.params_set["ngaussians_p"],
+                            self.params_set["elemental_sigma_cutoffs_p"],
+                            self.params_set["element_index_to_order_p"],
+                            x_p,
+                        )
                     )
                 elif self.custom_cutoff == 3:
-                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+                    errno = (
+                        lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+                            cell_p,
+                            cart_p,
+                            occupancies_p,
+                            ref_cart_p,
+                            scale_p,
+                            ref_scale_p,
+                            pbc_p,
+                            atom_indices_p,
+                            atom_num,
+                            cal_num,
+                            self.nsigmas,
+                            self.params_set["ip"],
+                            self.params_set["dp"],
+                            self.params_set["num"],
+                            self.params_set["gaussian_params_p"],
+                            self.params_set["ngaussians_p"],
+                            self.params_set["elemental_order_sigma_cutoffs_p"],
+                            self.params_set["element_index_to_order_p"],
+                            x_p,
+                        )
+                    )
+                elif self.custom_cutoff == 4:
+                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_gaussian_cutoff(
                         cell_p,
                         cart_p,
                         occupancies_p,
@@ -838,12 +1122,14 @@ class GMP(BaseFeature):
                         atom_num,
                         cal_num,
                         self.nsigmas,
+                        self.max_num_gaussians,
                         self.params_set["ip"],
                         self.params_set["dp"],
                         self.params_set["num"],
                         self.params_set["gaussian_params_p"],
                         self.params_set["ngaussians_p"],
                         self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
                         self.params_set["element_index_to_order_p"],
                         x_p,
                     )

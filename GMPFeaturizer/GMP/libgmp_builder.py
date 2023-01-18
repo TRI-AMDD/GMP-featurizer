@@ -20,6 +20,11 @@ ffibuilder.cdef(
                                         int**, double**, int, double**, int*, double**, int*,
                                         double**);
 
+        int calculate_solid_gmpordernorm_noderiv_elemental_sigma_gaussian_cutoff(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double**);
+
         int calculate_solid_gmpordernorm_noderiv_sigma_cutoff(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int,
                                         int**, double**, int, double**, int*, int*,
@@ -35,9 +40,19 @@ ffibuilder.cdef(
                                         int**, double**, int, double**, int*, int*,
                                         double**);
 
+        int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_derivative(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int,
+                                        int**, double**, int, double**, int*, double**, int*,
+                                        double**, double**, double**);
+
         int calculate_solid_gmpordernorm_elemental_sigma_cutoff(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int, int,
                                         int**, double**, int, double**, int*, double**, int*,
+                                        double**, double**);
+        
+        int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
                                         double**, double**);
 
         int calculate_solid_gmpordernorm(double**, double**, double*, double**, double**, double**, int*,
