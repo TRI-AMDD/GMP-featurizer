@@ -20,13 +20,13 @@ class GMP(BaseFeature):
         self,
         GMPs,
         elements,
-        # mode="atom-centered",
+        feature_database="cache/features/",
     ):
         super().__init__()
         self.feature_type = "GMP"
+        self.feature_database = feature_database
         self.GMPs = GMPs
         self.custom_cutoff = self.GMPs.get("custom_cutoff", 4)
-        # print("cutoff: {}".format(self.custom_cutoff))
         self.elements = elements
         self.element_indices = list_symbols_to_indices(elements)
 
@@ -34,8 +34,6 @@ class GMP(BaseFeature):
         self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-11)
         self._get_cutoffs()
         self._prepare_feature_parameters()
-
-        # self.get_feature_setup_hash()
 
     def __eq__(self, other):
         """Overrides the default implementation"""

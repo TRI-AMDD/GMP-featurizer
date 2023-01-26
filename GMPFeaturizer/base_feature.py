@@ -265,13 +265,14 @@ class BaseFeature(ABC):
             if self.database_initialized == True:
                 return
             self.get_feature_setup_hash()
-            self.desc_type_database_dir = "{}/{}".format(
+            self.desc_type_database_dir = os.path.join(
                 self.feature_database, self.feature_type
             )
 
-            self.desc_feature_database_dir = "{}/{}".format(
+            self.desc_feature_database_dir = os.path.join(
                 self.desc_type_database_dir, self.feature_setup_hash
             )
+
             os.makedirs(self.feature_database, exist_ok=True)
             os.makedirs(self.desc_type_database_dir, exist_ok=True)
             os.makedirs(self.desc_feature_database_dir, exist_ok=True)
