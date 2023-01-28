@@ -2634,6 +2634,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff(doub
                             if (r0_sqr > elemental_sigma_gausisan_cutoff_sqr)
                                 continue;
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+                            if (B == 0)
+                                continue;
                             mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, m_desc, deriv);
                             sum_miu += m_desc[0]*occ;
                             sum_dmiu_dxj[j] += deriv[0]*occ;
@@ -2702,6 +2704,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff(doub
                             if (r0_sqr > elemental_sigma_gausisan_cutoff_sqr)
                                 continue;
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+                            if (B == 0)
+                                continue;
                             mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, miu, deriv);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
@@ -2804,6 +2808,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff(doub
                             if (r0_sqr > elemental_sigma_gausisan_cutoff_sqr)
                                 continue;
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+                            if (B == 0)
+                                continue;
                             mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, miu, deriv);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
@@ -4088,6 +4094,8 @@ extern "C" int calculate_solid_gmpordernorm_noderiv_elemental_sigma_gaussian_cut
                             if (r0_sqr > elemental_sigma_gausisan_cutoff_sqr)
                                 continue;
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+                            if (B == 0)
+                                continue;
                             mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, m_desc);
                             sum_desc += m_desc[0]*occ;
                         }
@@ -4112,6 +4120,8 @@ extern "C" int calculate_solid_gmpordernorm_noderiv_elemental_sigma_gaussian_cut
                             if (r0_sqr > elemental_sigma_gausisan_cutoff_sqr)
                                 continue;
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+                            if (B == 0)
+                                continue;
                             mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, miu);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
@@ -4141,6 +4151,8 @@ extern "C" int calculate_solid_gmpordernorm_noderiv_elemental_sigma_gaussian_cut
                             if (r0_sqr > elemental_sigma_gausisan_cutoff_sqr)
                                 continue;
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+                            if (B == 0)
+                                continue;
                             mcsh_function(x0, y0, z0, r0_sqr, A, B, alpha, beta, miu);
                             // miu: miu_1, miu_2, miu_3
                             // deriv: dmiu1_dxj, dmiu1_dyj, dmiu1_dzj, dmiu2_dxj, dmiu2_dyj, dmiu2_dzj, dmiu3_dxj, dmiu3_dyj, dmiu3_dzj
