@@ -27,8 +27,6 @@ class GMP(BaseFeature):
         self.feature_database = feature_database
         self.GMPs = GMPs
         self.custom_cutoff = self.GMPs.get("custom_cutoff", 4)
-        self.elements = elements
-        self.element_indices = list_symbols_to_indices(elements)
 
         self._load_psp_files()
         self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-11)
@@ -365,23 +363,58 @@ class GMP(BaseFeature):
     def _load_psp_files(self):
         atomic_gaussian_setup = {}
         atomic_psp = {}
-        for element in self.elements:
-            params = list()
-            atomic_psp[element] = []
-            # count = 0
-            filename = self.GMPs["atom_gaussians"][element]
-            with open(filename, "r") as fil:
-                for line in fil:
-                    tmp = line.split()
-                    params += [float(tmp[0]), float(tmp[1])]
-                    atomic_psp[element].append([float(tmp[0]), float(tmp[1])])
-                    # count += 1
-            element_index = ATOM_SYMBOL_TO_INDEX_DICT[element]
-            params = np.asarray(params, dtype=np.float64, order="C")
-            atomic_gaussian_setup[element_index] = params
+        elements = []
+
+        new = False
+        temp_params = []
+        current_element = None
+        with open(self.GMPs["psp_path"], "r") as f:
+            Lines = f.readlines()
+            for line in Lines:
+                line = line.strip()
+                if not line.startswith("#"):
+                    if line.startswith("!") and line.endswith("elements"):
+                        num_elements = int(line.split()[1])
+                        print(num_elements)
+                        continue
+                    if line.startswith("*"):
+                        new = True
+                        if current_element is not None:
+                            atomic_gaussian_setup[current_element] = np.asarray(
+                                temp_params, dtype=np.float64, order="C"
+                            )
+                            temp_params = []
+                        continue
+                    if new == True:
+                        current_element = line.split()[0]
+                        elements.append(current_element)
+                        atomic_psp[current_element] = []
+                        new = False
+                        continue
+                    temp = line.split()
+                    temp_params += [float(temp[0]), float(temp[1])]
+                    atomic_psp[current_element].append([float(tmp[0]), float(tmp[1])])
+
+        # for element in self.elements:
+        #     params = list()
+        #     atomic_psp[element] = []
+        #     # count = 0
+        #     filename = self.GMPs["atom_gaussians"][element]
+        #     with open(filename, "r") as fil:
+        #         for line in fil:
+        #             tmp = line.split()
+        #             params += [float(tmp[0]), float(tmp[1])]
+        #             atomic_psp[element].append([float(tmp[0]), float(tmp[1])])
+        #             # count += 1
+        #     element_index = ATOM_SYMBOL_TO_INDEX_DICT[element]
+        #     params = np.asarray(params, dtype=np.float64, order="C")
+        #     atomic_gaussian_setup[element_index] = params
 
         self.atomic_gaussian_setup = atomic_gaussian_setup
         self.atomic_psp = atomic_psp
+
+        self.elements = elements
+        self.element_indices = list_symbols_to_indices(self.elements)
 
         max_gaussian_count = 0
         ngaussian_list = list()
@@ -762,6 +795,12 @@ class GMP(BaseFeature):
         symbols = atom_symbols
         atom_num = len(symbols)
         atom_indices = list_symbols_to_indices(symbols)
+        for element_idx in atom_indices:
+            if element_idx not in self.element_indices:
+                raise ValueError(
+                    "****ERROR: contain atoms that don't have pseudo potential"
+                    "Please use a different set of pseudo potentials"
+                )
         # cell = atoms.cell
         # scaled_ref_positions = cell.scaled_positions(ref_positions)
         scaled_ref_positions = get_scaled_position(cell, ref_positions)
