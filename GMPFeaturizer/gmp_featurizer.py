@@ -16,14 +16,16 @@ class GMPFeaturizer:
     def __init__(
         self,
         GMPs,
-        elements,
+        # elements,
+        feature_database="cache/features/",
         calc_derivatives=False,
         verbose=True,
     ):
 
         # self.feature = GMP(GMPs, elements)
         self.feature_setup = GMPs
-        self.elements = elements
+        self.feature_database = feature_database
+        # self.elements = elements
         self.calc_derivatives = calc_derivatives
         # self.save_features = save_features
         # self.cores = cores
@@ -123,7 +125,7 @@ class GMPFeaturizer:
         # feature._setup_feature_database(save_features=save_features)
 
         if cores <= 1:
-            feature = GMP(self.feature_setup, self.elements)
+            feature = GMP(self.feature_setup, self.feature_database)
             images_feature_list = []
             for image, ref_positions in tqdm(
                 zip(images, ref_positions_list),
@@ -150,7 +152,7 @@ class GMPFeaturizer:
 
             ray.init(num_cpus=cores)
             actors = [
-                remote_feature_actor.remote(self.feature_setup, self.elements)
+                remote_feature_actor.remote(self.feature_setup, self.feature_database)
                 for _ in range(cores)
             ]
             pool = ActorPool(actors)

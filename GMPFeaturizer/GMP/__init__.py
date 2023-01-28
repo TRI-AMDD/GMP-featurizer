@@ -19,7 +19,6 @@ class GMP(BaseFeature):
     def __init__(
         self,
         GMPs,
-        elements,
         feature_database="cache/features/",
     ):
         super().__init__()
@@ -375,25 +374,30 @@ class GMP(BaseFeature):
                 if not line.startswith("#"):
                     if line.startswith("!") and line.endswith("elements"):
                         num_elements = int(line.split()[1])
-                        print(num_elements)
                         continue
                     if line.startswith("*"):
                         new = True
                         if current_element is not None:
-                            atomic_gaussian_setup[current_element] = np.asarray(
+                            atomic_gaussian_setup[current_element_index] = np.asarray(
                                 temp_params, dtype=np.float64, order="C"
                             )
                             temp_params = []
                         continue
                     if new == True:
                         current_element = line.split()[0]
+                        current_element_index = ATOM_SYMBOL_TO_INDEX_DICT[
+                            current_element
+                        ]
                         elements.append(current_element)
                         atomic_psp[current_element] = []
                         new = False
                         continue
                     temp = line.split()
                     temp_params += [float(temp[0]), float(temp[1])]
-                    atomic_psp[current_element].append([float(tmp[0]), float(tmp[1])])
+                    atomic_psp[current_element].append([float(temp[0]), float(temp[1])])
+            atomic_gaussian_setup[current_element_index] = np.asarray(
+                temp_params, dtype=np.float64, order="C"
+            )
 
         # for element in self.elements:
         #     params = list()
