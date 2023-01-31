@@ -27,8 +27,6 @@ class GMPFeaturizer:
         self.feature_database = feature_database
         # self.elements = elements
         self.calc_derivatives = calc_derivatives
-        # self.save_features = save_features
-        # self.cores = cores
         self.verbose = verbose
 
     def prepare_features(
@@ -50,8 +48,6 @@ class GMPFeaturizer:
         if cores == 0:
             cores = os.cpu_count()
 
-        # self.calculated_features_list = self.feature.calculate(
-        # calculated_features_list = calculate_GMP_features(
         calculated_features_list = self._calculate_GMP_features(
             images,
             ref_positions_list=ref_positions_list,
