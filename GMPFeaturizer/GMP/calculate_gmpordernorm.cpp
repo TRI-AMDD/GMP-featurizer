@@ -4954,11 +4954,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_noderiv(doubl
 
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
@@ -4975,11 +4975,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_noderiv(doubl
                     double miu[3];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
@@ -5001,11 +5001,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_noderiv(doubl
                     double miu[6];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
@@ -5086,7 +5086,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(dou
                        ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
 
         for (int m = 0; m < nmcsh; ++m) {
-            int mcsh_order = params_i[m][0], square = params_i[m][1];
+            int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
             int num_groups = get_num_groups(mcsh_order);
             // params_d: sigma, weight, A, alpha, cutoff, inv_rs
             double A = params_d[m][2], alpha = params_d[m][3];
@@ -5109,11 +5109,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(dou
 
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
@@ -5149,11 +5149,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(dou
                     double miu[3];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
@@ -5204,11 +5204,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(dou
                     double miu[6];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
@@ -5331,18 +5331,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(doub
             // params_d: sigma, weight, A, alpha, cutoff, inv_rs
             double A = params_d[m][2], alpha = params_d[m][3];
             double weight = 1.0;
-            // double weight = params_d[m][1];
             double sum_square = 0.0;
-            //double sum_square_derivative_x = 0.0, sum_square_derivative_y = 0.0, sum_square_derivative_z = 0.0;
-            // std::cout << "------------" << std::endl;
-            // std::cout << mcsh_order << "\t" << num_groups  << std::endl;
             for (int group_index = 1; group_index < (num_groups+1); ++group_index){
                 SolidGMPFunction mcsh_function = get_solid_mcsh_function(mcsh_order, group_index);
                 double group_coefficient = get_group_coefficients(mcsh_order, group_index);
                 int mcsh_type = get_mcsh_type(mcsh_order, group_index);
-
-                // std::cout << "\t" << group_index  << "\t"<< mcsh_type << "\t" << group_coefficient<< std::endl;
-
                 
                 if (mcsh_type == 1){
                     double sum_miu = 0.0;
@@ -5361,8 +5354,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(doub
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                        double elemental_sigma_cutoff_sqr = pow(elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order], 2);
-                        if (r0_sqr > elemental_sigma_cutoff_sqr)
+                        double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+                        if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
@@ -5385,10 +5378,6 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(doub
                         dmcsh[ii*nmcsh + m][nei_list_i[j*2 + 1]*3] += dmdx;
                         dmcsh[ii*nmcsh + m][nei_list_i[j*2 + 1]*3 + 1] += dmdy;
                         dmcsh[ii*nmcsh + m][nei_list_i[j*2 + 1]*3 + 2] += dmdz;
-
-                        // dmcsh[ii*nmcsh + m][i*3]     -= dmdx;
-                        // dmcsh[ii*nmcsh + m][i*3 + 1] -= dmdy;
-                        // dmcsh[ii*nmcsh + m][i*3 + 2] -= dmdz;
                     }
 
                     delete [] sum_dmiu_dxj;
@@ -5426,8 +5415,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(doub
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                        double elemental_sigma_cutoff_sqr = pow(elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order], 2);
-                        if (r0_sqr > elemental_sigma_cutoff_sqr)
+                        double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+                        if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
@@ -5460,10 +5449,6 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(doub
                         dmcsh[ii*nmcsh + m][nei_list_i[j*2 + 1]*3] += dmdx;
                         dmcsh[ii*nmcsh + m][nei_list_i[j*2 + 1]*3 + 1] += dmdy;
                         dmcsh[ii*nmcsh + m][nei_list_i[j*2 + 1]*3 + 2] += dmdz;
-
-                        // dmcsh[ii*nmcsh + m][i*3]     -= dmdx;
-                        // dmcsh[ii*nmcsh + m][i*3 + 1] -= dmdy;
-                        // dmcsh[ii*nmcsh + m][i*3 + 2] -= dmdz;
                     }
 
                     delete [] sum_dmiu1_dxj;
@@ -5525,8 +5510,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(doub
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                        double elemental_sigma_cutoff_sqr = pow(elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order], 2);
-                        if (r0_sqr > elemental_sigma_cutoff_sqr)
+                        double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+                        if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
@@ -5690,18 +5675,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(
             // params_d: sigma, weight, A, alpha, cutoff, inv_rs
             double A = params_d[m][2], alpha = params_d[m][3];
             double weight = 1.0;
-            // double weight = params_d[m][1];
             double sum_square = 0.0;
-            //double sum_square_derivative_x = 0.0, sum_square_derivative_y = 0.0, sum_square_derivative_z = 0.0;
-            // std::cout << "------------" << std::endl;
-            // std::cout << mcsh_order << "\t" << num_groups  << std::endl;
             for (int group_index = 1; group_index < (num_groups+1); ++group_index){
                 SolidGMPFunction mcsh_function = get_solid_mcsh_function(mcsh_order, group_index);
                 double group_coefficient = get_group_coefficients(mcsh_order, group_index);
                 int mcsh_type = get_mcsh_type(mcsh_order, group_index);
-
-                // std::cout << "\t" << group_index  << "\t"<< mcsh_type << "\t" << group_coefficient<< std::endl;
-
                 
                 if (mcsh_type == 1){
                     double sum_miu = 0.0;
@@ -5723,8 +5701,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                        double elemental_sigma_cutoff_sqr = pow(elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order], 2);
-                        if (r0_sqr > elemental_sigma_cutoff_sqr)
+                        double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+                        if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
@@ -5802,8 +5780,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                        double elemental_sigma_cutoff_sqr = pow(elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order], 2);
-                        if (r0_sqr > elemental_sigma_cutoff_sqr)
+                        double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+                        if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
@@ -5926,8 +5904,8 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                        double elemental_sigma_cutoff_sqr = pow(elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order], 2);
-                        if (r0_sqr > elemental_sigma_cutoff_sqr)
+                        double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+                        if (r0_sqr > (elemental_sigma_cutoff*elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
@@ -6167,11 +6145,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
 
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
@@ -6193,11 +6171,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
                     double miu[3];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
@@ -6224,11 +6202,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
                     double miu[6];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
@@ -6314,7 +6292,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_
                        ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
 
         for (int m = 0; m < nmcsh; ++m) {
-            int mcsh_order = params_i[m][0], square = params_i[m][1];
+            int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
             int num_groups = get_num_groups(mcsh_order);
             // params_d: sigma, weight, A, alpha, cutoff, inv_rs
             double A = params_d[m][2], alpha = params_d[m][3];
@@ -6337,11 +6315,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_
 
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
@@ -6382,11 +6360,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_
                     double miu[3];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
@@ -6442,11 +6420,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_
                     double miu[6];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
@@ -6596,11 +6574,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_d
 
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff_sqr = pow(elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g], 2);
@@ -6662,11 +6640,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_d
                     double miu[3], deriv[9];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff_sqr = pow(elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g], 2);
@@ -6762,11 +6740,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_d
                     double miu[6], deriv[18];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff_sqr = pow(elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g], 2);
@@ -6991,11 +6969,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_o
 
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff_sqr = pow(elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g], 2);
@@ -7027,10 +7005,6 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_o
 
                         dmdocc = (sum_miu * sum_dmiu_docc[j]) * group_coefficient * 2.0;
                         dmcsh_docc[ii*nmcsh + m][nei_list_i[j*2 + 1]] += dmdocc;
-
-                        // dmcsh[ii*nmcsh + m][i*3]     -= dmdx;
-                        // dmcsh[ii*nmcsh + m][i*3 + 1] -= dmdy;
-                        // dmcsh[ii*nmcsh + m][i*3 + 2] -= dmdz;
                     }
 
                     delete [] sum_dmiu_dxj;
@@ -7075,11 +7049,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_o
                     double miu[3], deriv[9];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff_sqr = pow(elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g], 2);
@@ -7123,10 +7097,6 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_o
 
                         dmdocc = (sum_miu1 * sum_dmiu1_docc[j] + sum_miu2 * sum_dmiu2_docc[j] + sum_miu3 * sum_dmiu3_docc[j]) * group_coefficient * 2.0;
                         dmcsh_docc[ii*nmcsh + m][nei_list_i[j*2 + 1]] += dmdocc;
-
-                        // dmcsh[ii*nmcsh + m][i*3]     -= dmdx;
-                        // dmcsh[ii*nmcsh + m][i*3 + 1] -= dmdy;
-                        // dmcsh[ii*nmcsh + m][i*3 + 2] -= dmdz;
                     }
 
                     delete [] sum_dmiu1_dxj;
@@ -7204,11 +7174,11 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_o
                     double miu[6], deriv[18];
                     for (int j = 0; j < nneigh; ++j) {
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                        int neigh_atom_element_index = nei_list_i[j*2];
+                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
-                        int neigh_atom_element_index = nei_list_i[j*2];
-                        int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
                             double elemental_sigma_gausisan_cutoff_sqr = pow(elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g], 2);
@@ -7279,10 +7249,6 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_o
                                   sum_miu5 * sum_dmiu5_docc[j] + sum_miu6 * sum_dmiu6_docc[j]) * group_coefficient * 2.0;
 
                         dmcsh_docc[ii*nmcsh + m][nei_list_i[j*2 + 1]] += dmdocc;
-
-                        // dmcsh[ii*nmcsh + m][i*3]     -= dmdx;
-                        // dmcsh[ii*nmcsh + m][i*3 + 1] -= dmdy;
-                        // dmcsh[ii*nmcsh + m][i*3 + 2] -= dmdz;
                     }
                     
                     delete [] sum_dmiu1_dxj;

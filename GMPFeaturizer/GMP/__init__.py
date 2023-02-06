@@ -164,7 +164,7 @@ class GMP(BaseFeature):
                         0, psp, threshold=self.overlap_threshold
                     )
                     element_distances.append(element_distance)
-                    print(order, 0, element, element_distance)
+                    # print(order, 0, element, element_distance)
                 elemental_order_sigma_cutoffs.append(element_distances)
                 order_sigma_index_dict[0] = order_sigma_index
                 order_sigma_index += 1
@@ -179,7 +179,7 @@ class GMP(BaseFeature):
                             threshold=self.overlap_threshold * factors[order],
                         )
                         element_distances.append(element_distance)
-                        print(order, sigma, element, element_distance)
+                        # print(order, sigma, element, element_distance)
                     elemental_order_sigma_cutoffs.append(element_distances)
                     order_sigma_index_dict[(order, sigma)] = order_sigma_index
                     order_sigma_index += 1
