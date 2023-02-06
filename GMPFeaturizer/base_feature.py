@@ -48,6 +48,7 @@ class BaseFeature(ABC):
         image,
         ref_positions,
         calc_derivatives,
+        calc_occ_derivatives,
         save_features,
     ):
         # print("start")
@@ -67,8 +68,8 @@ class BaseFeature(ABC):
                     ref_positions,
                     image_db_filename,
                     calc_derivatives=calc_derivatives,
+                    calc_occ_derivatives=calc_occ_derivatives,
                     save_features=save_features,
-                    # cores=cores,
                 )
             except Exception:
                 print(
@@ -80,8 +81,8 @@ class BaseFeature(ABC):
                     image,
                     ref_positions,
                     calc_derivatives=calc_derivatives,
+                    calc_occ_derivatives=calc_occ_derivatives,
                     save_features=save_features,
-                    # cores=cores,
                 )
 
         # if not save, compute fps on-the-fly
@@ -90,8 +91,8 @@ class BaseFeature(ABC):
                 image,
                 ref_positions,
                 calc_derivatives=calc_derivatives,
+                calc_occ_derivatives=calc_occ_derivatives,
                 save_features=save_features,
-                # cores=cores,
             )
 
         return temp_image_dict
@@ -102,6 +103,7 @@ class BaseFeature(ABC):
         ref_positions,
         image_db_filename,
         calc_derivatives,
+        calc_occ_derivatives,
         save_features,
     ):
 
@@ -129,6 +131,10 @@ class BaseFeature(ABC):
                     feature_primes_size = np.array(
                         current_snapshot_grp["feature_primes_size"]
                     )
+                    if calc_occ_derivatives:
+                        features_occ_primes = np.array(
+                            current_snapshot_grp["feature_occ_primes"]
+                        )
                 except Exception:
                     (
                         size_info,
@@ -137,6 +143,7 @@ class BaseFeature(ABC):
                         feature_primes_row,
                         feature_primes_col,
                         feature_primes_size,
+                        feature_occ_primes,
                     ) = self.calculate_features(
                         image["cell"],
                         image["pbc"],
@@ -145,6 +152,7 @@ class BaseFeature(ABC):
                         image["occupancies"],
                         ref_positions,
                         calc_derivatives=calc_derivatives,
+                        calc_occ_derivatives=calc_occ_derivatives,
                     )
 
                     if save_features:
@@ -162,6 +170,10 @@ class BaseFeature(ABC):
                         current_snapshot_grp.create_dataset(
                             "feature_primes_size", data=feature_primes_size
                         )
+                        if calc_occ_derivatives:
+                            current_snapshot_grp.create_dataset(
+                                "feature_occ_primes", data=feature_occ_primes
+                            )
 
                 image_dict["features"] = features
                 # image_dict["num_features"] = size_info[2]
@@ -169,14 +181,20 @@ class BaseFeature(ABC):
                 feature_prime_dict["col"] = feature_primes_col
                 feature_prime_dict["val"] = feature_primes_val
                 image_dict["feature_primes"] = feature_prime_dict
+                if calc_occ_derivatives:
+                    image_dict["feature_occ_primes"] = feature_occ_primes
 
             else:
                 # features = np.array(current_snapshot_grp["features"])
                 try:
                     # size_info = np.array(current_snapshot_grp["size_info"])
                     features = np.array(current_snapshot_grp["features"])
+                    if calc_occ_derivatives:
+                        features_occ_primes = np.array(
+                            current_snapshot_grp["feature_occ_primes"]
+                        )
                 except Exception:
-                    size_info, features, _, _, _, _ = self.calculate_features(
+                    size_info, features, _, _, _, _, feature_occ_primes = self.calculate_features(
                         image["cell"],
                         image["pbc"],
                         image["atom_positions"],
@@ -184,13 +202,20 @@ class BaseFeature(ABC):
                         image["occupancies"],
                         ref_positions,
                         calc_derivatives=calc_derivatives,
+                        calc_occ_derivatives=calc_occ_derivatives,
                     )
 
                     if save_features:
                         current_snapshot_grp.create_dataset("size_info", data=size_info)
                         current_snapshot_grp.create_dataset("features", data=features)
+                        if calc_occ_derivatives:
+                            current_snapshot_grp.create_dataset(
+                                "feature_occ_primes", data=feature_occ_primes
+                            )
 
                 image_dict["features"] = features
+                if calc_occ_derivatives:
+                    image_dict["feature_occ_primes"] = feature_occ_primes
 
         return image_dict
 
@@ -199,6 +224,7 @@ class BaseFeature(ABC):
         image,
         ref_positions,
         calc_derivatives,
+        calc_occ_derivatives,
         save_features,
     ):
 
@@ -213,6 +239,7 @@ class BaseFeature(ABC):
                 feature_primes_row,
                 feature_primes_col,
                 feature_primes_size,
+                feature_occ_primes,
             ) = self.calculate_features(
                 image["cell"],
                 image["pbc"],
@@ -221,6 +248,7 @@ class BaseFeature(ABC):
                 image["occupancies"],
                 ref_positions,
                 calc_derivatives=calc_derivatives,
+                calc_occ_derivatives=calc_occ_derivatives,
             )
 
             image_dict["features"] = features
@@ -231,9 +259,11 @@ class BaseFeature(ABC):
             feature_prime_dict["col"] = feature_primes_col
             feature_prime_dict["val"] = feature_primes_val
             image_dict["feature_primes"] = feature_prime_dict
+            if calc_occ_derivatives:
+                image_dict["feature_occ_primes"] = feature_occ_primes
 
         else:
-            size_info, features, _, _, _, _ = self.calculate_features(
+            size_info, features, _, _, _, _, feature_occ_primes = self.calculate_features(
                 image["cell"],
                 image["pbc"],
                 image["atom_positions"],
@@ -241,9 +271,12 @@ class BaseFeature(ABC):
                 image["occupancies"],
                 ref_positions,
                 calc_derivatives=calc_derivatives,
+                calc_occ_derivatives=calc_occ_derivatives,
             )
 
             image_dict["features"] = features
+            if calc_occ_derivatives:
+                image_dict["feature_occ_primes"] = feature_occ_primes
 
         return image_dict
 

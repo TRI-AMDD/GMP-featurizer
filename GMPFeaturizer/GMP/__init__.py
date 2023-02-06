@@ -472,7 +472,7 @@ class GMP(BaseFeature):
     def _prepare_feature_parameters(self):
         feature_setup = []
         # cutoff = self.GMPs["cutoff"]
-        self.solid_harmonic = self.GMPs.get("solid_harmonics", False)
+        self.solid_harmonic = self.GMPs.get("solid_harmonics", True)
         solid_harmonic_i = 1 if self.solid_harmonic else 0
         square = self.GMPs.get("square", True)
         square_i = 1 if square else 0
@@ -787,7 +787,7 @@ class GMP(BaseFeature):
         occupancies,
         ref_positions,
         calc_derivatives,
-        calc_derivatives_occ=False,
+        calc_occ_derivatives,
     ):
         assert isinstance(cell, np.ndarray)
         assert cell.shape == (3, 3)
@@ -876,26 +876,599 @@ class GMP(BaseFeature):
 
         #     size_info = np.array([atom_num, cal_num, self.params_set["num"]])
 
-        if calc_derivatives_occ:
-            x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
-            dx = np.zeros(
-                [cal_num * self.params_set["num"], atom_num * 3],
-                dtype=np.float64,
-                order="C",
-            )
-            dxdocc = np.zeros(
-                [cal_num * self.params_set["num"], atom_num],
-                dtype=np.float64,
-                order="C",
-            )
+        if self.solid_harmonic:
+            if calc_derivatives == False and calc_occ_derivatives == False:
+                x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+                x_p = _gen_2Darray_for_ffi(x, ffi)
 
-            x_p = _gen_2Darray_for_ffi(x, ffi)
-            dx_p = _gen_2Darray_for_ffi(dx, ffi)
-            dxdocc_p = _gen_2Darray_for_ffi(dxdocc, ffi)
+                if self.custom_cutoff == -1:
+                    errno = lib.calculate_solid_gmpordernorm_noderiv_ref(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
 
-            if self.solid_harmonic:
-                if self.custom_cutoff == 3:
-                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_derivative(
+                elif self.custom_cutoff == 0:
+                    errno = lib.calculate_solid_gmpordernorm_noderiv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+
+                elif self.custom_cutoff == 1:
+                    errno = lib.calculate_solid_gmpordernorm_sigma_cutoff_noderiv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+
+                elif self.custom_cutoff == 2:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_noderiv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+
+                elif self.custom_cutoff == 3:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_noderiv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+
+                elif self.custom_cutoff == 4:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.max_num_gaussians,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+
+                else:
+                    raise NotImplementedError
+                
+                if errno == 1:
+                    raise NotImplementedError("Feature not implemented!")
+                fp = np.array(x, dtype=np.float64)
+
+                return size_info, fp, None, None, None, None, None
+
+
+            elif calc_derivatives == False and calc_occ_derivatives == True:
+                x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+                dxdocc = np.zeros(
+                    [cal_num * self.params_set["num"], atom_num],
+                    dtype=np.float64,
+                    order="C",
+                )
+
+                x_p = _gen_2Darray_for_ffi(x, ffi)
+                dxdocc_p = _gen_2Darray_for_ffi(dxdocc, ffi)
+
+                if self.custom_cutoff == -1:
+                    errno = lib.calculate_solid_gmpordernorm_occ_deriv_ref(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 0:
+                    errno = lib.calculate_solid_gmpordernorm_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 1:
+                    errno = lib.calculate_solid_gmpordernorm_sigma_cutoff_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 2:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 3:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 4:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.max_num_gaussians,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dxdocc_p,
+                    )
+
+                else:
+                    raise NotImplementedError
+                if errno == 1:
+                    raise NotImplementedError("Feature not implemented!")
+                fp = np.array(x, dtype=np.float64)
+                dfp_docc = np.array(dxdocc, dtype=np.float64)
+
+                return size_info, fp, None, None, None, None, dfp_docc
+
+            elif calc_derivatives == True and calc_occ_derivatives == False:
+                x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+                dx = np.zeros(
+                    [cal_num * self.params_set["num"], atom_num * 3],
+                    dtype=np.float64,
+                    order="C",
+                )
+
+                x_p = _gen_2Darray_for_ffi(x, ffi)
+                dx_p = _gen_2Darray_for_ffi(dx, ffi)
+
+                if self.custom_cutoff == -1:
+                    errno = lib.calculate_solid_gmpordernorm_fp_deriv_ref(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                    )
+
+                elif self.custom_cutoff == 0:
+                    errno = lib.calculate_solid_gmpordernorm_fp_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                    )
+
+                elif self.custom_cutoff == 1:
+                    errno = lib.calculate_solid_gmpordernorm_sigma_cutoff_fp_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                    )
+
+                elif self.custom_cutoff == 2:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                    )
+
+                elif self.custom_cutoff == 3:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                    )
+
+                elif self.custom_cutoff == 4:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.max_num_gaussians,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                    )
+
+                else:
+                    raise NotImplementedError
+                
+                if errno == 1:
+                    raise NotImplementedError("Feature not implemented!")
+                fp = np.array(x, dtype=np.float64)
+                fp_prime = np.array(dx, dtype=np.float64)
+
+                scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
+
+                return (
+                    size_info,
+                    fp,
+                    scipy_sparse_fp_prime.data,
+                    scipy_sparse_fp_prime.row,
+                    scipy_sparse_fp_prime.col,
+                    np.array(fp_prime.shape),
+                    None,
+                )
+
+            else:
+                x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+                dx = np.zeros(
+                    [cal_num * self.params_set["num"], atom_num * 3],
+                    dtype=np.float64,
+                    order="C",
+                )
+                dxdocc = np.zeros(
+                    [cal_num * self.params_set["num"], atom_num],
+                    dtype=np.float64,
+                    order="C",
+                )
+
+                x_p = _gen_2Darray_for_ffi(x, ffi)
+                dx_p = _gen_2Darray_for_ffi(dx, ffi)
+                dxdocc_p = _gen_2Darray_for_ffi(dxdocc, ffi)
+
+                if self.custom_cutoff == -1:
+                    errno = lib.calculate_solid_gmpordernorm_fp_occ_deriv_ref(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 0:
+                    errno = lib.calculate_solid_gmpordernorm_fp_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 1:
+                    errno = lib.calculate_solid_gmpordernorm_sigma_cutoff_fp_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 2:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_sigma_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                        dxdocc_p,
+                    )
+
+                elif self.custom_cutoff == 3:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(
                         cell_p,
                         cart_p,
                         occupancies_p,
@@ -918,335 +1491,584 @@ class GMP(BaseFeature):
                         dx_p,
                         dxdocc_p,
                     )
+
+                elif self.custom_cutoff == 4:
+                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_occ_deriv(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.nsigmas,
+                        self.max_num_gaussians,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["elemental_order_sigma_cutoffs_p"],
+                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                        dxdocc_p,
+                    )
+
                 else:
                     raise NotImplementedError
+
+                if errno == 1:
+                    raise NotImplementedError("Feature not implemented!")
+                fp = np.array(x, dtype=np.float64)
+                fp_prime = np.array(dx, dtype=np.float64)
+                dfp_docc = np.array(dxdocc, dtype=np.float64)
+
+                scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
+
+                return (
+                    size_info,
+                    fp,
+                    scipy_sparse_fp_prime.data,
+                    scipy_sparse_fp_prime.row,
+                    scipy_sparse_fp_prime.col,
+                    np.array(fp_prime.shape),
+                    dfp_docc,
+                )
+
+        
+
+        else:
+
+            if calc_derivatives == False and calc_occ_derivatives == False:
+                x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+                x_p = _gen_2Darray_for_ffi(x, ffi)
+                if self.custom_cutoff == -1:
+                    errno = lib.calculate_surface_gmpordernorm_noderiv_ref(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                    )
+
+                else:
+                    raise NotImplementedError
+
+                if errno == 1:
+                    raise NotImplementedError("Feature not implemented!")
+                fp = np.array(x, dtype=np.float64)
+
+                return (
+                    size_info,
+                    fp,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+
+            elif calc_derivatives == False and calc_occ_derivatives == True:
+                raise NotImplementedError
+
+            elif calc_derivatives == True and calc_occ_derivatives == False:
+                x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+                dx = np.zeros(
+                    [cal_num * self.params_set["num"], atom_num * 3],
+                    dtype=np.float64,
+                    order="C",
+                )
+
+                x_p = _gen_2Darray_for_ffi(x, ffi)
+                dx_p = _gen_2Darray_for_ffi(dx, ffi)
+
+                if self.custom_cutoff == -1:
+                    errno = lib.calculate_surface_gmpordernorm_fp_deriv_ref(
+                        cell_p,
+                        cart_p,
+                        occupancies_p,
+                        ref_cart_p,
+                        scale_p,
+                        ref_scale_p,
+                        pbc_p,
+                        atom_indices_p,
+                        atom_num,
+                        cal_num,
+                        self.params_set["ip"],
+                        self.params_set["dp"],
+                        self.params_set["num"],
+                        self.params_set["gaussian_params_p"],
+                        self.params_set["ngaussians_p"],
+                        self.params_set["element_index_to_order_p"],
+                        x_p,
+                        dx_p,
+                    )
+
+                else:
+                    raise NotImplementedError
+
+                if errno == 1:
+                    raise NotImplementedError("Feature not implemented!")
+                fp = np.array(x, dtype=np.float64)
+                fp_prime = np.array(dx, dtype=np.float64)
+
+                scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
+
+
+                return (
+                    size_info,
+                    fp,
+                    scipy_sparse_fp_prime.data,
+                    scipy_sparse_fp_prime.row,
+                    scipy_sparse_fp_prime.col,
+                    np.array(fp_prime.shape),
+                    None,
+                )
 
             else:
                 raise NotImplementedError
 
-            if errno == 1:
-                raise NotImplementedError("Feature not implemented!")
-            fp = np.array(x, dtype=np.float64)
-            fp_prime = np.array(dx, dtype=np.float64)
-            fp_occ_prime = np.array(dxdocc, dtype=np.float64)
 
-            scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
 
-            return (
-                size_info,
-                fp,
-                scipy_sparse_fp_prime.data,
-                scipy_sparse_fp_prime.row,
-                scipy_sparse_fp_prime.col,
-                np.array(fp_prime.shape),
-                fp_occ_prime,
-            )
 
-        if calc_derivatives:
 
-            x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
-            dx = np.zeros(
-                [cal_num * self.params_set["num"], atom_num * 3],
-                dtype=np.float64,
-                order="C",
-            )
 
-            x_p = _gen_2Darray_for_ffi(x, ffi)
-            dx_p = _gen_2Darray_for_ffi(dx, ffi)
 
-            if self.solid_harmonic:
-                if self.custom_cutoff == 0:
-                    errno = lib.calculate_solid_gmpordernorm(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                        dx_p,
-                    )
-                elif self.custom_cutoff == 3:
-                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.nsigmas,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["elemental_order_sigma_cutoffs_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                        dx_p,
-                    )
 
-                elif self.custom_cutoff == 4:
-                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.nsigmas,
-                        self.max_num_gaussians,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["elemental_order_sigma_cutoffs_p"],
-                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                        dx_p,
-                    )
 
-            else:
-                errno = lib.calculate_gmpordernorm(
-                    cell_p,
-                    cart_p,
-                    occupancies_p,
-                    ref_cart_p,
-                    scale_p,
-                    ref_scale_p,
-                    pbc_p,
-                    atom_indices_p,
-                    atom_num,
-                    cal_num,
-                    self.params_set["ip"],
-                    self.params_set["dp"],
-                    self.params_set["num"],
-                    self.params_set["gaussian_params_p"],
-                    self.params_set["ngaussians_p"],
-                    self.params_set["element_index_to_order_p"],
-                    x_p,
-                    dx_p,
-                )
 
-            if errno == 1:
-                raise NotImplementedError("Feature not implemented!")
-            fp = np.array(x, dtype=np.float64)
-            fp_prime = np.array(dx, dtype=np.float64)
 
-            # threshold = 1e-9
-            # super_threshold_indices_prime = np.abs(fp_prime) < threshold
-            # print("threshold: {} \tnum points set to zero:{} \t outof: {}".format(threshold, np.sum(super_threshold_indices_prime), fp_prime.shape[0] * fp_prime.shape[1]))
-            # fp_prime[super_threshold_indices_prime] = 0.0
-            # print(fp_prime)
-            scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
-            # print(fp)
-            # print(fp.shape)
-            # print(np.sum(super_threshold_indices))
-            # print(np.min(np.abs(scipy_sparse_fp_prime.data)))
-            # print("density: {}% \n\n----------------------".format(100*len(scipy_sparse_fp_prime.data) / (fp_prime.shape[0] * fp_prime.shape[1])))
-            # if self.params_set["log"]:
-            #     raise NotImplementedError
 
-            return (
-                size_info,
-                fp,
-                scipy_sparse_fp_prime.data,
-                scipy_sparse_fp_prime.row,
-                scipy_sparse_fp_prime.col,
-                np.array(fp_prime.shape),
-            )
 
-        else:
-            x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
 
-            x_p = _gen_2Darray_for_ffi(x, ffi)
 
-            if self.solid_harmonic:
-                if self.custom_cutoff == 1:
-                    errno = lib.calculate_solid_gmpordernorm_noderiv_sigma_cutoff(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                    )
-                elif self.custom_cutoff == 2:
-                    errno = (
-                        lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
-                            cell_p,
-                            cart_p,
-                            occupancies_p,
-                            ref_cart_p,
-                            scale_p,
-                            ref_scale_p,
-                            pbc_p,
-                            atom_indices_p,
-                            atom_num,
-                            cal_num,
-                            self.nsigmas,
-                            self.params_set["ip"],
-                            self.params_set["dp"],
-                            self.params_set["num"],
-                            self.params_set["gaussian_params_p"],
-                            self.params_set["ngaussians_p"],
-                            self.params_set["elemental_sigma_cutoffs_p"],
-                            self.params_set["element_index_to_order_p"],
-                            x_p,
-                        )
-                    )
-                elif self.custom_cutoff == 3:
-                    errno = (
-                        lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
-                            cell_p,
-                            cart_p,
-                            occupancies_p,
-                            ref_cart_p,
-                            scale_p,
-                            ref_scale_p,
-                            pbc_p,
-                            atom_indices_p,
-                            atom_num,
-                            cal_num,
-                            self.nsigmas,
-                            self.params_set["ip"],
-                            self.params_set["dp"],
-                            self.params_set["num"],
-                            self.params_set["gaussian_params_p"],
-                            self.params_set["ngaussians_p"],
-                            self.params_set["elemental_order_sigma_cutoffs_p"],
-                            self.params_set["element_index_to_order_p"],
-                            x_p,
-                        )
-                    )
-                elif self.custom_cutoff == 4:
-                    errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_gaussian_cutoff(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.nsigmas,
-                        self.max_num_gaussians,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["elemental_order_sigma_cutoffs_p"],
-                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                    )
-                elif self.custom_cutoff == 0:
-                    errno = lib.calculate_solid_gmpordernorm_noderiv_original(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                    )
-                elif self.custom_cutoff == -1:
-                    errno = lib.calculate_solid_gmpordernorm_noderiv_original(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                    )
-                else:
-                    raise NotImplementedError
 
-            else:
-                errno = lib.calculate_gmpordernorm_noderiv(
-                    cell_p,
-                    cart_p,
-                    occupancies_p,
-                    ref_cart_p,
-                    scale_p,
-                    ref_scale_p,
-                    pbc_p,
-                    atom_indices_p,
-                    atom_num,
-                    cal_num,
-                    self.params_set["ip"],
-                    self.params_set["dp"],
-                    self.params_set["num"],
-                    self.params_set["gaussian_params_p"],
-                    self.params_set["ngaussians_p"],
-                    self.params_set["element_index_to_order_p"],
-                    x_p,
-                )
 
-            if errno == 1:
-                raise NotImplementedError("Feature not implemented!")
 
-            # print("calculation done")
 
-            fp = np.array(x, dtype=np.float64)
-            # if self.params_set["log"]:
-            #     fp = np.abs(fp)
-            #     fp[fp < 1e-8] = 1e-8
-            #     fp = np.log10(fp)
 
-            return size_info, fp, None, None, None, None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # if calc_derivatives_occ:
+        #     x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+        #     dx = np.zeros(
+        #         [cal_num * self.params_set["num"], atom_num * 3],
+        #         dtype=np.float64,
+        #         order="C",
+        #     )
+        #     dxdocc = np.zeros(
+        #         [cal_num * self.params_set["num"], atom_num],
+        #         dtype=np.float64,
+        #         order="C",
+        #     )
+
+        #     x_p = _gen_2Darray_for_ffi(x, ffi)
+        #     dx_p = _gen_2Darray_for_ffi(dx, ffi)
+        #     dxdocc_p = _gen_2Darray_for_ffi(dxdocc, ffi)
+
+        #     if self.solid_harmonic:
+        #         if self.custom_cutoff == 3:
+        #             errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_derivative(
+        #                 cell_p,
+        #                 cart_p,
+        #                 occupancies_p,
+        #                 ref_cart_p,
+        #                 scale_p,
+        #                 ref_scale_p,
+        #                 pbc_p,
+        #                 atom_indices_p,
+        #                 atom_num,
+        #                 cal_num,
+        #                 self.nsigmas,
+        #                 self.params_set["ip"],
+        #                 self.params_set["dp"],
+        #                 self.params_set["num"],
+        #                 self.params_set["gaussian_params_p"],
+        #                 self.params_set["ngaussians_p"],
+        #                 self.params_set["elemental_order_sigma_cutoffs_p"],
+        #                 self.params_set["element_index_to_order_p"],
+        #                 x_p,
+        #                 dx_p,
+        #                 dxdocc_p,
+        #             )
+        #         else:
+        #             raise NotImplementedError
+
+        #     else:
+        #         raise NotImplementedError
+
+        #     if errno == 1:
+        #         raise NotImplementedError("Feature not implemented!")
+        #     fp = np.array(x, dtype=np.float64)
+        #     fp_prime = np.array(dx, dtype=np.float64)
+        #     fp_occ_prime = np.array(dxdocc, dtype=np.float64)
+
+        #     scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
+
+        #     return (
+        #         size_info,
+        #         fp,
+        #         scipy_sparse_fp_prime.data,
+        #         scipy_sparse_fp_prime.row,
+        #         scipy_sparse_fp_prime.col,
+        #         np.array(fp_prime.shape),
+        #         fp_occ_prime,
+        #     )
+
+        # if calc_derivatives:
+
+        #     x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+        #     dx = np.zeros(
+        #         [cal_num * self.params_set["num"], atom_num * 3],
+        #         dtype=np.float64,
+        #         order="C",
+        #     )
+
+        #     x_p = _gen_2Darray_for_ffi(x, ffi)
+        #     dx_p = _gen_2Darray_for_ffi(dx, ffi)
+
+        #     if self.solid_harmonic:
+        #         if self.custom_cutoff == 0:
+        #             errno = lib.calculate_solid_gmpordernorm(
+        #                 cell_p,
+        #                 cart_p,
+        #                 occupancies_p,
+        #                 ref_cart_p,
+        #                 scale_p,
+        #                 ref_scale_p,
+        #                 pbc_p,
+        #                 atom_indices_p,
+        #                 atom_num,
+        #                 cal_num,
+        #                 self.params_set["ip"],
+        #                 self.params_set["dp"],
+        #                 self.params_set["num"],
+        #                 self.params_set["gaussian_params_p"],
+        #                 self.params_set["ngaussians_p"],
+        #                 self.params_set["element_index_to_order_p"],
+        #                 x_p,
+        #                 dx_p,
+        #             )
+        #         elif self.custom_cutoff == 3:
+        #             errno = lib.calculate_solid_gmpordernorm_elemental_sigma_cutoff(
+        #                 cell_p,
+        #                 cart_p,
+        #                 occupancies_p,
+        #                 ref_cart_p,
+        #                 scale_p,
+        #                 ref_scale_p,
+        #                 pbc_p,
+        #                 atom_indices_p,
+        #                 atom_num,
+        #                 cal_num,
+        #                 self.nsigmas,
+        #                 self.params_set["ip"],
+        #                 self.params_set["dp"],
+        #                 self.params_set["num"],
+        #                 self.params_set["gaussian_params_p"],
+        #                 self.params_set["ngaussians_p"],
+        #                 self.params_set["elemental_order_sigma_cutoffs_p"],
+        #                 self.params_set["element_index_to_order_p"],
+        #                 x_p,
+        #                 dx_p,
+        #             )
+
+        #         elif self.custom_cutoff == 4:
+        #             errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff(
+        #                 cell_p,
+        #                 cart_p,
+        #                 occupancies_p,
+        #                 ref_cart_p,
+        #                 scale_p,
+        #                 ref_scale_p,
+        #                 pbc_p,
+        #                 atom_indices_p,
+        #                 atom_num,
+        #                 cal_num,
+        #                 self.nsigmas,
+        #                 self.max_num_gaussians,
+        #                 self.params_set["ip"],
+        #                 self.params_set["dp"],
+        #                 self.params_set["num"],
+        #                 self.params_set["gaussian_params_p"],
+        #                 self.params_set["ngaussians_p"],
+        #                 self.params_set["elemental_order_sigma_cutoffs_p"],
+        #                 self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+        #                 self.params_set["element_index_to_order_p"],
+        #                 x_p,
+        #                 dx_p,
+        #             )
+
+        #     else:
+        #         errno = lib.calculate_gmpordernorm(
+        #             cell_p,
+        #             cart_p,
+        #             occupancies_p,
+        #             ref_cart_p,
+        #             scale_p,
+        #             ref_scale_p,
+        #             pbc_p,
+        #             atom_indices_p,
+        #             atom_num,
+        #             cal_num,
+        #             self.params_set["ip"],
+        #             self.params_set["dp"],
+        #             self.params_set["num"],
+        #             self.params_set["gaussian_params_p"],
+        #             self.params_set["ngaussians_p"],
+        #             self.params_set["element_index_to_order_p"],
+        #             x_p,
+        #             dx_p,
+        #         )
+
+        #     if errno == 1:
+        #         raise NotImplementedError("Feature not implemented!")
+        #     fp = np.array(x, dtype=np.float64)
+        #     fp_prime = np.array(dx, dtype=np.float64)
+
+        #     # threshold = 1e-9
+        #     # super_threshold_indices_prime = np.abs(fp_prime) < threshold
+        #     # print("threshold: {} \tnum points set to zero:{} \t outof: {}".format(threshold, np.sum(super_threshold_indices_prime), fp_prime.shape[0] * fp_prime.shape[1]))
+        #     # fp_prime[super_threshold_indices_prime] = 0.0
+        #     # print(fp_prime)
+        #     scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
+        #     # print(fp)
+        #     # print(fp.shape)
+        #     # print(np.sum(super_threshold_indices))
+        #     # print(np.min(np.abs(scipy_sparse_fp_prime.data)))
+        #     # print("density: {}% \n\n----------------------".format(100*len(scipy_sparse_fp_prime.data) / (fp_prime.shape[0] * fp_prime.shape[1])))
+        #     # if self.params_set["log"]:
+        #     #     raise NotImplementedError
+
+        #     return (
+        #         size_info,
+        #         fp,
+        #         scipy_sparse_fp_prime.data,
+        #         scipy_sparse_fp_prime.row,
+        #         scipy_sparse_fp_prime.col,
+        #         np.array(fp_prime.shape),
+        #     )
+
+        # else:
+        #     x = np.zeros([cal_num, self.params_set["num"]], dtype=np.float64, order="C")
+
+        #     x_p = _gen_2Darray_for_ffi(x, ffi)
+
+        #     if self.solid_harmonic:
+        #         if self.custom_cutoff == 1:
+        #             errno = lib.calculate_solid_gmpordernorm_noderiv_sigma_cutoff(
+        #                 cell_p,
+        #                 cart_p,
+        #                 occupancies_p,
+        #                 ref_cart_p,
+        #                 scale_p,
+        #                 ref_scale_p,
+        #                 pbc_p,
+        #                 atom_indices_p,
+        #                 atom_num,
+        #                 cal_num,
+        #                 self.params_set["ip"],
+        #                 self.params_set["dp"],
+        #                 self.params_set["num"],
+        #                 self.params_set["gaussian_params_p"],
+        #                 self.params_set["ngaussians_p"],
+        #                 self.params_set["element_index_to_order_p"],
+        #                 x_p,
+        #             )
+        #         elif self.custom_cutoff == 2:
+        #             errno = (
+        #                 lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+        #                     cell_p,
+        #                     cart_p,
+        #                     occupancies_p,
+        #                     ref_cart_p,
+        #                     scale_p,
+        #                     ref_scale_p,
+        #                     pbc_p,
+        #                     atom_indices_p,
+        #                     atom_num,
+        #                     cal_num,
+        #                     self.nsigmas,
+        #                     self.params_set["ip"],
+        #                     self.params_set["dp"],
+        #                     self.params_set["num"],
+        #                     self.params_set["gaussian_params_p"],
+        #                     self.params_set["ngaussians_p"],
+        #                     self.params_set["elemental_sigma_cutoffs_p"],
+        #                     self.params_set["element_index_to_order_p"],
+        #                     x_p,
+        #                 )
+        #             )
+        #         elif self.custom_cutoff == 3:
+        #             errno = (
+        #                 lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(
+        #                     cell_p,
+        #                     cart_p,
+        #                     occupancies_p,
+        #                     ref_cart_p,
+        #                     scale_p,
+        #                     ref_scale_p,
+        #                     pbc_p,
+        #                     atom_indices_p,
+        #                     atom_num,
+        #                     cal_num,
+        #                     self.nsigmas,
+        #                     self.params_set["ip"],
+        #                     self.params_set["dp"],
+        #                     self.params_set["num"],
+        #                     self.params_set["gaussian_params_p"],
+        #                     self.params_set["ngaussians_p"],
+        #                     self.params_set["elemental_order_sigma_cutoffs_p"],
+        #                     self.params_set["element_index_to_order_p"],
+        #                     x_p,
+        #                 )
+        #             )
+        #         elif self.custom_cutoff == 4:
+        #             errno = lib.calculate_solid_gmpordernorm_noderiv_elemental_sigma_gaussian_cutoff(
+        #                 cell_p,
+        #                 cart_p,
+        #                 occupancies_p,
+        #                 ref_cart_p,
+        #                 scale_p,
+        #                 ref_scale_p,
+        #                 pbc_p,
+        #                 atom_indices_p,
+        #                 atom_num,
+        #                 cal_num,
+        #                 self.nsigmas,
+        #                 self.max_num_gaussians,
+        #                 self.params_set["ip"],
+        #                 self.params_set["dp"],
+        #                 self.params_set["num"],
+        #                 self.params_set["gaussian_params_p"],
+        #                 self.params_set["ngaussians_p"],
+        #                 self.params_set["elemental_order_sigma_cutoffs_p"],
+        #                 self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+        #                 self.params_set["element_index_to_order_p"],
+        #                 x_p,
+        #             )
+        #         elif self.custom_cutoff == 0:
+        #             errno = lib.calculate_solid_gmpordernorm_noderiv_original(
+        #                 cell_p,
+        #                 cart_p,
+        #                 occupancies_p,
+        #                 ref_cart_p,
+        #                 scale_p,
+        #                 ref_scale_p,
+        #                 pbc_p,
+        #                 atom_indices_p,
+        #                 atom_num,
+        #                 cal_num,
+        #                 self.params_set["ip"],
+        #                 self.params_set["dp"],
+        #                 self.params_set["num"],
+        #                 self.params_set["gaussian_params_p"],
+        #                 self.params_set["ngaussians_p"],
+        #                 self.params_set["element_index_to_order_p"],
+        #                 x_p,
+        #             )
+        #         elif self.custom_cutoff == -1:
+        #             errno = lib.calculate_solid_gmpordernorm_noderiv_original(
+        #                 cell_p,
+        #                 cart_p,
+        #                 occupancies_p,
+        #                 ref_cart_p,
+        #                 scale_p,
+        #                 ref_scale_p,
+        #                 pbc_p,
+        #                 atom_indices_p,
+        #                 atom_num,
+        #                 cal_num,
+        #                 self.params_set["ip"],
+        #                 self.params_set["dp"],
+        #                 self.params_set["num"],
+        #                 self.params_set["gaussian_params_p"],
+        #                 self.params_set["ngaussians_p"],
+        #                 self.params_set["element_index_to_order_p"],
+        #                 x_p,
+        #             )
+        #         else:
+        #             raise NotImplementedError
+
+        #     else:
+        #         errno = lib.calculate_gmpordernorm_noderiv(
+        #             cell_p,
+        #             cart_p,
+        #             occupancies_p,
+        #             ref_cart_p,
+        #             scale_p,
+        #             ref_scale_p,
+        #             pbc_p,
+        #             atom_indices_p,
+        #             atom_num,
+        #             cal_num,
+        #             self.params_set["ip"],
+        #             self.params_set["dp"],
+        #             self.params_set["num"],
+        #             self.params_set["gaussian_params_p"],
+        #             self.params_set["ngaussians_p"],
+        #             self.params_set["element_index_to_order_p"],
+        #             x_p,
+        #         )
+
+        #     if errno == 1:
+        #         raise NotImplementedError("Feature not implemented!")
+
+        #     # print("calculation done")
+
+        #     fp = np.array(x, dtype=np.float64)
+        #     # if self.params_set["log"]:
+        #     #     fp = np.abs(fp)
+        #     #     fp[fp < 1e-8] = 1e-8
+        #     #     fp = np.log10(fp)
+
+        #     return size_info, fp, None, None, None, None

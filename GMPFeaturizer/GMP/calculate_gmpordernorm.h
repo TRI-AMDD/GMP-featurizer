@@ -5,76 +5,138 @@
 #include "surface_harmonics.h"
 #include "solid_harmonics.h"
 
+        
+extern "C" int calculate_surface_gmpordernorm_fp_deriv_ref(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**);
 
-extern "C" int calculate_solid_gmpordernorm_noderiv_elemental_sigma_cutoff(double**, double**, double*, double**, double**, double**, int*,
+extern "C" int calculate_surface_gmpordernorm_noderiv_ref(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**);
+
+
+
+extern "C" int calculate_solid_gmpordernorm_noderiv_ref(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**);
+
+extern "C" int calculate_solid_gmpordernorm_occ_deriv_ref(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**);
+
+extern "C" int calculate_solid_gmpordernorm_fp_deriv_ref(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**);
+
+extern "C" int calculate_solid_gmpordernorm_fp_occ_deriv_ref(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**, double**);
+
+
+
+extern "C" int calculate_solid_gmpordernorm_noderiv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**);
+
+extern "C" int calculate_solid_gmpordernorm_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**);
+
+extern "C" int calculate_solid_gmpordernorm_fp_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**);
+
+extern "C" int calculate_solid_gmpordernorm_fp_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**, double**);
+
+
+
+extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_noderiv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**);
+
+extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**);
+
+extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_fp_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**);
+
+extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_fp_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int,
+                                        int**, double**, int, double**, int*, int*,
+                                        double**, double**, double**);
+
+
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_noderiv(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int, int,
                                         int**, double**, int, double**, int*, double**, int*,
                                         double**);
 
-extern "C" int calculate_solid_gmpordernorm_noderiv_elemental_sigma_gaussian_cutoff(double**, double**, double*, double**, double**, double**, int*,
-                                        int*, int, int, int, int,
-                                        int**, double**, int, double**, int*, double**, double**, int*,
-                                        double**);
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int,
+                                        int**, double**, int, double**, int*, double**, int*,
+                                        double**, double**);
 
-extern "C" int calculate_solid_gmpordernorm_noderiv_sigma_cutoff(double**, double**, double*, double**, double**, double**, int*,
-                                        int*, int, int,
-                                        int**, double**, int, double**, int*, int*,
-                                        double**);
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int,
+                                        int**, double**, int, double**, int*, double**, int*,
+                                        double**, double**);
 
-extern "C" int calculate_solid_gmpordernorm_noderiv_original(double**, double**, double*, double**, double**, double**, int*,
-                                        int*, int, int,
-                                        int**, double**, int, double**, int*, int*,
-                                        double**);
-        
-extern "C" int calculate_gmpordernorm_noderiv(double**, double**, double*, double**, double**, double**, int*,
-                                        int*, int, int,
-                                        int**, double**, int, double**, int*, int*,
-                                        double**);
-
-extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_derivative(double**, double**, double*, double**, double**, double**, int*,
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int, int,
                                         int**, double**, int, double**, int*, double**, int*,
                                         double**, double**, double**);
 
-extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff(double**, double**, double*, double**, double**, double**, int*,
-                                        int*, int, int, int, 
-                                        int**, double**, int, double**, int*, double**, int*,
-                                        double**, double**);
 
-extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff(double**, double**, double*, double**, double**, double**, int*,
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double**);
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int, int, int,
                                         int**, double**, int, double**, int*, double**, double**, int*,
                                         double**, double**);
 
-extern "C" int calculate_solid_gmpordernorm(double**, double**, double*, double**, double**, double**, int*,
-                                        int*, int, int,
-                                        int**, double**, int, double**, int*, int*,
-                                        double**, double**);
-        
-extern "C" int calculate_gmpordernorm(double**, double**, double*, double**, double**, double**, int*,
-                                        int*, int, int,
-                                        int**, double**, int, double**, int*, int*,
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
                                         double**, double**);
 
-// // extern "C" int calculate_gmpordernorm(double **, double **, double **, int*,
-// //                                         int *, int, int*, int,
-// //                                         int**, double **, int, double **, int *, int *,
-// //                                         double**, double**);
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double**, double**, double**);
 
-// extern "C" int calculate_gmpordernorm_noderiv(double**, double**, double**, double**, double**, int*,
-//                                         int*, int, int,
-//                                         int**, double**, int, double**, int*, int*,
-//                                         double**);
 
-// // extern "C" int calculate_solid_gmpordernorm(double **, double **, double **, int*,
-// //                                         int *, int, int*, int,
-// //                                         int**, double **, int, double **, int *, int *,
-// //                                         double**, double**);
 
-// extern "C" int calculate_solid_gmpordernorm_noderiv(double **, double **, double **, int*,
-//                                         int *, int, int*, int,
-//                                         int**, double **, int, double **, int *, int *,
-//                                         double**); 
+
+
+bool check_implementation(int nmcsh,int** params_i);
+void calculate_bin_ranges(double** cell, double** scale, int natoms, double cutoff, int& max_atoms_bin, 
+                          int& neigh_check_bins,int **bin_i, int* bin_range, int* nbins);
+void find_neighbors(double** cell, double** cart, double* occupancies, double** ref_cart, 
+                    double** scale, double** ref_scale, int* pbc_bools,int* atom_i, int natoms,
+                    int calc_ii, double cutoff_sqr, int* bin_range, int* nbins, int** bin_i,
+                    int& nneigh, double* nei_list_d, int* nei_list_i, double* nei_list_occupancy);
 
 const int NUM_IMPLEMENTED_TYPE = 73;
 const int IMPLEMENTED_MCSH_TYPE[][2] = {

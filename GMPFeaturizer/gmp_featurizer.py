@@ -16,17 +16,16 @@ class GMPFeaturizer:
     def __init__(
         self,
         GMPs,
-        # elements,
         feature_database="cache/features/",
         calc_derivatives=False,
+        calc_occ_derivatives=False,
         verbose=True,
     ):
 
-        # self.feature = GMP(GMPs, elements)
         self.feature_setup = GMPs
         self.feature_database = feature_database
-        # self.elements = elements
         self.calc_derivatives = calc_derivatives
+        self.calc_occ_derivatives = calc_occ_derivatives
         self.verbose = verbose
 
     def prepare_features(
@@ -52,6 +51,7 @@ class GMPFeaturizer:
             images,
             ref_positions_list=ref_positions_list,
             calc_derivatives=self.calc_derivatives,
+            calc_occ_derivatives=self.calc_occ_derivatives,
             save_features=save_features,
             cores=cores,
             verbose=self.verbose,
@@ -108,6 +108,7 @@ class GMPFeaturizer:
         images,
         ref_positions_list=None,
         calc_derivatives=False,
+        calc_occ_derivatives=False,
         save_features=False,
         verbose=False,
         cores=1,
@@ -133,6 +134,7 @@ class GMPFeaturizer:
                     image,
                     ref_positions,
                     calc_derivatives,
+                    calc_occ_derivatives,
                     save_features,
                 )
                 images_feature_list.append(temp_image_dict)
@@ -143,8 +145,9 @@ class GMPFeaturizer:
             remote_feature_actor = ray.remote(GMP)
             length = len(images)
             calc_deriv_list = [calc_derivatives] * length
+            calc_occ_deriv_list = [calc_occ_derivatives] * length
             save_features_list = [save_features] * length
-            args = zip(images, ref_positions_list, calc_deriv_list, save_features_list)
+            args = zip(images, ref_positions_list, calc_deriv_list, calc_occ_deriv_list, save_features_list)
 
             ray.init(num_cpus=cores)
             actors = [
@@ -153,7 +156,7 @@ class GMPFeaturizer:
             ]
             pool = ActorPool(actors)
             poolmap = pool.map(
-                lambda a, v: a._calculate_single_image.remote(v[0], v[1], v[2], v[3]),
+                lambda a, v: a._calculate_single_image.remote(v[0], v[1], v[2], v[3], v[4]),
                 args,
             )
             images_feature_list = [a for a in tqdm(poolmap, total=length)]
