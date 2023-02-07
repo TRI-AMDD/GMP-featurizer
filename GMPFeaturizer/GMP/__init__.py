@@ -28,8 +28,10 @@ class GMP(BaseFeature):
         self.custom_cutoff = self.GMPs.get("custom_cutoff", 4)
 
         self._load_psp_files()
+        self._get_desc_list()
         self.overlap_threshold = self.GMPs.get("overlap_threshold", 1e-11)
         self._get_cutoffs()
+        self._get_feature_setup()
         self._prepare_feature_parameters()
 
     def __eq__(self, other):
@@ -103,20 +105,20 @@ class GMP(BaseFeature):
 
         return np.max(distances_list).item()
 
-    def _get_sigma_list(self, attach_zero=True):
-        if "GMPs_detailed_list" in self.GMPs:
-            raise NotImplementedError
-        else:
-            sigmas = list(self.GMPs["GMPs"]["sigmas"]).copy()
-            if attach_zero and -1 in self.GMPs["GMPs"]["orders"]:
-                sigmas.append(0)
-        return sigmas
+    # def _get_sigma_list(self, attach_zero=True):
+    #     if "GMPs_detailed_list" in self.GMPs:
+    #         raise NotImplementedError
+    #     else:
+    #         sigmas = list(self.GMPs["GMPs"]["sigmas"]).copy()
+    #         if attach_zero and -1 in self.GMPs["GMPs"]["orders"]:
+    #             sigmas.append(0)
+    #     return sigmas
 
-    def _get_order_list(self):
-        if "GMPs_detailed_list" in self.GMPs:
-            raise NotImplementedError
-        orders = list(self.GMPs["GMPs"]["orders"])
-        return orders
+    # def _get_order_list(self):
+    #     if "GMPs_detailed_list" in self.GMPs:
+    #         raise NotImplementedError
+    #     orders = list(self.GMPs["GMPs"]["orders"])
+    #     return orders
 
     def _get_cutoffs(self):
         if self.custom_cutoff == -1:
@@ -149,14 +151,18 @@ class GMP(BaseFeature):
         }
         # self.params_set["element_index_to_order"]
         elemental_order_sigma_cutoffs = []
-        sigmas = self._get_sigma_list(attach_zero=False)
-        orders = self._get_order_list()
+        # sigmas = self._get_sigma_list(attach_zero=False)
+        # orders = self._get_order_list()
 
         # sigma_index_dict = {}
         order_sigma_index_dict = {}
         result = {}
         order_sigma_index = 0
-        for order in orders:
+        # for order in orders:
+        for order, sigma in self.desc_list:
+            if (order, sigma) in order_sigma_index_dict:
+                continue
+
             if order == -1:
                 element_distances = []
                 for element, psp in self.atomic_psp.items():
@@ -170,22 +176,23 @@ class GMP(BaseFeature):
                 order_sigma_index += 1
 
             else:
-                for sigma in sigmas:
-                    element_distances = []
-                    for element, psp in self.atomic_psp.items():
-                        element_distance = self._get_default_cutoff_single_element(
-                            sigma,
-                            psp,
-                            threshold=self.overlap_threshold * factors[order],
-                        )
-                        element_distances.append(element_distance)
-                        # print(order, sigma, element, element_distance)
-                    elemental_order_sigma_cutoffs.append(element_distances)
-                    order_sigma_index_dict[(order, sigma)] = order_sigma_index
-                    order_sigma_index += 1
+                # for sigma in sigmas:
+                element_distances = []
+                for element, psp in self.atomic_psp.items():
+                    element_distance = self._get_default_cutoff_single_element(
+                        sigma,
+                        psp,
+                        threshold=self.overlap_threshold * factors[order],
+                    )
+                    element_distances.append(element_distance)
+                    # print(order, sigma, element, element_distance)
+                elemental_order_sigma_cutoffs.append(element_distances)
+                order_sigma_index_dict[(order, sigma)] = order_sigma_index
+                order_sigma_index += 1
 
         self.order_sigma_index_dict = order_sigma_index_dict
         self.nsigmas = len(elemental_order_sigma_cutoffs)
+        # self.nsigmas = order_sigma_index
 
         elemental_order_sigma_cutoffs = np.asarray(
             elemental_order_sigma_cutoffs, dtype=np.float64, order="C"
@@ -218,8 +225,8 @@ class GMP(BaseFeature):
         # self.params_set["element_index_to_order"]
         elemental_order_sigma_cutoffs = []
         elemental_order_sigma_gaussian_cutoffs = []
-        sigmas = self._get_sigma_list(attach_zero=False)
-        orders = self._get_order_list()
+        # sigmas = self._get_sigma_list(attach_zero=False)
+        # orders = self._get_order_list()
 
         self.max_num_gaussians = 0
         for psp in self.atomic_psp.values():
@@ -230,7 +237,11 @@ class GMP(BaseFeature):
         order_sigma_index_dict = {}
         result = {}
         order_sigma_index = 0
-        for order in orders:
+        # for order in orders:
+        for order, sigma in self.desc_list:
+            if (order, sigma) in order_sigma_index_dict:
+                continue
+                
             if order == -1:
                 element_gaussian_distances = []
                 element_distances = []
@@ -250,26 +261,26 @@ class GMP(BaseFeature):
                 order_sigma_index += 1
 
             else:
-                for sigma in sigmas:
-                    element_gaussian_distances = []
-                    element_distances = []
-                    for element, psp in self.atomic_psp.items():
-                        gaussian_distances = self._get_default_cutoff_element_gaussians(
-                            sigma,
-                            psp,
-                            self.max_num_gaussians,
-                            threshold=self.overlap_threshold * factors[order],
-                        )
-                        element_distance = np.max(gaussian_distances).item()
-                        element_distances.append(element_distance)
-                        element_gaussian_distances += gaussian_distances
-                        # print(order, sigma, element, element_distances)
-                    elemental_order_sigma_gaussian_cutoffs.append(
-                        element_gaussian_distances
+                # for sigma in sigmas:
+                element_gaussian_distances = []
+                element_distances = []
+                for element, psp in self.atomic_psp.items():
+                    gaussian_distances = self._get_default_cutoff_element_gaussians(
+                        sigma,
+                        psp,
+                        self.max_num_gaussians,
+                        threshold=self.overlap_threshold * factors[order],
                     )
-                    elemental_order_sigma_cutoffs.append(element_distances)
-                    order_sigma_index_dict[(order, sigma)] = order_sigma_index
-                    order_sigma_index += 1
+                    element_distance = np.max(gaussian_distances).item()
+                    element_distances.append(element_distance)
+                    element_gaussian_distances += gaussian_distances
+                    # print(order, sigma, element, element_distances)
+                elemental_order_sigma_gaussian_cutoffs.append(
+                    element_gaussian_distances
+                )
+                elemental_order_sigma_cutoffs.append(element_distances)
+                order_sigma_index_dict[(order, sigma)] = order_sigma_index
+                order_sigma_index += 1
 
         self.order_sigma_index_dict = order_sigma_index_dict
         self.nsigmas = len(elemental_order_sigma_gaussian_cutoffs)
@@ -305,12 +316,15 @@ class GMP(BaseFeature):
 
     def _get_sigma_elemental_cutoffs(self):
         elemental_sigma_cutoffs = []
-        sigmas = self._get_sigma_list()
-        orders = self._get_order_list()
-        self.nsigmas = len(sigmas)
+        # sigmas = self._get_sigma_list()
+        # orders = self._get_order_list()
+        # self.nsigmas = len(sigmas)
         sigma_index_dict = {}
 
-        for sigma_index, sigma in enumerate(sigmas):
+        # for sigma_index, sigma in enumerate(sigmas):
+        for sigma_index, (order, sigma) in enumerate(self.desc_list):
+            if sigma in sigma_index_dict:
+                continue
             sigma_index_dict[sigma] = sigma_index
             element_distances = []
             for element, psp in self.atomic_psp.items():
@@ -321,6 +335,7 @@ class GMP(BaseFeature):
             elemental_sigma_cutoffs.append(element_distances)
 
         self.sigma_index_dict = sigma_index_dict
+        self.nsigmas = len(elemental_sigma_cutoffs)
         # print(sigma_index_dict)
 
         elemental_sigma_cutoffs = np.asarray(
@@ -341,9 +356,12 @@ class GMP(BaseFeature):
 
     def _get_sigma_cutoffs(self):
         elemental_sigma_cutoffs = []
-        sigmas = self._get_sigma_list()
+        # sigmas = self._get_sigma_list()
         result = {}
-        for sigma_index, sigma in enumerate(sigmas):
+        # for sigma_index, sigma in enumerate(sigmas):
+        for sigma_index, (order, sigma) in enumerate(self.desc_list):
+            if sigma in result:
+                continue 
             element_distances = []
             for element, psp in self.atomic_psp.items():
                 element_distance = self._get_default_cutoff_single_element(
@@ -358,6 +376,21 @@ class GMP(BaseFeature):
     # *******************************************************
     # setup parameters
     # *******************************************************
+
+    def _get_desc_list(self):
+        if "GMPs_detailed_list" in self.GMPs:
+            self.desc_list = sorted(self.GMPs["GMPs_detailed_list"])
+        else:
+            self.desc_list = []
+            for order in sorted(self.GMPs["GMPs"]["orders"]):
+                for sigma in sorted(self.GMPs["GMPs"]["sigmas"]):
+                    if order == -1:
+                        self.desc_list.append((-1,0))
+                        break
+                    elif order >=0:
+                        self.desc_list.append((order, sigma))
+                    else:
+                        raise ValueError
 
     def _load_psp_files(self):
         atomic_gaussian_setup = {}
@@ -469,9 +502,7 @@ class GMP(BaseFeature):
         # print("gaussian_params: {}".format(self.params_set["gaussian_params"]))
         return
 
-    def _prepare_feature_parameters(self):
-        feature_setup = []
-        # cutoff = self.GMPs["cutoff"]
+    def _get_feature_setup(self):
         self.solid_harmonic = self.GMPs.get("solid_harmonics", True)
         solid_harmonic_i = 1 if self.solid_harmonic else 0
         square = self.GMPs.get("square", True)
@@ -484,235 +515,434 @@ class GMP(BaseFeature):
         else:
             rs_scale = -1.0
 
-        if "GMPs_detailed_list" in self.GMPs:
-            raise NotImplementedError
-            # for key in sorted(self.GMPs["GMPs_detailed_list"].keys()):
-            #     detail_setup = self.GMPs["GMPs_detailed_list"][key]
-            #     sigmas = detail_setup["sigmas"]
-            #     feature_setup += [
-            #         [
-            #             detail_setup["order"],
-            #             square_i,
-            #             solid_harmonic_i,
-            #             sigma,
-            #             1.0,
-            #             (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
-            #             1.0 / (2.0 * sigma * sigma),
-            #             self.get_cutoff(sigma),
-            #             (1.0 / (rs_scale * sigma))
-            #             if rs_scale > 0
-            #             else (1.0 / (-1.0 * rs_scale)),
-            #         ]
-            #         for sigma in sigmas
-            #     ]
+        feature_setup = []
+        if self.custom_cutoff == -1:
+            for order, sigma in self.desc_list:
+                if order == -1:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        0.0,
+                        1.0,
+                        1.0,  # A
+                        0.0,  # alpha
+                        self.cutoff,
+                        1.0,  # inv_Rs
+                    ])
+                else:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        sigma,
+                        1.0,
+                        (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                        1.0 / (2.0 * sigma * sigma),
+                        self.cutoff,
+                        (1.0 / (rs_scale * sigma))
+                        if rs_scale > 0
+                        else (1.0 / (-1.0 * rs_scale)),
+                    ])
+                        
 
+        elif self.custom_cutoff == 0:
+            for order, sigma in self.desc_list:
+                if order == -1:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        0.0,
+                        1.0,
+                        1.0,  # A
+                        0.0,  # alpha
+                        self.sigma_cutoffs[0],
+                        1.0,  # inv_Rs
+                    ])
+                else:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        sigma,
+                        1.0,
+                        (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                        1.0 / (2.0 * sigma * sigma),
+                        self.sigma_cutoffs[sigma],
+                        (1.0 / (rs_scale * sigma))
+                        if rs_scale > 0
+                        else (1.0 / (-1.0 * rs_scale)),
+                    ])
+                        
+
+        elif self.custom_cutoff == 1:
+            for order, sigma in self.desc_list:
+                if order == -1:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        0.0,
+                        1.0,
+                        1.0,  # A
+                        0.0,  # alpha
+                        self.sigma_cutoffs[0],
+                        1.0,  # inv_Rs
+                    ])
+                else:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        sigma,
+                        1.0,
+                        (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                        1.0 / (2.0 * sigma * sigma),
+                        self.sigma_cutoffs[sigma],
+                        (1.0 / (rs_scale * sigma))
+                        if rs_scale > 0
+                        else (1.0 / (-1.0 * rs_scale)),
+                    ])
+
+        elif self.custom_cutoff == 2:
+            for order, sigma in self.desc_list:
+                if order == -1:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        self.sigma_index_dict[0],
+                        0.0,
+                        1.0,
+                        1.0,  # A
+                        0.0,  # alpha
+                        1.0,  # inv_Rs
+                    ])
+                else:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        self.sigma_index_dict[sigma],
+                        sigma,
+                        1.0,
+                        (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                        1.0 / (2.0 * sigma * sigma),
+                        (1.0 / (rs_scale * sigma))
+                        if rs_scale > 0
+                        else (1.0 / (-1.0 * rs_scale)),
+                    ])
+
+        elif self.custom_cutoff == 3:
+            for order, sigma in self.desc_list:
+                if order == -1:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        self.order_sigma_index_dict[0],
+                        0.0,
+                        1.0,
+                        1.0,  # A
+                        0.0,  # alpha
+                        1.0,  # inv_Rs
+                    ])
+                else:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        self.order_sigma_index_dict[(order, sigma)],
+                        sigma,
+                        1.0,
+                        (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                        1.0 / (2.0 * sigma * sigma),
+                        (1.0 / (rs_scale * sigma))
+                        if rs_scale > 0
+                        else (1.0 / (-1.0 * rs_scale)),
+                    ])
+
+        elif self.custom_cutoff == 4:
+            for order, sigma in self.desc_list:
+                if order == -1:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        self.order_sigma_index_dict[0],
+                        0.0,
+                        1.0,
+                        1.0,  # A
+                        0.0,  # alpha
+                        1.0,  # inv_Rs
+                    ])
+                else:
+                    feature_setup.append([
+                        order,
+                        square_i,
+                        solid_harmonic_i,
+                        self.order_sigma_index_dict[(order, sigma)],
+                        sigma,
+                        1.0,
+                        (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                        1.0 / (2.0 * sigma * sigma),
+                        (1.0 / (rs_scale * sigma))
+                        if rs_scale > 0
+                        else (1.0 / (-1.0 * rs_scale)),
+                    ])
+        
         else:
-            if self.custom_cutoff == -1:
-                for i in self.GMPs["GMPs"]["orders"]:
-                    if i == -1:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                0.0,
-                                1.0,
-                                1.0,  # A
-                                0.0,  # alpha
-                                self.cutoff,
-                                1.0,  # inv_Rs
-                            ]
-                        ]
-                    else:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                sigma,
-                                1.0,
-                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
-                                1.0 / (2.0 * sigma * sigma),
-                                self.cutoff,
-                                (1.0 / (rs_scale * sigma))
-                                if rs_scale > 0
-                                else (1.0 / (-1.0 * rs_scale)),
-                            ]
-                            for sigma in self.GMPs["GMPs"]["sigmas"]
-                        ]
-
-            elif self.custom_cutoff == 0:
-                for i in self.GMPs["GMPs"]["orders"]:
-                    if i == -1:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                0.0,
-                                1.0,
-                                1.0,  # A
-                                0.0,  # alpha
-                                self.sigma_cutoffs[0],
-                                1.0,  # inv_Rs
-                            ]
-                        ]
-                    else:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                sigma,
-                                1.0,
-                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
-                                1.0 / (2.0 * sigma * sigma),
-                                self.sigma_cutoffs[sigma],
-                                (1.0 / (rs_scale * sigma))
-                                if rs_scale > 0
-                                else (1.0 / (-1.0 * rs_scale)),
-                            ]
-                            for sigma in self.GMPs["GMPs"]["sigmas"]
-                        ]
-
-            elif self.custom_cutoff == 1:
-                for i in self.GMPs["GMPs"]["orders"]:
-                    if i == -1:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                0.0,
-                                1.0,
-                                1.0,  # A
-                                0.0,  # alpha
-                                self.sigma_cutoffs[0],
-                                1.0,  # inv_Rs
-                            ]
-                        ]
-                    else:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                sigma,
-                                1.0,
-                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
-                                1.0 / (2.0 * sigma * sigma),
-                                self.sigma_cutoffs[sigma],
-                                (1.0 / (rs_scale * sigma))
-                                if rs_scale > 0
-                                else (1.0 / (-1.0 * rs_scale)),
-                            ]
-                            for sigma in self.GMPs["GMPs"]["sigmas"]
-                        ]
-
-            elif self.custom_cutoff == 2:
-                for i in self.GMPs["GMPs"]["orders"]:
-                    if i == -1:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                self.sigma_index_dict[0],
-                                0.0,
-                                1.0,
-                                1.0,  # A
-                                0.0,  # alpha
-                                1.0,  # inv_Rs
-                            ]
-                        ]
-                    else:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                self.sigma_index_dict[sigma],
-                                sigma,
-                                1.0,
-                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
-                                1.0 / (2.0 * sigma * sigma),
-                                (1.0 / (rs_scale * sigma))
-                                if rs_scale > 0
-                                else (1.0 / (-1.0 * rs_scale)),
-                            ]
-                            for sigma in self.GMPs["GMPs"]["sigmas"]
-                        ]
-
-            elif self.custom_cutoff == 3:
-                for i in self.GMPs["GMPs"]["orders"]:
-                    if i == -1:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                self.order_sigma_index_dict[0],
-                                0.0,
-                                1.0,
-                                1.0,  # A
-                                0.0,  # alpha
-                                1.0,  # inv_Rs
-                            ]
-                        ]
-                    else:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                self.order_sigma_index_dict[(i, sigma)],
-                                sigma,
-                                1.0,
-                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
-                                1.0 / (2.0 * sigma * sigma),
-                                (1.0 / (rs_scale * sigma))
-                                if rs_scale > 0
-                                else (1.0 / (-1.0 * rs_scale)),
-                            ]
-                            for sigma in self.GMPs["GMPs"]["sigmas"]
-                        ]
-            elif self.custom_cutoff == 4:
-                for i in self.GMPs["GMPs"]["orders"]:
-                    if i == -1:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                self.order_sigma_index_dict[0],
-                                0.0,
-                                1.0,
-                                1.0,  # A
-                                0.0,  # alpha
-                                1.0,  # inv_Rs
-                            ]
-                        ]
-                    else:
-                        feature_setup += [
-                            [
-                                i,
-                                square_i,
-                                solid_harmonic_i,
-                                self.order_sigma_index_dict[(i, sigma)],
-                                sigma,
-                                1.0,
-                                (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
-                                1.0 / (2.0 * sigma * sigma),
-                                (1.0 / (rs_scale * sigma))
-                                if rs_scale > 0
-                                else (1.0 / (-1.0 * rs_scale)),
-                            ]
-                            for sigma in self.GMPs["GMPs"]["sigmas"]
-                        ]
-            else:
-                raise NotImplementedError
-
+            raise NotImplementedError
+        
         self.feature_setup = np.array(feature_setup)
+
+    def _prepare_feature_parameters(self):
+        # # cutoff = self.GMPs["cutoff"]
+        # self.solid_harmonic = self.GMPs.get("solid_harmonics", True)
+        # solid_harmonic_i = 1 if self.solid_harmonic else 0
+        # square = self.GMPs.get("square", True)
+        # square_i = 1 if square else 0
+        # rs_setup = self.GMPs.get("rs_setup", {"setup": "constant", "rs": 1.0})
+        # if rs_setup["setup"] == "scale":
+        #     rs_scale = rs_setup["scale_factor"]
+        # elif rs_setup["setup"] == "constant":
+        #     rs_scale = -1.0 * rs_setup["rs"]
+        # else:
+        #     rs_scale = -1.0
+
+        # feature_setup = []
+        # if "GMPs_detailed_list" in self.GMPs:
+        #     raise NotImplementedError
+        #     # for key in sorted(self.GMPs["GMPs_detailed_list"].keys()):
+        #     #     detail_setup = self.GMPs["GMPs_detailed_list"][key]
+        #     #     sigmas = detail_setup["sigmas"]
+        #     #     feature_setup += [
+        #     #         [
+        #     #             detail_setup["order"],
+        #     #             square_i,
+        #     #             solid_harmonic_i,
+        #     #             sigma,
+        #     #             1.0,
+        #     #             (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+        #     #             1.0 / (2.0 * sigma * sigma),
+        #     #             self.get_cutoff(sigma),
+        #     #             (1.0 / (rs_scale * sigma))
+        #     #             if rs_scale > 0
+        #     #             else (1.0 / (-1.0 * rs_scale)),
+        #     #         ]
+        #     #         for sigma in sigmas
+        #     #     ]
+
+        # else:
+        #     if self.custom_cutoff == -1:
+        #         for i in self.GMPs["GMPs"]["orders"]:
+        #             if i == -1:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         0.0,
+        #                         1.0,
+        #                         1.0,  # A
+        #                         0.0,  # alpha
+        #                         self.cutoff,
+        #                         1.0,  # inv_Rs
+        #                     ]
+        #                 ]
+        #             else:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         sigma,
+        #                         1.0,
+        #                         (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+        #                         1.0 / (2.0 * sigma * sigma),
+        #                         self.cutoff,
+        #                         (1.0 / (rs_scale * sigma))
+        #                         if rs_scale > 0
+        #                         else (1.0 / (-1.0 * rs_scale)),
+        #                     ]
+        #                     for sigma in self.GMPs["GMPs"]["sigmas"]
+        #                 ]
+
+        #     elif self.custom_cutoff == 0:
+        #         for i in self.GMPs["GMPs"]["orders"]:
+        #             if i == -1:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         0.0,
+        #                         1.0,
+        #                         1.0,  # A
+        #                         0.0,  # alpha
+        #                         self.sigma_cutoffs[0],
+        #                         1.0,  # inv_Rs
+        #                     ]
+        #                 ]
+        #             else:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         sigma,
+        #                         1.0,
+        #                         (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+        #                         1.0 / (2.0 * sigma * sigma),
+        #                         self.sigma_cutoffs[sigma],
+        #                         (1.0 / (rs_scale * sigma))
+        #                         if rs_scale > 0
+        #                         else (1.0 / (-1.0 * rs_scale)),
+        #                     ]
+        #                     for sigma in self.GMPs["GMPs"]["sigmas"]
+        #                 ]
+
+        #     elif self.custom_cutoff == 1:
+        #         for i in self.GMPs["GMPs"]["orders"]:
+        #             if i == -1:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         0.0,
+        #                         1.0,
+        #                         1.0,  # A
+        #                         0.0,  # alpha
+        #                         self.sigma_cutoffs[0],
+        #                         1.0,  # inv_Rs
+        #                     ]
+        #                 ]
+        #             else:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         sigma,
+        #                         1.0,
+        #                         (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+        #                         1.0 / (2.0 * sigma * sigma),
+        #                         self.sigma_cutoffs[sigma],
+        #                         (1.0 / (rs_scale * sigma))
+        #                         if rs_scale > 0
+        #                         else (1.0 / (-1.0 * rs_scale)),
+        #                     ]
+        #                     for sigma in self.GMPs["GMPs"]["sigmas"]
+        #                 ]
+
+        #     elif self.custom_cutoff == 2:
+        #         for i in self.GMPs["GMPs"]["orders"]:
+        #             if i == -1:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         self.sigma_index_dict[0],
+        #                         0.0,
+        #                         1.0,
+        #                         1.0,  # A
+        #                         0.0,  # alpha
+        #                         1.0,  # inv_Rs
+        #                     ]
+        #                 ]
+        #             else:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         self.sigma_index_dict[sigma],
+        #                         sigma,
+        #                         1.0,
+        #                         (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+        #                         1.0 / (2.0 * sigma * sigma),
+        #                         (1.0 / (rs_scale * sigma))
+        #                         if rs_scale > 0
+        #                         else (1.0 / (-1.0 * rs_scale)),
+        #                     ]
+        #                     for sigma in self.GMPs["GMPs"]["sigmas"]
+        #                 ]
+
+        #     elif self.custom_cutoff == 3:
+        #         for i in self.GMPs["GMPs"]["orders"]:
+        #             if i == -1:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         self.order_sigma_index_dict[0],
+        #                         0.0,
+        #                         1.0,
+        #                         1.0,  # A
+        #                         0.0,  # alpha
+        #                         1.0,  # inv_Rs
+        #                     ]
+        #                 ]
+        #             else:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         self.order_sigma_index_dict[(i, sigma)],
+        #                         sigma,
+        #                         1.0,
+        #                         (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+        #                         1.0 / (2.0 * sigma * sigma),
+        #                         (1.0 / (rs_scale * sigma))
+        #                         if rs_scale > 0
+        #                         else (1.0 / (-1.0 * rs_scale)),
+        #                     ]
+        #                     for sigma in self.GMPs["GMPs"]["sigmas"]
+        #                 ]
+            
+        #     elif self.custom_cutoff == 4:
+        #         for i in self.GMPs["GMPs"]["orders"]:
+        #             if i == -1:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         self.order_sigma_index_dict[0],
+        #                         0.0,
+        #                         1.0,
+        #                         1.0,  # A
+        #                         0.0,  # alpha
+        #                         1.0,  # inv_Rs
+        #                     ]
+        #                 ]
+        #             else:
+        #                 feature_setup += [
+        #                     [
+        #                         i,
+        #                         square_i,
+        #                         solid_harmonic_i,
+        #                         self.order_sigma_index_dict[(i, sigma)],
+        #                         sigma,
+        #                         1.0,
+        #                         (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+        #                         1.0 / (2.0 * sigma * sigma),
+        #                         (1.0 / (rs_scale * sigma))
+        #                         if rs_scale > 0
+        #                         else (1.0 / (-1.0 * rs_scale)),
+        #                     ]
+        #                     for sigma in self.GMPs["GMPs"]["sigmas"]
+        #                 ]
+            
+        #     else:
+        #         raise NotImplementedError
+
+        # self.feature_setup = np.array(feature_setup)
         # print(self.feature_setup)
         if self.custom_cutoff <= 1:
             params_i = np.asarray(
@@ -743,8 +973,8 @@ class GMP(BaseFeature):
         )
         self.params_set["num"] = len(self.params_set["total"])
 
-        if "prime_threshold" in self.GMPs:
-            self.params_set["prime_threshold"] = float(self.GMPs["prime_threshold"])
+        # if "prime_threshold" in self.GMPs:
+        #     self.params_set["prime_threshold"] = float(self.GMPs["prime_threshold"])
 
         self.params_set["log"] = self.GMPs.get("log", False)
 
