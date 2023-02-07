@@ -194,7 +194,15 @@ class BaseFeature(ABC):
                             current_snapshot_grp["feature_occ_primes"]
                         )
                 except Exception:
-                    size_info, features, _, _, _, _, feature_occ_primes = self.calculate_features(
+                    (
+                        size_info,
+                        features,
+                        _,
+                        _,
+                        _,
+                        _,
+                        feature_occ_primes,
+                    ) = self.calculate_features(
                         image["cell"],
                         image["pbc"],
                         image["atom_positions"],
@@ -263,7 +271,15 @@ class BaseFeature(ABC):
                 image_dict["feature_occ_primes"] = feature_occ_primes
 
         else:
-            size_info, features, _, _, _, _, feature_occ_primes = self.calculate_features(
+            (
+                size_info,
+                features,
+                _,
+                _,
+                _,
+                _,
+                feature_occ_primes,
+            ) = self.calculate_features(
                 image["cell"],
                 image["pbc"],
                 image["atom_positions"],

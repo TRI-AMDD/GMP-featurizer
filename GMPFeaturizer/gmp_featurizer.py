@@ -147,7 +147,13 @@ class GMPFeaturizer:
             calc_deriv_list = [calc_derivatives] * length
             calc_occ_deriv_list = [calc_occ_derivatives] * length
             save_features_list = [save_features] * length
-            args = zip(images, ref_positions_list, calc_deriv_list, calc_occ_deriv_list, save_features_list)
+            args = zip(
+                images,
+                ref_positions_list,
+                calc_deriv_list,
+                calc_occ_deriv_list,
+                save_features_list,
+            )
 
             ray.init(num_cpus=cores)
             actors = [
@@ -156,7 +162,9 @@ class GMPFeaturizer:
             ]
             pool = ActorPool(actors)
             poolmap = pool.map(
-                lambda a, v: a._calculate_single_image.remote(v[0], v[1], v[2], v[3], v[4]),
+                lambda a, v: a._calculate_single_image.remote(
+                    v[0], v[1], v[2], v[3], v[4]
+                ),
                 args,
             )
             images_feature_list = [a for a in tqdm(poolmap, total=length)]
