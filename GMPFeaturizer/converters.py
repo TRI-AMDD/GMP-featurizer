@@ -2,7 +2,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 
 
-class ImageObjectConverter:
+class ImageObjectConverter(ABC):
     """
     Base class for image object converters
     """
