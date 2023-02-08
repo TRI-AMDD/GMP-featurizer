@@ -1,4 +1,7 @@
 # GMP-featurizer
+![Testing - main](https://github.com/TRI-AMDD/GMP-featurizer/workflows/Testing%20-%20main/badge.svg)
+![Linting](https://github.com/TRI-AMDD/GMP-featurizer/workflows/Linting/badge.svg)
+
 This package is used to efficiently and accurately compute the GMP features and their derivatives for any chemical systems. The computation is also parallelized via Ray.
 
 ## Basic usage
