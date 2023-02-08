@@ -128,7 +128,7 @@ class BaseFeature(ABC):
                         current_snapshot_grp["feature_primes_size"]
                     )
                     if calc_occ_derivatives:
-                        features_occ_primes = np.array(
+                        feature_occ_primes = np.array(
                             current_snapshot_grp["feature_occ_primes"]
                         )
                 except Exception:
@@ -187,7 +187,7 @@ class BaseFeature(ABC):
                     # size_info = np.array(current_snapshot_grp["size_info"])
                     features = np.array(current_snapshot_grp["features"])
                     if calc_occ_derivatives:
-                        features_occ_primes = np.array(
+                        feature_occ_primes = np.array(
                             current_snapshot_grp["feature_occ_primes"]
                         )
                 except Exception:

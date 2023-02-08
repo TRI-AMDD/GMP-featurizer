@@ -61,6 +61,9 @@ class GMPFeaturizer:
             if isinstance(image_objects[0], ase.Atoms):
                 converter = ASEAtomsConverter()
                 images = converter.convert(image_objects)
+            elif isinstance(image_objects[0], pymatgen.core.structure):
+                converter = PymatgenStructureConverter()
+                images = converter.convert(image_objects)
             else:
                 images = image_objects
         else:
