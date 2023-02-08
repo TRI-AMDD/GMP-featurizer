@@ -19,11 +19,12 @@ class GMP(BaseFeature):
     """
     Class for GMP feature
     """
+
     def __init__(
         self,
         GMPs,
         feature_database="cache/features/",
-    ):  
+    ):
         """
         Parameters
         ----------
@@ -37,12 +38,12 @@ class GMP(BaseFeature):
                 electronic density
             "sigmas" : list
                 list of sigmas of the intended GMP probes
-                the final list of GMP probes(features) is the 
+                the final list of GMP probes(features) is the
                 Cartesian product of the "orders" and "sigmas" lists
                 except for order -1, which just correspond to local
                 electronic density
             "GMPs_detailed_list" : list (default: None)
-                list of GMP probes (features), e.g. 
+                list of GMP probes (features), e.g.
                 [(-1, 0), (0, 0.1), (0, 0.2), ... (2, 0.5), (3, 0.3)...]
                 Note that if this list is provided, "orders" and "sigmas"
                 will be ignored.
@@ -62,17 +63,17 @@ class GMP(BaseFeature):
                                 resulting features, which is based on the overlap
                                 between the probe functions and the gaussians in
                                 the pseudo potentials of elements. These settings
-                                are here mainly for accelerating the computation 
+                                are here mainly for accelerating the computation
                                 of the GMP features without losing accuracy.
             "cutoff" : float
-                manual setting of the cutof distance, 
+                manual setting of the cutof distance,
                 needed when "custom_cutoff" is -1
             "overlap_threshold" : float (default: 1e-11)
-                overlap threshold between the GMP probe function 
+                overlap threshold between the GMP probe function
                 and elementalpseudopotential gaussians.
-                Basically is the same as the expected accuracy of 
+                Basically is the same as the expected accuracy of
                 the resulting features. Needed when "custom_cutoff" is not -1
-            
+
         feature_database : str (default: "cache/features/")
             path to the database of calculated features
 
@@ -123,7 +124,7 @@ class GMP(BaseFeature):
         self, sigma, psp, max_num_gaussians, threshold=1e-8
     ):
         """
-        private method for getting cutoffs based on 
+        private method for getting cutoffs based on
         the probe sigma and widest element gaussian
         """
         if sigma == 0:
@@ -148,7 +149,7 @@ class GMP(BaseFeature):
 
     def _get_default_cutoff_single_element(self, sigma, psp, threshold=1e-8):
         """
-        private method for getting cutoffs based on 
+        private method for getting cutoffs based on
         the probe sigma and widest element gaussian
         """
         if sigma == 0:
@@ -191,7 +192,7 @@ class GMP(BaseFeature):
 
     def _get_order_sigma_elemental_cutoffs(self):
         """
-        private method for getting cutoff distance based on probe order, 
+        private method for getting cutoff distance based on probe order,
         probe gaussian sigma, and widest elemental gaussian
         """
         factors = {
@@ -259,7 +260,7 @@ class GMP(BaseFeature):
 
     def _get_order_sigma_elemental_gaussian_cutoffs(self):
         """
-        private method for getting cutoff distance based on probe order, 
+        private method for getting cutoff distance based on probe order,
         probe gaussian sigma, and each elemental gaussian
         """
         factors = {
@@ -428,7 +429,10 @@ class GMP(BaseFeature):
         """
         private method for getting feature setup
         """
-        if "GMPs_detailed_list" in self.GMPs and self.GMPs["GMPs_detailed_list"] is not None:
+        if (
+            "GMPs_detailed_list" in self.GMPs
+            and self.GMPs["GMPs_detailed_list"] is not None
+        ):
             self.desc_list = sorted(self.GMPs["GMPs_detailed_list"])
         else:
             self.desc_list = []
@@ -813,9 +817,7 @@ class GMP(BaseFeature):
         """
         with open(filename, "w") as out_file:
             for desc in self.feature_setup:
-                out_file.write(
-                    "\t".join(str(desc[i]) for i in range(len(desc))) + "\n"
-                )
+                out_file.write("\t".join(str(desc[i]) for i in range(len(desc))) + "\n")
 
     # *******************************************************
     # calculate features

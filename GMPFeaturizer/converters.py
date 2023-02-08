@@ -6,19 +6,21 @@ class ImageObjectConverter:
     """
     Base class for image object converters
     """
+
     def __init__(self):
         pass
 
     @abstractmethod
     def convert(self, object_list):
         pass
-    
+
 
 class ASEAtomsConverter(ImageObjectConverter):
     """
-    Converter for converting list of ase atoms to a list 
-    of information that can be read by the featurizer 
+    Converter for converting list of ase atoms to a list
+    of information that can be read by the featurizer
     """
+
     def convert(self, object_list):
         results = []
         for atoms in object_list:
@@ -36,9 +38,10 @@ class ASEAtomsConverter(ImageObjectConverter):
 
 class PymatgenStructureConverter(ImageObjectConverter):
     """
-    Converter for converting list of pymatgen structures to a list 
-    of information that can be read by the featurizer 
+    Converter for converting list of pymatgen structures to a list
+    of information that can be read by the featurizer
     """
+
     def convert(self, object_list):
         results = []
         for structure in object_list:

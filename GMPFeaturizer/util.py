@@ -35,7 +35,7 @@ def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
 
 def get_hash(image, ref_positions):
     """
-    Get the hash based on the image object and positions for 
+    Get the hash based on the image object and positions for
     computing GMP features.
     """
 

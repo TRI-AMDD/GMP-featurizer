@@ -10,7 +10,8 @@ from .converters import ASEAtomsConverter
 
 
 class GMPFeaturizer:
-    """ object for computing GMP features of checmical systems """
+    """object for computing GMP features of checmical systems"""
+
     def __init__(
         self,
         GMPs,
@@ -63,15 +64,15 @@ class GMPFeaturizer:
         save_features : bool (default: False)
             whether to save features to database
         converter : converter_object (default: None)
-            converter to convert image objects to objects that 
-            can be read. Examples can be found and imported from 
+            converter to convert image objects to objects that
+            can be read. Examples can be found and imported from
             GMPFeaturizer.ASEAtomsConverter
             GMPFeaturizer.PymatgenStructureConverter
 
         Return
         ----------
         calculated_features_list : list
-            list of dicts that store the computed features and derivatives 
+            list of dicts that store the computed features and derivatives
         """
 
         images = self._convert_validate_image_objects(image_objects, converter)
@@ -219,7 +220,9 @@ class GMPFeaturizer:
                 ),
                 args,
             )
-            images_feature_list = [a for a in tqdm(poolmap, total=length, disable=not verbose)]
+            images_feature_list = [
+                a for a in tqdm(poolmap, total=length, disable=not verbose)
+            ]
 
             ray.shutdown()
             return images_feature_list

@@ -12,6 +12,7 @@ class BaseFeature(ABC):
     """
     Base class for features
     """
+
     def __init__(self):
         super().__init__()
         self.feature_database = "cache/features/"
