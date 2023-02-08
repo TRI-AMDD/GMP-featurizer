@@ -32,7 +32,7 @@ class ASEAtomsConverter(ImageObjectConverter):
         """
         Convert function definition
         note that occupacies for each site are always 1
-        """ 
+        """
         results = []
         for atoms in object_list:
             temp = {}
@@ -54,7 +54,7 @@ class PymatgenStructureConverter(ImageObjectConverter):
     """
 
     def convert(self, object_list):
-        """ Convert function definition """ 
+        """Convert function definition"""
         results = []
         for structure in object_list:
             temp = {}
