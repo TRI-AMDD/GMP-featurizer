@@ -1,13 +1,27 @@
 import numpy as np
+from abc import ABC, abstractmethod
 
 
-class ASEAtomsConverter:
+class ImageObjectConverter:
+    """
+    Base class for image object converters
+    """
     def __init__(self):
         pass
 
-    def convert(self, atoms_list):
+    @abstractmethod
+    def convert(self, object_list):
+        pass
+    
+
+class ASEAtomsConverter(ImageObjectConverter):
+    """
+    Converter for converting list of ase atoms to a list 
+    of information that can be read by the featurizer 
+    """
+    def convert(self, object_list):
         results = []
-        for atoms in atoms_list:
+        for atoms in object_list:
             temp = {}
             temp["cell"] = atoms.get_cell()[:]
             temp["pbc"] = np.copy(atoms.get_pbc()).astype(np.intc)
@@ -20,13 +34,14 @@ class ASEAtomsConverter:
         return results
 
 
-class PymatgenStructureConverter:
-    def __init__(self):
-        pass
-
-    def convert(self, structure_list):
+class PymatgenStructureConverter(ImageObjectConverter):
+    """
+    Converter for converting list of pymatgen structures to a list 
+    of information that can be read by the featurizer 
+    """
+    def convert(self, object_list):
         results = []
-        for structure in structure_list:
+        for structure in object_list:
             temp = {}
             temp["cell"] = np.array(structure.lattice.matrix)
             # ref_positions = np.array([site.coords for site in structure.sites])

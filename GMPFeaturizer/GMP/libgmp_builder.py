@@ -151,7 +151,6 @@ ffibuilder.set_source(
     '#include "calculate_gmpordernorm.h"',
     sources=[
         "GMPFeaturizer/GMP/calculate_gmpordernorm.cpp",
-        # "GMP-featurizer/GMPOrderNorm/gmpordernorm.cpp",
         "GMPFeaturizer/GMP/helper.cpp",
         "GMPFeaturizer/GMP/surface_harmonics.cpp",
         "GMPFeaturizer/GMP/solid_harmonics.cpp",

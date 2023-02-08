@@ -9,34 +9,44 @@ from .util import get_hash
 
 
 class BaseFeature(ABC):
+    """
+    Base class for features
+    """
     def __init__(self):
         super().__init__()
         self.feature_database = "cache/features/"
 
-        # To Be specified/calculated
         self.feature_type = "default"
         self.feature_setup_hash = "default"
 
-        # self.elements = []
         self.database_initialized = False
 
     @abstractmethod
     def calculate_features(self, image, params_set, calculate_derivatives=True):
-        # image is a single snapshot
+        """
+        abstract method: calculating features
+        """
         pass
 
     @abstractmethod
     def get_feature_setup_hash(self):
-        # set self.feature_setup_hash
+        """
+        abstract method: getting hash for feature setup
+        """
         pass
 
     @abstractmethod
     def save_feature_setup(self, filename):
+        """
+        abstract method: save feature setup to file
+        """
         pass
 
     @abstractmethod
     def _prepare_feature_parameters(self):
-        # prepare self.params_set
+        """
+        abstract private method: prepare feature parameters based on config
+        """
         pass
 
     def _calculate_single_image(
@@ -47,6 +57,9 @@ class BaseFeature(ABC):
         calc_occ_derivatives,
         save_features,
     ):
+        """
+        Control method for computing the features for a given image object
+        """
         # print("start")
         ref_positions = np.array(ref_positions)
         # validate_image(image, ref_positions)
@@ -102,7 +115,9 @@ class BaseFeature(ABC):
         calc_occ_derivatives,
         save_features,
     ):
-
+        """
+        Computing the features for a given image object with database
+        """
         with h5py.File(image_db_filename, "a") as db:
             image_dict = {}
 
@@ -232,7 +247,9 @@ class BaseFeature(ABC):
         calc_occ_derivatives,
         save_features,
     ):
-
+        """
+        Computing the features for a given image object without database
+        """
         image_dict = {}
 
         if calc_derivatives:
@@ -293,20 +310,22 @@ class BaseFeature(ABC):
 
         return image_dict
 
-    def _feature_prime_element_row_index_to_image_row_index(
-        self, original_rows, index_arr, num_desc, num_desc_max
-    ):
-        atom_indices_for_specific_element, desc_indices = np.divmod(
-            original_rows, num_desc
-        )
+    # def _feature_prime_element_row_index_to_image_row_index(
+    #     self, original_rows, index_arr, num_desc, num_desc_max
+    # ):
+    #     atom_indices_for_specific_element, desc_indices = np.divmod(
+    #         original_rows, num_desc
+    #     )
 
-        atom_indices_in_image = index_arr[atom_indices_for_specific_element]
+    #     atom_indices_in_image = index_arr[atom_indices_for_specific_element]
 
-        new_row = atom_indices_in_image * num_desc_max + desc_indices
-        return new_row
+    #     new_row = atom_indices_in_image * num_desc_max + desc_indices
+    #     return new_row
 
     def _setup_feature_database(self, save_features):
-
+        """
+        Initialize database if involved
+        """
         if save_features:
             if self.database_initialized:
                 return
@@ -329,5 +348,8 @@ class BaseFeature(ABC):
             # )
             # self.save_feature_setup(feature_setup_path)
 
-    def _get_element_list(self):
+    def get_element_list(self):
+        """
+        return the list of elements
+        """
         return self.elements

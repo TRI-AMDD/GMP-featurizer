@@ -16,11 +16,67 @@ from ._libgmp import ffi, lib
 
 
 class GMP(BaseFeature):
+    """
+    Class for GMP feature
+    """
     def __init__(
         self,
         GMPs,
         feature_database="cache/features/",
-    ):
+    ):  
+        """
+        Parameters
+        ----------
+        GMPs: dict
+            dictionary for the configuration of the features
+            here are the parameters involved
+
+            "orders" : list
+                list of orders of the intended GMP probes
+                note that order -1 means getting the local
+                electronic density
+            "sigmas" : list
+                list of sigmas of the intended GMP probes
+                the final list of GMP probes(features) is the 
+                Cartesian product of the "orders" and "sigmas" lists
+                except for order -1, which just correspond to local
+                electronic density
+            "GMPs_detailed_list" : list (default: None)
+                list of GMP probes (features), e.g. 
+                [(-1, 0), (0, 0.1), (0, 0.2), ... (2, 0.5), (3, 0.3)...]
+                Note that if this list is provided, "orders" and "sigmas"
+                will be ignored.
+            "psp_path" : str
+                path to the GMP pseudopotential file (.gpsp file)
+            "solid_harmonics" : bool (default: True)
+                Whether to use solid harmonics
+            "square" : book (default: False)
+                Whether the resulting features are squared
+            "custom_cutoff" : int (default: 4)
+                How to calcualte the cutoff distance for feature computation
+                different setting could mean very different computation speed
+                of the features. No need to change if not farmiliar with this
+                here are the possible settings
+                -1 : manually specify cutoff distance
+                0, 1, 2, 3, 4 : set cutoff based on the expected accuracy of the
+                                resulting features, which is based on the overlap
+                                between the probe functions and the gaussians in
+                                the pseudo potentials of elements. These settings
+                                are here mainly for accelerating the computation 
+                                of the GMP features without losing accuracy.
+            "cutoff" : float
+                manual setting of the cutof distance, 
+                needed when "custom_cutoff" is -1
+            "overlap_threshold" : float (default: 1e-11)
+                overlap threshold between the GMP probe function 
+                and elementalpseudopotential gaussians.
+                Basically is the same as the expected accuracy of 
+                the resulting features. Needed when "custom_cutoff" is not -1
+            
+        feature_database : str (default: "cache/features/")
+            path to the database of calculated features
+
+        """
         super().__init__()
         self.feature_type = "GMP"
         self.feature_database = feature_database
@@ -51,6 +107,9 @@ class GMP(BaseFeature):
     # *******************************************************
 
     def _get_C1_C2(self, A, B, alpha, beta):
+        """
+        private method for calculating C1 and C2
+        """
         if alpha == 0:
             C1 = B
             C2 = -1.0 * beta
@@ -63,6 +122,10 @@ class GMP(BaseFeature):
     def _get_default_cutoff_element_gaussians(
         self, sigma, psp, max_num_gaussians, threshold=1e-8
     ):
+        """
+        private method for getting cutoffs based on 
+        the probe sigma and widest element gaussian
+        """
         if sigma == 0:
             A = 0
             alpha = 0
@@ -84,6 +147,10 @@ class GMP(BaseFeature):
         return distances_list.tolist()
 
     def _get_default_cutoff_single_element(self, sigma, psp, threshold=1e-8):
+        """
+        private method for getting cutoffs based on 
+        the probe sigma and widest element gaussian
+        """
         if sigma == 0:
             A = 0
             alpha = 0
@@ -105,6 +172,9 @@ class GMP(BaseFeature):
         return np.max(distances_list).item()
 
     def _get_cutoffs(self):
+        """
+        get cutoffs based on setting
+        """
         if self.custom_cutoff == -1:
             assert "cutoff" in self.GMPs
             self.cutoff = self.GMPs["cutoff"]
@@ -120,6 +190,10 @@ class GMP(BaseFeature):
             self._get_order_sigma_elemental_gaussian_cutoffs()
 
     def _get_order_sigma_elemental_cutoffs(self):
+        """
+        private method for getting cutoff distance based on probe order, 
+        probe gaussian sigma, and widest elemental gaussian
+        """
         factors = {
             -1: 1,
             0: 1,
@@ -184,6 +258,10 @@ class GMP(BaseFeature):
         return
 
     def _get_order_sigma_elemental_gaussian_cutoffs(self):
+        """
+        private method for getting cutoff distance based on probe order, 
+        probe gaussian sigma, and each elemental gaussian
+        """
         factors = {
             -1: 1,
             0: 1,
@@ -286,6 +364,10 @@ class GMP(BaseFeature):
         return
 
     def _get_sigma_elemental_cutoffs(self):
+        """
+        private method for getting cutoff distance based on probe gaussian sigma
+        and widest elemental gaussian
+        """
         elemental_sigma_cutoffs = []
         sigma_index_dict = {}
 
@@ -319,6 +401,9 @@ class GMP(BaseFeature):
         return
 
     def _get_sigma_cutoffs(self):
+        """
+        private method for getting cutoff distance based on probe gaussian sigma
+        """
         elemental_sigma_cutoffs = []
         result = {}
         for sigma_index, (order, sigma) in enumerate(self.desc_list):
@@ -340,7 +425,10 @@ class GMP(BaseFeature):
     # *******************************************************
 
     def _get_desc_list(self):
-        if "GMPs_detailed_list" in self.GMPs:
+        """
+        private method for getting feature setup
+        """
+        if "GMPs_detailed_list" in self.GMPs and self.GMPs["GMPs_detailed_list"] is not None:
             self.desc_list = sorted(self.GMPs["GMPs_detailed_list"])
         else:
             self.desc_list = []
@@ -355,6 +443,9 @@ class GMP(BaseFeature):
                         raise ValueError
 
     def _load_psp_files(self):
+        """
+        private method for loading pseudo potential files
+        """
         atomic_gaussian_setup = {}
         atomic_psp = {}
         elements = []
@@ -445,9 +536,12 @@ class GMP(BaseFeature):
         return
 
     def _get_feature_setup(self):
+        """
+        private method for preparing the parameters of feature setup
+        """
         self.solid_harmonic = self.GMPs.get("solid_harmonics", True)
         solid_harmonic_i = 1 if self.solid_harmonic else 0
-        square = self.GMPs.get("square", True)
+        square = self.GMPs.get("square", False)
         square_i = 1 if square else 0
         rs_setup = self.GMPs.get("rs_setup", {"setup": "constant", "rs": 1.0})
         if rs_setup["setup"] == "scale":
@@ -662,6 +756,9 @@ class GMP(BaseFeature):
         self.feature_setup = np.array(feature_setup)
 
     def _prepare_feature_parameters(self):
+        """
+        private method for preparing feature parameters
+        """
         if self.custom_cutoff <= 1:
             params_i = np.asarray(
                 self.feature_setup[:, :3].copy(), dtype=np.intc, order="C"
@@ -699,7 +796,9 @@ class GMP(BaseFeature):
         return
 
     def get_feature_setup_hash(self):
-        # set self.feature_setup_hash
+        """
+        get hash based on feature setup
+        """
         string = ""
         for desc in self.feature_setup:
             for num in desc:
@@ -709,18 +808,13 @@ class GMP(BaseFeature):
         self.feature_setup_hash = hash_result
 
     def save_feature_setup(self, filename):
+        """
+        save feature setup to file
+        """
         with open(filename, "w") as out_file:
             for desc in self.feature_setup:
                 out_file.write(
-                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                        int(desc[0]),
-                        int(desc[1]),
-                        desc[2],
-                        desc[3],
-                        desc[4],
-                        desc[5],
-                        desc[6],
-                    )
+                    "\t".join(str(desc[i]) for i in range(len(desc))) + "\n"
                 )
 
     # *******************************************************
@@ -737,6 +831,9 @@ class GMP(BaseFeature):
         calc_derivatives,
         calc_occ_derivatives,
     ):
+        """
+        Method for calculating GMP features based on given image object information
+        """
         assert isinstance(cell, np.ndarray)
         assert cell.shape == (3, 3)
         assert isinstance(occupancies, np.ndarray)

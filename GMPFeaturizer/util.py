@@ -10,7 +10,9 @@ from .constants import ATOM_INDEX_TO_SYMBOL_DICT, ATOM_SYMBOL_TO_INDEX_DICT
 
 
 def _gen_2Darray_for_ffi(arr, ffi, cdata="double"):
-    # Function to generate 2D pointer for cffi
+    """
+    Function to generate 2D pointer for cffi from 2D numpy array
+    """
     shape = arr.shape
     arr_p = ffi.new(cdata + " *[%d]" % shape[0])
     for i in range(shape[0]):
@@ -19,7 +21,9 @@ def _gen_2Darray_for_ffi(arr, ffi, cdata="double"):
 
 
 def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
-    # Function to generate 2D pointer for cffi
+    """
+    Function to generate 2D pointer for cffi from 2D numpy array
+    """
     shape = arr.shape
     # dsize = ffi.sizeof(cdata)
     arr_p = ffi.new(cdata + " *[%d]" % shape[0])
@@ -30,6 +34,10 @@ def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
 
 
 def get_hash(image, ref_positions):
+    """
+    Get the hash based on the image object and positions for 
+    computing GMP features.
+    """
 
     string = ""
     string += str(image["pbc"])
@@ -58,6 +66,9 @@ def get_hash(image, ref_positions):
 
 
 def list_symbols_to_indices(list_of_symbols):
+    """
+    Chemical symbols to atomic number
+    """
     list_indices = []
     for symbol in list_of_symbols:
         list_indices.append(ATOM_SYMBOL_TO_INDEX_DICT[symbol])
@@ -65,35 +76,41 @@ def list_symbols_to_indices(list_of_symbols):
 
 
 def list_indices_to_symbols(list_of_indices):
+    """
+    Atomic number to chemical symbols
+    """
     list_symbols = []
     for index in list_of_indices:
         list_symbols.append(ATOM_INDEX_TO_SYMBOL_DICT[index])
     return list_symbols
 
 
-def istarmap(self, func, iterable, chunksize=1):
-    """starmap-version of imap"""
-    self._check_running()
-    if chunksize < 1:
-        raise ValueError("Chunksize must be 1+, not {0:n}".format(chunksize))
+# def istarmap(self, func, iterable, chunksize=1):
+#     """starmap-version of imap"""
+#     self._check_running()
+#     if chunksize < 1:
+#         raise ValueError("Chunksize must be 1+, not {0:n}".format(chunksize))
 
-    task_batches = mpp.Pool._get_tasks(func, iterable, chunksize)
-    result = mpp.IMapIterator(self)
-    self._taskqueue.put(
-        (
-            self._guarded_task_generation(result._job, mpp.starmapstar, task_batches),
-            result._set_length,
-        )
-    )
-    return (item for chunk in result for item in chunk)
+#     task_batches = mpp.Pool._get_tasks(func, iterable, chunksize)
+#     result = mpp.IMapIterator(self)
+#     self._taskqueue.put(
+#         (
+#             self._guarded_task_generation(result._job, mpp.starmapstar, task_batches),
+#             result._set_length,
+#         )
+#     )
+#     return (item for chunk in result for item in chunk)
 
 
-def to_iterator(obj_ids):
-    while obj_ids:
-        done, obj_ids = ray.wait(obj_ids)
-        yield ray.get(done[0])
+# def to_iterator(obj_ids):
+#     while obj_ids:
+#         done, obj_ids = ray.wait(obj_ids)
+#         yield ray.get(done[0])
 
 
 def get_scaled_position(cell, positions):
+    """
+    atomic positions to scaled atomic positions
+    """
     assert cell.shape == (3, 3)
     return np.linalg.solve(cell.T, np.transpose(positions)).T.round(7)

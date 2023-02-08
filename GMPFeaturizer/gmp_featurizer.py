@@ -10,6 +10,7 @@ from .converters import ASEAtomsConverter
 
 
 class GMPFeaturizer:
+    """ object for computing GMP features of checmical systems """
     def __init__(
         self,
         GMPs,
@@ -18,6 +19,20 @@ class GMPFeaturizer:
         calc_occ_derivatives=False,
         verbose=True,
     ):
+        """
+        Parameters
+        ----------
+        GMPs : dict
+            configuration dictionary for the GMP feature set
+        feature_database : str, optional (default: "cache/features/")
+            path to the database for storing calculated features
+        calc_derivative : bool (default: False)
+            Whether to calculate feature derivatives w.r.t. atom positions
+        calc_occ_derivative : bool (default: False)
+            Whether to calculate feature derivatives w.r.t. atom occupancies
+        verbose : bool (default: True)
+            Whether to print information
+        """
 
         self.feature_setup = GMPs
         self.feature_database = feature_database
@@ -33,6 +48,31 @@ class GMPFeaturizer:
         save_features=False,
         converter=None,
     ):
+        """
+        computing features with given list of image objects
+
+        Parameters
+        ----------
+        image_objects : list
+            list of image objects
+        ref_positions_list : list
+            list of lists that contains for positions for computing
+            GMP features
+        cores : int (default: 1)
+            number of cores for computing the features
+        save_features : bool (default: False)
+            whether to save features to database
+        converter : converter_object (default: None)
+            converter to convert image objects to objects that 
+            can be read. Examples can be found and imported from 
+            GMPFeaturizer.ASEAtomsConverter
+            GMPFeaturizer.PymatgenStructureConverter
+
+        Return
+        ----------
+        calculated_features_list : list
+            list of dicts that store the computed features and derivatives 
+        """
 
         images = self._convert_validate_image_objects(image_objects, converter)
 
@@ -57,6 +97,9 @@ class GMPFeaturizer:
         return calculated_features_list
 
     def _convert_validate_image_objects(self, image_objects, converter):
+        """
+        Private method for validating the image objects
+        """
         if converter is None:
             if isinstance(image_objects[0], ase.Atoms):
                 converter = ASEAtomsConverter()
@@ -83,6 +126,9 @@ class GMPFeaturizer:
 
     # TODO
     def calculate_PCA(self, save_models=True, n_components=10, apply_PCA=True):
+        """
+        PCA transform of features, not implemented yet
+        """
         raise NotImplementedError
 
     # TODO
@@ -94,10 +140,16 @@ class GMPFeaturizer:
         scaler_max=1,
         apply_scaling=True,
     ):
+        """
+        Scale features, not implemented yet
+        """
         raise NotImplementedError
 
     # TODO
     def get_stats(self):
+        """
+        Get statistical information of the features, not implemented yet
+        """
         raise NotImplementedError
 
     def _calculate_GMP_features(
@@ -110,6 +162,9 @@ class GMPFeaturizer:
         verbose=False,
         cores=1,
     ):
+        """
+        Private method for parallelized computation of the features
+        """
         # if ref_positions_list is None:
         #     ref_positions_list = [image.get_positions() for image in images]
 
@@ -164,7 +219,7 @@ class GMPFeaturizer:
                 ),
                 args,
             )
-            images_feature_list = [a for a in tqdm(poolmap, total=length)]
+            images_feature_list = [a for a in tqdm(poolmap, total=length, disable=not verbose)]
 
             ray.shutdown()
             return images_feature_list
