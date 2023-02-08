@@ -1,15 +1,11 @@
 import os
 
-# import multiprocessing.pool as mpp
-import ray
-from multiprocessing import Pool
 from abc import ABC, abstractmethod
 
 import h5py
 import numpy as np
-from tqdm import tqdm
 
-from .util import get_hash, list_symbols_to_indices  # , validate_image
+from .util import get_hash
 
 
 class BaseFeature(ABC):
@@ -177,6 +173,7 @@ class BaseFeature(ABC):
 
                 image_dict["features"] = features
                 # image_dict["num_features"] = size_info[2]
+                feature_prime_dict = {}
                 feature_prime_dict["row"] = feature_primes_row
                 feature_prime_dict["col"] = feature_primes_col
                 feature_prime_dict["val"] = feature_primes_val

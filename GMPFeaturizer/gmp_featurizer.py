@@ -3,12 +3,9 @@ import numpy as np
 import ase
 import ray
 from ray.util import ActorPool
-from .base_feature import BaseFeature
 from .GMP import GMP
 
-import h5py
 from tqdm import tqdm
-from .util import get_hash, list_symbols_to_indices  # , validate_image
 from .converters import ASEAtomsConverter, PymatgenStructureConverter
 
 

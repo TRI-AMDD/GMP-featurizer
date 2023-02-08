@@ -26,7 +26,7 @@ class PymatgenStructureConverter:
 
     def convert(self, structure_list):
         results = []
-        for structure in structures_list:
+        for structure in structure_list:
             temp = {}
             temp["cell"] = np.array(structure.lattice.matrix)
             # ref_positions = np.array([site.coords for site in structure.sites])
