@@ -32,13 +32,16 @@ class GMP(BaseFeature):
             dictionary for the configuration of the features
             here are the parameters involved
 
-            "orders" : list
-                list of orders of the intended GMP probes
-                note that order -1 means getting the local
-                electronic density
-            "sigmas" : list
-                list of sigmas of the intended GMP probes
-                the final list of GMP probes(features) is the
+            "GMPs" : dict
+                dict for specifying which GMP features to be
+                computed. it should have the following items:
+                "orders" : list
+                    list of orders of the intended GMP probes
+                    note that order -1 means getting the local
+                    electronic density
+                "sigmas" : list
+                    list of sigmas of the intended GMP probes
+                    the final list of GMP probes(features) is the
                 Cartesian product of the "orders" and "sigmas" lists
                 except for order -1, which just correspond to local
                 electronic density
