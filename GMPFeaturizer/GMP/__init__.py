@@ -1,3 +1,8 @@
+# Copyright Toyota Research Institute 2023
+"""
+Module for defining the GMP feature class
+"""
+
 import hashlib
 import math
 

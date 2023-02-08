@@ -1,3 +1,10 @@
+# Copyright Toyota Research Institute 2023
+"""
+Module for defining converter classes, that could translate
+objects like ase atoms or pymatgen structures to the format that 
+can be read by a GMP feature object
+"""
+
 import numpy as np
 from abc import ABC, abstractmethod
 
@@ -22,6 +29,10 @@ class ASEAtomsConverter(ImageObjectConverter):
     """
 
     def convert(self, object_list):
+        """
+        Convert function definition
+        note that occupacies for each site are always 1
+        """ 
         results = []
         for atoms in object_list:
             temp = {}
@@ -43,6 +54,7 @@ class PymatgenStructureConverter(ImageObjectConverter):
     """
 
     def convert(self, object_list):
+        """ Convert function definition """ 
         results = []
         for structure in object_list:
             temp = {}

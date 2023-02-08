@@ -1,7 +1,10 @@
+# Copyright Toyota Research Institute 2023
+"""
+Module for defining the base class of features
+"""
+
 import os
-
 from abc import ABC, abstractmethod
-
 import h5py
 import numpy as np
 

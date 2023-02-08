@@ -1,3 +1,8 @@
+# Copyright Toyota Research Institute 2023
+"""
+Module for defining the constants needed
+"""
+
 ATOM_INDEX_TO_SYMBOL_DICT = {
     0: "X",
     1: "H",

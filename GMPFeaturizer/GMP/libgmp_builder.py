@@ -1,3 +1,8 @@
+# Copyright Toyota Research Institute 2023
+"""
+Module for compiling the c++ code
+"""
+
 import cffi
 
 ffibuilder = cffi.FFI()

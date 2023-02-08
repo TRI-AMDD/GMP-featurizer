@@ -1,3 +1,9 @@
+# Copyright Toyota Research Institute 2023
+"""
+Module for defining the featurizer class
+"""
+
+
 import os
 import numpy as np
 import ase

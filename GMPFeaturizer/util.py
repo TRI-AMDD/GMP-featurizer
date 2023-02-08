@@ -1,12 +1,11 @@
-# import multiprocessing.pool as mpp
-# import ray
+# Copyright Toyota Research Institute 2023
+"""
+Module for defining some of the utility functions needed
+"""
+
 import hashlib
-
 import numpy as np
-
 from .constants import ATOM_INDEX_TO_SYMBOL_DICT, ATOM_SYMBOL_TO_INDEX_DICT
-
-# from ase.io.trajectory import Trajectory
 
 
 def _gen_2Darray_for_ffi(arr, ffi, cdata="double"):
