@@ -39,7 +39,7 @@ class GMPFeaturizer:
 
         images = self._convert_validate_image_objects(image_objects, converter)
 
-        if ref_positions_list == None:
+        if ref_positions_list is None:
             ref_positions_list = [image["atom_positions"] for image in images]
 
         assert len(images) == len(ref_positions_list)

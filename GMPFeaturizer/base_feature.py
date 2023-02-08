@@ -311,7 +311,7 @@ class BaseFeature(ABC):
     def _setup_feature_database(self, save_features):
 
         if save_features:
-            if self.database_initialized == True:
+            if self.database_initialized:
                 return
             self.get_feature_setup_hash()
             self.desc_type_database_dir = os.path.join(

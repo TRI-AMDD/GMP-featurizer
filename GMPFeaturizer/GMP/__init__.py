@@ -264,10 +264,13 @@ class GMP(BaseFeature):
         self.params_set[
             "elemental_order_sigma_gaussian_cutoffs"
         ] = elemental_order_sigma_gaussian_cutoffs
-        # [[ordersigma1_element1_gaussian1_cutoff, ordersigma1_element1_gaussian2_cutoff,...ordersigma1_element2_gaussian1_cutoff,,...]
-        #  [ordersigma2_element1_gaussian1_cutoff, ordersigma2_element1_gaussian2_cutoff,...ordersigma2_element2_gaussian1_cutoff,,...]
+        # [[ordersigma1_element1_gaussian1_cutoff, ordersigma1_element1_gaussian2_cutoff,
+        #            ...ordersigma1_element2_gaussian1_cutoff,,...]
+        #  [ordersigma2_element1_gaussian1_cutoff, ordersigma2_element1_gaussian2_cutoff,
+        #            ...ordersigma2_element2_gaussian1_cutoff,,...]
         #  ...
-        #  [ordersigman_element1_gaussian1_cutoff, ordersigman_element1_gaussian2_cutoff,...ordersigman_element2_gaussian1_cutoff,,...]]
+        #  [ordersigman_element1_gaussian1_cutoff, ordersigman_element1_gaussian2_cutoff,
+        #            ...ordersigman_element2_gaussian1_cutoff,,...]]
         self.params_set[
             "elemental_order_sigma_gaussian_cutoffs_p"
         ] = _gen_2Darray_for_ffi(elemental_order_sigma_gaussian_cutoffs, ffi)
@@ -375,7 +378,7 @@ class GMP(BaseFeature):
                             )
                             temp_params = []
                         continue
-                    if new == True:
+                    if new:
                         current_element = line.split()[0]
                         current_element_index = ATOM_SYMBOL_TO_INDEX_DICT[
                             current_element
@@ -423,10 +426,8 @@ class GMP(BaseFeature):
 
         element_index_to_order_list = np.zeros(120, dtype=np.intc)
         for i, element_index in enumerate(self.element_indices):
-            # element_index_to_order_list.append(element_index)
             element_index_to_order_list[element_index] = i
 
-        # element_index_to_order_list = np.asarray(element_index_to_order_list, dtype=np.intc, order='C')
         overall_gaussian_params = np.asarray(
             overall_gaussian_params, dtype=np.float64, order="C"
         )
@@ -795,7 +796,7 @@ class GMP(BaseFeature):
         size_info = np.array([atom_num, cal_num, self.params_set["num"]])
 
         if self.solid_harmonic:
-            if calc_derivatives == False and calc_occ_derivatives == False:
+            if calc_derivatives is False and calc_occ_derivatives is False:
                 x = np.zeros(
                     [cal_num, self.params_set["num"]], dtype=np.float64, order="C"
                 )
@@ -948,7 +949,7 @@ class GMP(BaseFeature):
 
                 return size_info, fp, None, None, None, None, None
 
-            elif calc_derivatives == False and calc_occ_derivatives == True:
+            elif calc_derivatives is False and calc_occ_derivatives is True:
                 x = np.zeros(
                     [cal_num, self.params_set["num"]], dtype=np.float64, order="C"
                 )
@@ -1110,7 +1111,7 @@ class GMP(BaseFeature):
 
                 return size_info, fp, None, None, None, None, dfp_docc
 
-            elif calc_derivatives == True and calc_occ_derivatives == False:
+            elif calc_derivatives is True and calc_occ_derivatives is False:
                 x = np.zeros(
                     [cal_num, self.params_set["num"]], dtype=np.float64, order="C"
                 )
@@ -1471,7 +1472,7 @@ class GMP(BaseFeature):
 
         else:
 
-            if calc_derivatives == False and calc_occ_derivatives == False:
+            if calc_derivatives is False and calc_occ_derivatives is False:
                 x = np.zeros(
                     [cal_num, self.params_set["num"]], dtype=np.float64, order="C"
                 )
@@ -1514,10 +1515,10 @@ class GMP(BaseFeature):
                     None,
                 )
 
-            elif calc_derivatives == False and calc_occ_derivatives == True:
+            elif calc_derivatives is False and calc_occ_derivatives is True:
                 raise NotImplementedError
 
-            elif calc_derivatives == True and calc_occ_derivatives == False:
+            elif calc_derivatives is True and calc_occ_derivatives is False:
                 x = np.zeros(
                     [cal_num, self.params_set["num"]], dtype=np.float64, order="C"
                 )
