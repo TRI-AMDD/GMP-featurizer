@@ -24,7 +24,7 @@ jobs:
     - name: pycodestyle
       run: |
         pip install pycodestyle --upgrade --quiet
-        pycodestyle --max-line-length=129 GMPFeaturizer
+        pycodestyle GMPFeaturizer
     - name: flake8
       run: |
         pip install flake8 --upgrade --quiet
@@ -34,4 +34,4 @@ jobs:
     - name: pydocstyle
       run: |
         pip install pydocstyle --upgrade --quiet
-        pydocstyle --count --max-line-length=129 GMPFeaturizer
+        pydocstyle --count GMPFeaturizer
