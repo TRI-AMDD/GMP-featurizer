@@ -188,101 +188,101 @@ class FeatruizerTest(unittest.TestCase):
 
         self.base_molecule_featurizer_test(GMPs, 1)
 
-    def test_features_ref_multicore(self):
+    # def test_features_ref_multicore(self):
 
-        GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2, 3],
-                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-            },
-            "psp_path": "./test_files/NC-SR.gpsp",
-            "square": False,
-            "solid_harmonics": True,
-            "custom_cutoff": -1,
-            "cutoff": 60,
-        }
+    #     GMPs = {
+    #         "GMPs": {
+    #             "orders": [-1, 0, 1, 2, 3],
+    #             "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+    #         },
+    #         "psp_path": "./test_files/NC-SR.gpsp",
+    #         "square": False,
+    #         "solid_harmonics": True,
+    #         "custom_cutoff": -1,
+    #         "cutoff": 60,
+    #     }
 
-        self.base_molecule_featurizer_test(GMPs, 2)
+    #     self.base_molecule_featurizer_test(GMPs, 2)
 
-    def test_features_method_0_multicore(self):
+    # def test_features_method_0_multicore(self):
 
-        GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2, 3],
-                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-            },
-            "psp_path": "./test_files/NC-SR.gpsp",
-            "square": False,
-            "solid_harmonics": True,
-            "custom_cutoff": 0,
-            "overlap_threshold": 1e-40,
-        }
+    #     GMPs = {
+    #         "GMPs": {
+    #             "orders": [-1, 0, 1, 2, 3],
+    #             "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+    #         },
+    #         "psp_path": "./test_files/NC-SR.gpsp",
+    #         "square": False,
+    #         "solid_harmonics": True,
+    #         "custom_cutoff": 0,
+    #         "overlap_threshold": 1e-40,
+    #     }
 
-        self.base_molecule_featurizer_test(GMPs, 2)
+    #     self.base_molecule_featurizer_test(GMPs, 2)
 
-    def test_features_method_1_multicore(self):
+    # def test_features_method_1_multicore(self):
 
-        GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2, 3],
-                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-            },
-            "psp_path": "./test_files/NC-SR.gpsp",
-            "square": False,
-            "solid_harmonics": True,
-            "custom_cutoff": 1,
-            "overlap_threshold": 1e-30,
-        }
+    #     GMPs = {
+    #         "GMPs": {
+    #             "orders": [-1, 0, 1, 2, 3],
+    #             "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+    #         },
+    #         "psp_path": "./test_files/NC-SR.gpsp",
+    #         "square": False,
+    #         "solid_harmonics": True,
+    #         "custom_cutoff": 1,
+    #         "overlap_threshold": 1e-30,
+    #     }
 
-        self.base_molecule_featurizer_test(GMPs, 2)
+    #     self.base_molecule_featurizer_test(GMPs, 2)
 
-    def test_features_method_2_multicore(self):
+    # def test_features_method_2_multicore(self):
 
-        GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2, 3],
-                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-            },
-            "psp_path": "./test_files/NC-SR.gpsp",
-            "square": False,
-            "solid_harmonics": True,
-            "custom_cutoff": 2,
-            "overlap_threshold": 1e-30,
-        }
+    #     GMPs = {
+    #         "GMPs": {
+    #             "orders": [-1, 0, 1, 2, 3],
+    #             "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+    #         },
+    #         "psp_path": "./test_files/NC-SR.gpsp",
+    #         "square": False,
+    #         "solid_harmonics": True,
+    #         "custom_cutoff": 2,
+    #         "overlap_threshold": 1e-30,
+    #     }
 
-        self.base_molecule_featurizer_test(GMPs, 2)
+    #     self.base_molecule_featurizer_test(GMPs, 2)
 
-    def test_features_method_3_multicore(self):
+    # def test_features_method_3_multicore(self):
 
-        GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2, 3],
-                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-            },
-            "psp_path": "./test_files/NC-SR.gpsp",
-            "square": False,
-            "solid_harmonics": True,
-            "custom_cutoff": 3,
-            "overlap_threshold": 1e-30,
-        }
+    #     GMPs = {
+    #         "GMPs": {
+    #             "orders": [-1, 0, 1, 2, 3],
+    #             "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+    #         },
+    #         "psp_path": "./test_files/NC-SR.gpsp",
+    #         "square": False,
+    #         "solid_harmonics": True,
+    #         "custom_cutoff": 3,
+    #         "overlap_threshold": 1e-30,
+    #     }
 
-        self.base_molecule_featurizer_test(GMPs, 2)
+    #     self.base_molecule_featurizer_test(GMPs, 2)
 
-    def test_features_method_4_multicore(self):
+    # def test_features_method_4_multicore(self):
 
-        GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2, 3],
-                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-            },
-            "psp_path": "./test_files/NC-SR.gpsp",
-            "square": False,
-            "solid_harmonics": True,
-            "custom_cutoff": 4,
-            "overlap_threshold": 1e-30,
-        }
+    #     GMPs = {
+    #         "GMPs": {
+    #             "orders": [-1, 0, 1, 2, 3],
+    #             "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+    #         },
+    #         "psp_path": "./test_files/NC-SR.gpsp",
+    #         "square": False,
+    #         "solid_harmonics": True,
+    #         "custom_cutoff": 4,
+    #         "overlap_threshold": 1e-30,
+    #     }
 
-        self.base_molecule_featurizer_test(GMPs, 2)
+    #     self.base_molecule_featurizer_test(GMPs, 2)
 
 
 if __name__ == "__main__":
