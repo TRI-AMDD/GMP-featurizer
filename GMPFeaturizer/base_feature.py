@@ -347,11 +347,11 @@ class BaseFeature(ABC):
             os.makedirs(self.desc_type_database_dir, exist_ok=True)
             os.makedirs(self.desc_feature_database_dir, exist_ok=True)
             self.database_initialized = True
-            # feature_setup_filename = "feature_log.txt"
-            # feature_setup_path = "{}/{}".format(
-            #     self.desc_feature_database_dir, feature_setup_filename
-            # )
-            # self.save_feature_setup(feature_setup_path)
+            feature_setup_filename = "feature_setup.dat"
+            feature_setup_path = "{}/{}".format(
+                self.desc_feature_database_dir, feature_setup_filename
+            )
+            self.save_feature_setup(feature_setup_path)
 
     def get_element_list(self):
         """
