@@ -232,7 +232,7 @@ class GMP(BaseFeature):
                     )
                     element_distances.append(element_distance)
                 elemental_order_sigma_cutoffs.append(element_distances)
-                order_sigma_index_dict[0] = order_sigma_index
+                order_sigma_index_dict[(-1, 0)] = order_sigma_index
                 order_sigma_index += 1
 
             else:
@@ -314,7 +314,7 @@ class GMP(BaseFeature):
                     element_gaussian_distances
                 )
                 elemental_order_sigma_cutoffs.append(element_distances)
-                order_sigma_index_dict[0] = order_sigma_index
+                order_sigma_index_dict[(-1, 0)] = order_sigma_index
                 order_sigma_index += 1
 
             else:
@@ -572,6 +572,7 @@ class GMP(BaseFeature):
                             order,
                             square_i,
                             solid_harmonic_i,
+                            0,
                             0.0,
                             1.0,
                             1.0,  # A
@@ -586,6 +587,7 @@ class GMP(BaseFeature):
                             order,
                             square_i,
                             solid_harmonic_i,
+                            0,
                             sigma,
                             1.0,
                             (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
@@ -605,6 +607,7 @@ class GMP(BaseFeature):
                             order,
                             square_i,
                             solid_harmonic_i,
+                            0,
                             0.0,
                             1.0,
                             1.0,  # A
@@ -619,6 +622,7 @@ class GMP(BaseFeature):
                             order,
                             square_i,
                             solid_harmonic_i,
+                            0,
                             sigma,
                             1.0,
                             (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
@@ -638,6 +642,7 @@ class GMP(BaseFeature):
                             order,
                             square_i,
                             solid_harmonic_i,
+                            0,
                             0.0,
                             1.0,
                             1.0,  # A
@@ -652,6 +657,7 @@ class GMP(BaseFeature):
                             order,
                             square_i,
                             solid_harmonic_i,
+                            0,
                             sigma,
                             1.0,
                             (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
@@ -704,7 +710,7 @@ class GMP(BaseFeature):
                             order,
                             square_i,
                             solid_harmonic_i,
-                            self.order_sigma_index_dict[0],
+                            self.order_sigma_index_dict[(-1, 0)],
                             0.0,
                             1.0,
                             1.0,  # A
@@ -737,7 +743,7 @@ class GMP(BaseFeature):
                             order,
                             square_i,
                             solid_harmonic_i,
-                            self.order_sigma_index_dict[0],
+                            self.order_sigma_index_dict[(-1, 0)],
                             0.0,
                             1.0,
                             1.0,  # A
@@ -769,26 +775,14 @@ class GMP(BaseFeature):
 
     def _prepare_feature_parameters(self):
         """
-        private method for preparing feature parameters
+        private method for preparing feature parameters nad their pointers
         """
-        if self.custom_cutoff <= 1:
-            params_i = np.asarray(
-                self.feature_setup[:, :3].copy(), dtype=np.intc, order="C"
-            )
-            params_d = np.asarray(
-                self.feature_setup[:, 3:].copy(), dtype=np.float64, order="C"
-            )
-        elif (
-            self.custom_cutoff == 2
-            or self.custom_cutoff == 3
-            or self.custom_cutoff == 4
-        ):
-            params_i = np.asarray(
-                self.feature_setup[:, :4].copy(), dtype=np.intc, order="C"
-            )
-            params_d = np.asarray(
-                self.feature_setup[:, 4:].copy(), dtype=np.float64, order="C"
-            )
+        params_i = np.asarray(
+            self.feature_setup[:, :4].copy(), dtype=np.intc, order="C"
+        )
+        params_d = np.asarray(
+            self.feature_setup[:, 4:].copy(), dtype=np.float64, order="C"
+        )
         # print(params_d)
         self.params_set["i"] = params_i
         self.params_set["d"] = params_d
@@ -825,7 +819,9 @@ class GMP(BaseFeature):
         """
         with open(filename, "w") as out_file:
             for desc in self.feature_setup:
-                out_file.write("\t".join(str(desc[i]) for i in range(len(desc))) + "\n")
+                temp1 = "{}\t{}\t{}\t".format(int(desc[0]), int(desc[1]), int(desc[2])) 
+                temp2 = "\t".join(str(desc[i]) for i in range(len(desc[4:])))
+                out_file.write(temp1 + temp2 + "\n")
 
     # *******************************************************
     # calculate features
