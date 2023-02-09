@@ -4,6 +4,19 @@
 
 This package is used to efficiently and accurately compute the GMP features and their derivatives for any chemical systems. The computation is also parallelized via Ray.
 
+## Installation
+To install this package, simply clone this repo, 
+```
+git clone https://github.com/TRI-AMDD/CAMD.git
+cd GMP-featurizer
+```
+
+Then install the requirements and the package itself
+```
+pip install -r requirements.txt
+python install -e .
+```
+
 ## Basic usage
 
 #### Import modules and load data
@@ -90,4 +103,13 @@ result = featurizer.prepare_features(images, cores=5)
 # access data
 features = [entry["features"] for entry in result]
 feature_primes = [entry["feature_primes"] for entry in result]
+```
+
+#### Save calculated feature to / load calculated feature from local folder
+Simply set "save_features=True" when calling the prepare_features function.
+
+The path to the local database is set when initializing the featurizer
+```
+featurizer = GMPFeaturizer(GMPs=GMPs_2, calc_derivatives=False, feature_database="cache/features/")
+features = featurizer.prepare_features(images, cores=5, save_features=True)
 ```
