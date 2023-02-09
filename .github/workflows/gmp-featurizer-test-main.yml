@@ -33,7 +33,9 @@ jobs:
       env:
         MPLBACKEND: "Agg"
       run: |
-        pytest tests
+        cd tests
+        pytest .
+        cd ..
     - name: Coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
