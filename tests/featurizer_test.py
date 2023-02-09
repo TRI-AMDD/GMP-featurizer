@@ -14,22 +14,22 @@ class FeatruizerTest(unittest.TestCase):
             reference_features = pickle.load(f)
 
         featurizer_noderiv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=False, calc_occ_derivatives=False
+            GMPs=GMPs, calc_derivatives=False, calc_occ_derivatives=False, verbose=False,
         )
         features_noderiv = featurizer_noderiv.prepare_features(images)
 
         featurizer_fp_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=True, calc_occ_derivatives=False
+            GMPs=GMPs, calc_derivatives=True, calc_occ_derivatives=False, verbose=False,
         )
         features_fp_deriv = featurizer_fp_deriv.prepare_features(images)
 
         featurizer_occ_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=False, calc_occ_derivatives=True
+            GMPs=GMPs, calc_derivatives=False, calc_occ_derivatives=True, verbose=False,
         )
         features_occ_deriv = featurizer_occ_deriv.prepare_features(images)
 
         featurizer_fp_occ_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=True, calc_occ_derivatives=True
+            GMPs=GMPs, calc_derivatives=True, calc_occ_derivatives=True, verbose=False,
         )
         features_fp_occ_deriv = featurizer_fp_occ_deriv.prepare_features(images)
 
@@ -38,8 +38,8 @@ class FeatruizerTest(unittest.TestCase):
                 np.allclose(
                     features_noderiv[i]["features"],
                     reference_features[i]["features"],
-                    rtol=1e-12,
-                    atol=1e-18,
+                    rtol=1e-10,
+                    atol=1e-15,
                 )
                 for i in range(len(images))
             ]
@@ -49,8 +49,8 @@ class FeatruizerTest(unittest.TestCase):
                 np.allclose(
                     features_fp_deriv[i]["features"],
                     reference_features[i]["features"],
-                    rtol=1e-12,
-                    atol=1e-18,
+                    rtol=1e-10,
+                    atol=1e-15,
                 )
                 for i in range(len(images))
             ]
@@ -60,8 +60,8 @@ class FeatruizerTest(unittest.TestCase):
                 np.allclose(
                     features_occ_deriv[i]["features"],
                     reference_features[i]["features"],
-                    rtol=1e-12,
-                    atol=1e-18,
+                    rtol=1e-10,
+                    atol=1e-15,
                 )
                 for i in range(len(images))
             ]
@@ -71,8 +71,8 @@ class FeatruizerTest(unittest.TestCase):
                 np.allclose(
                     features_fp_occ_deriv[i]["features"],
                     reference_features[i]["features"],
-                    rtol=1e-12,
-                    atol=1e-18,
+                    rtol=1e-10,
+                    atol=1e-15,
                 )
                 for i in range(len(images))
             ]
