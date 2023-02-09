@@ -13,7 +13,6 @@ class FeatruizerTest(unittest.TestCase):
         with open("./test_files/molecules_ref_features.p", "rb") as f:
             reference_features = pickle.load(f)
 
-        
         featurizer_noderiv = GMPFeaturizer(
             GMPs=GMPs, calc_derivatives=False, calc_occ_derivatives=False
         )
@@ -79,14 +78,13 @@ class FeatruizerTest(unittest.TestCase):
             ]
         )
 
-
     def test_features_ref(self):
 
         GMPs = {
             "GMPs": {
-                "orders": [-1, 0, 1, 2, 3], 
+                "orders": [-1, 0, 1, 2, 3],
                 "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-                },
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -96,14 +94,13 @@ class FeatruizerTest(unittest.TestCase):
 
         self.base_molecule_featurizer_test(GMPs)
 
-    
     def test_features_method_0(self):
 
         GMPs = {
             "GMPs": {
-                "orders": [-1, 0, 1, 2, 3], 
+                "orders": [-1, 0, 1, 2, 3],
                 "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-                },
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -113,14 +110,13 @@ class FeatruizerTest(unittest.TestCase):
 
         self.base_molecule_featurizer_test(GMPs)
 
-    
     def test_features_method_1(self):
-        
+
         GMPs = {
             "GMPs": {
-                "orders": [-1, 0, 1, 2, 3], 
+                "orders": [-1, 0, 1, 2, 3],
                 "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-                },
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -130,14 +126,13 @@ class FeatruizerTest(unittest.TestCase):
 
         self.base_molecule_featurizer_test(GMPs)
 
-    
     def test_features_method_2(self):
-        
+
         GMPs = {
             "GMPs": {
-                "orders": [-1, 0, 1, 2, 3], 
+                "orders": [-1, 0, 1, 2, 3],
                 "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-                },
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -147,14 +142,13 @@ class FeatruizerTest(unittest.TestCase):
 
         self.base_molecule_featurizer_test(GMPs)
 
-    
     def test_features_method_3(self):
-        
+
         GMPs = {
             "GMPs": {
-                "orders": [-1, 0, 1, 2, 3], 
+                "orders": [-1, 0, 1, 2, 3],
                 "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-                },
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -164,14 +158,13 @@ class FeatruizerTest(unittest.TestCase):
 
         self.base_molecule_featurizer_test(GMPs)
 
-    
     def test_features_method_4(self):
-        
+
         GMPs = {
             "GMPs": {
-                "orders": [-1, 0, 1, 2, 3], 
+                "orders": [-1, 0, 1, 2, 3],
                 "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
-                },
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,

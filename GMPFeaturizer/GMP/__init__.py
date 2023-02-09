@@ -819,7 +819,7 @@ class GMP(BaseFeature):
         """
         with open(filename, "w") as out_file:
             for desc in self.feature_setup:
-                temp1 = "{}\t{}\t{}\t".format(int(desc[0]), int(desc[1]), int(desc[2])) 
+                temp1 = "{}\t{}\t{}\t".format(int(desc[0]), int(desc[1]), int(desc[2]))
                 temp2 = "\t".join(str(entry) for entry in desc[4:])
                 out_file.write(temp1 + temp2 + "\n")
 

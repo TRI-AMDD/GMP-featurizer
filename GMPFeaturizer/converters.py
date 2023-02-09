@@ -15,12 +15,12 @@ class ImageObjectConverter(ABC):
     """
 
     def __init__(self):
-        """ Initialization """
+        """Initialization"""
         pass
 
     @abstractmethod
     def convert(self, object_list):
-        """ Convert function """
+        """Convert function"""
         pass
 
 

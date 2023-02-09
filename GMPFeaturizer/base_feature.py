@@ -17,7 +17,7 @@ class BaseFeature(ABC):
     """
 
     def __init__(self):
-        """ Base initialization """
+        """Base initialization"""
         super().__init__()
         self.feature_database = "cache/features/"
 
