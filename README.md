@@ -4,10 +4,15 @@
 
 This package is used to efficiently and accurately compute the GMP features and their derivatives for any chemical systems. The computation is also parallelized via Ray.
 
+The details of the theory behind the Gaussian Multipole descriptors can be found in the [original paper](https://pubs.acs.org/doi/10.1021/acs.jpclett.2c02100)
+or in its [arxiv version](https://arxiv.org/abs/2102.02390)
+
+Part of the code of this package is based on the [AmpTorch package](https://github.com/ulissigroup/amptorch)
+
 ## Installation
 To install this package, simply clone this repo, 
 ```
-git clone https://github.com/TRI-AMDD/CAMD.git
+git clone https://github.com/TRI-AMDD/GMP-featurizer
 cd GMP-featurizer
 ```
 
@@ -113,3 +118,8 @@ The path to the local database is set when initializing the featurizer
 featurizer = GMPFeaturizer(GMPs=GMPs_2, calc_derivatives=False, feature_database="cache/features/")
 features = featurizer.prepare_features(images, cores=5, save_features=True)
 ```
+
+#### License
+Apache 2.0
+
+Copyright 2023 Toyota Research Institute
