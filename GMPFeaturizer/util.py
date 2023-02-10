@@ -112,4 +112,4 @@ def get_scaled_position(cell, positions):
     atomic positions to scaled atomic positions
     """
     assert cell.shape == (3, 3)
-    return np.linalg.solve(cell.T, np.transpose(positions)).T.round(7)
+    return np.linalg.solve(cell.T, np.transpose(positions)).T.round(6)
