@@ -114,7 +114,7 @@ class GMPFeaturizer:
             else:
                 images = image_objects
         else:
-            images = converter(image_objects)
+            images = converter.convert(image_objects)
 
         for image in images:
             assert isinstance(image, dict)
