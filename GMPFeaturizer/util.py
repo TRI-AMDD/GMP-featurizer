@@ -43,20 +43,20 @@ def get_hash(image, ref_positions):
 
     flattened_cell = image["cell"].flatten()
     for number in flattened_cell:
-        string += "%.7f" % number
+        string += "%.5f" % number
     for symbol in image["atom_symbols"]:
         string += symbol
     for number in image["atom_positions"].flatten():
-        string += "%.7f" % number
+        string += "%.5f" % number
     for number in image["occupancies"]:
-        string += "%.7f" % number
+        string += "%.5f" % number
 
     md5_1 = hashlib.md5(string.encode("utf-8"))
     hash1 = md5_1.hexdigest()
 
     pos_string = ""
     for number in ref_positions.flatten():
-        pos_string += "%.7f" % number
+        pos_string += "%.5f" % number
 
     md5_2 = hashlib.md5(pos_string.encode("utf-8"))
     hash2 = md5_2.hexdigest()

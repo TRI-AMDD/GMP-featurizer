@@ -808,7 +808,7 @@ class GMP(BaseFeature):
         string = ""
         for desc in self.feature_setup:
             for num in desc:
-                string += "%.7f" % num
+                string += "%.5f" % num
         md5 = hashlib.md5(string.encode("utf-8"))
         hash_result = md5.hexdigest()
         self.feature_setup_hash = hash_result
