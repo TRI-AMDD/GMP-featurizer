@@ -42,21 +42,21 @@ def get_hash(image, ref_positions):
     string += str(image["pbc"])
 
     flattened_cell = image["cell"].flatten()
-    for number in flattened_cell:
-        string += "%.5f" % number
+    for number in np.round(flattened_cell, 4):
+        string += "%.4f" % (number + 0)
     for symbol in image["atom_symbols"]:
         string += symbol
-    for number in image["atom_positions"].flatten():
-        string += "%.5f" % number
-    for number in image["occupancies"]:
-        string += "%.5f" % number
+    for number in np.round(image["atom_positions"].flatten(), 4):
+        string += "%.4f" % (number + 0)
+    for number in np.round(image["occupancies"], 4):
+        string += "%.4f" % (number + 0)
 
     md5_1 = hashlib.md5(string.encode("utf-8"))
     hash1 = md5_1.hexdigest()
 
     pos_string = ""
-    for number in ref_positions.flatten():
-        pos_string += "%.5f" % number
+    for number in np.round(ref_positions.flatten(), 4):
+        pos_string += "%.4f" % (number + 0)
 
     md5_2 = hashlib.md5(pos_string.encode("utf-8"))
     hash2 = md5_2.hexdigest()
