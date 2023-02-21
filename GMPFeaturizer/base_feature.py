@@ -61,6 +61,7 @@ class BaseFeature(ABC):
         calc_derivatives,
         calc_occ_derivatives,
         save_features,
+        idx=0,
     ):
         """
         Control method for computing the features for a given image object
@@ -109,7 +110,7 @@ class BaseFeature(ABC):
                 save_features=save_features,
             )
 
-        return temp_image_dict
+        return temp_image_dict, idx
 
     def _compute_features(
         self,

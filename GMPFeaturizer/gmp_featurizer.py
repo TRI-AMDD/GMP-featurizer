@@ -206,12 +206,14 @@ class GMPFeaturizer:
             calc_deriv_list = [calc_derivatives] * length
             calc_occ_deriv_list = [calc_occ_derivatives] * length
             save_features_list = [save_features] * length
+            idx_list = list(range(length))
             args = zip(
                 images,
                 ref_positions_list,
                 calc_deriv_list,
                 calc_occ_deriv_list,
                 save_features_list,
+                idx_list,
             )
 
             ray.init(num_cpus=cores)
@@ -220,15 +222,16 @@ class GMPFeaturizer:
                 for _ in range(cores)
             ]
             pool = ActorPool(actors)
-            poolmap = pool.map(
+            poolmap = pool.map_unordered(
                 lambda a, v: a._calculate_single_image.remote(
-                    v[0], v[1], v[2], v[3], v[4]
+                    v[0], v[1], v[2], v[3], v[4], v[5]
                 ),
                 args,
             )
             images_feature_list = [
                 a for a in tqdm(poolmap, total=length, disable=not verbose)
             ]
+            images_feature_list.sort(key=lambda a: a[1])
 
             ray.shutdown()
             return images_feature_list
