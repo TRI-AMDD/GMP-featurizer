@@ -189,7 +189,7 @@ class GMPFeaturizer:
                 desc="Computing features",
                 disable=not verbose,
             ):
-                temp_image_dict = feature._calculate_single_image(
+                temp_image_dict, _ = feature._calculate_single_image(
                     image,
                     ref_positions,
                     calc_derivatives,
@@ -228,10 +228,11 @@ class GMPFeaturizer:
                 ),
                 args,
             )
-            images_feature_list = [
+            images_feature_list_raw = [
                 a for a in tqdm(poolmap, total=length, disable=not verbose)
             ]
-            images_feature_list.sort(key=lambda a: a[1])
+            images_feature_list_raw.sort(key=lambda a: a[1])
+            images_feature_list = [entry[0] for entry in images_feature_list_raw]
 
             ray.shutdown()
             return images_feature_list
