@@ -26,7 +26,9 @@ class GMP(BaseFeature):
     """
 
     def __init__(
-        self, GMPs, feature_database="cache/features/",
+        self,
+        GMPs,
+        feature_database="cache/features/",
     ):
         """
         Parameters
@@ -237,7 +239,9 @@ class GMP(BaseFeature):
                 element_distances = []
                 for element, psp in self.atomic_psp.items():
                     element_distance = self._get_default_cutoff_single_element(
-                        sigma, psp, threshold=self.overlap_threshold * factors[order],
+                        sigma,
+                        psp,
+                        threshold=self.overlap_threshold * factors[order],
                     )
                     element_distances.append(element_distance)
                     # print(order, sigma, element, element_distance)
@@ -875,7 +879,8 @@ class GMP(BaseFeature):
         # scale = np.copy(atoms.get_scaled_positions(wrap=True), order="C")
         scale = get_scaled_position(cell, atom_positions)
         scale = np.array(
-            [np.array(v, dtype="float64") for v in scale], dtype="float64",
+            [np.array(v, dtype="float64") for v in scale],
+            dtype="float64",
         )
         atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
         cell = np.copy(cell, order="C")
