@@ -126,7 +126,6 @@ class GMPFeaturizer:
 
         return images
 
-
     def _calculate_GMP_features(
         self,
         images,
