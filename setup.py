@@ -6,7 +6,6 @@ setup_requires = [
 ]
 
 install_requires = [
-    "ase",
     "tqdm",
     "numpy",
     "h5py",
@@ -26,7 +25,5 @@ setup(
     python_requires=">=3.6, <4",
     setup_requires=setup_requires,
     install_requires=install_requires,
-    cffi_modules=[
-        "GMPFeaturizer/GMP/libgmp_builder.py:ffibuilder",
-    ],
+    cffi_modules=["GMPFeaturizer/GMP/libgmp_builder.py:ffibuilder",],
 )

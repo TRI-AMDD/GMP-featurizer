@@ -34,8 +34,12 @@ class FeatruizerOccTest(unittest.TestCase):
             converted_images2 = converter.convert(images)
             for image in converted_images2:
                 image["occupancies"][atom_index] = 1 - docc
-            features1 = featurizer.prepare_features(converted_images, cores=1)
-            features2 = featurizer.prepare_features(converted_images2, cores=1)
+            features1 = featurizer.prepare_features(
+                converted_images, cores=1, converter=converter
+            )
+            features2 = featurizer.prepare_features(
+                converted_images2, cores=1, converter=converter
+            )
 
             max_error_list = []
             for i in range(len(images)):
@@ -72,8 +76,12 @@ class FeatruizerOccTest(unittest.TestCase):
             converted_images2 = converter.convert(images)
             for image in converted_images2:
                 image["occupancies"][atom_index] = 1 - docc
-            features1 = featurizer.prepare_features(converted_images, cores=1)
-            features2 = featurizer.prepare_features(converted_images2, cores=1)
+            features1 = featurizer.prepare_features(
+                converted_images, cores=1, converter=converter
+            )
+            features2 = featurizer.prepare_features(
+                converted_images2, cores=1, converter=converter
+            )
 
             max_error_list = []
             for i in range(len(images)):
@@ -93,10 +101,7 @@ class FeatruizerOccTest(unittest.TestCase):
     def test_occupancy_drivative_ref(self):
 
         GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2],
-                "sigmas": [0.1, 0.2, 0.3],
-            },
+            "GMPs": {"orders": [-1, 0, 1, 2], "sigmas": [0.1, 0.2, 0.3],},
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -113,10 +118,7 @@ class FeatruizerOccTest(unittest.TestCase):
     def test_occupancy_drivative_method_0(self):
 
         GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2],
-                "sigmas": [0.1, 0.2, 0.3],
-            },
+            "GMPs": {"orders": [-1, 0, 1, 2], "sigmas": [0.1, 0.2, 0.3],},
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -133,10 +135,7 @@ class FeatruizerOccTest(unittest.TestCase):
     def test_occupancy_drivative_method_1(self):
 
         GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2],
-                "sigmas": [0.1, 0.2, 0.3],
-            },
+            "GMPs": {"orders": [-1, 0, 1, 2], "sigmas": [0.1, 0.2, 0.3],},
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -153,10 +152,7 @@ class FeatruizerOccTest(unittest.TestCase):
     def test_occupancy_drivative_method_2(self):
 
         GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2],
-                "sigmas": [0.1, 0.2, 0.3],
-            },
+            "GMPs": {"orders": [-1, 0, 1, 2], "sigmas": [0.1, 0.2, 0.3],},
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -173,10 +169,7 @@ class FeatruizerOccTest(unittest.TestCase):
     def test_occupancy_drivative_method_3(self):
 
         GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2],
-                "sigmas": [0.1, 0.2, 0.3],
-            },
+            "GMPs": {"orders": [-1, 0, 1, 2], "sigmas": [0.1, 0.2, 0.3],},
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -193,10 +186,7 @@ class FeatruizerOccTest(unittest.TestCase):
     def test_occupancy_drivative_method_4(self):
 
         GMPs = {
-            "GMPs": {
-                "orders": [-1, 0, 1, 2],
-                "sigmas": [0.1, 0.2, 0.3],
-            },
+            "GMPs": {"orders": [-1, 0, 1, 2], "sigmas": [0.1, 0.2, 0.3],},
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,

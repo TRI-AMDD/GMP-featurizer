@@ -6,7 +6,6 @@ Module for defining the featurizer class
 
 import os
 import numpy as np
-import ase
 import ray
 from ray.util import ActorPool
 from .GMP import GMP
@@ -108,11 +107,7 @@ class GMPFeaturizer:
         Private method for validating the image objects
         """
         if converter is None:
-            if isinstance(image_objects[0], ase.Atoms):
-                converter = ASEAtomsConverter()
-                images = converter.convert(image_objects)
-            else:
-                images = image_objects
+            images = image_objects
         else:
             images = converter.convert(image_objects)
 
