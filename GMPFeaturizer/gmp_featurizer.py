@@ -92,7 +92,7 @@ class GMPFeaturizer:
 
         calculated_features_list = self._calculate_GMP_features(
             images,
-            ref_positions_list=ref_positions_list,
+            ref_positions_list,
             calc_derivatives=self.calc_derivatives,
             calc_occ_derivatives=self.calc_occ_derivatives,
             save_features=save_features,
@@ -126,38 +126,11 @@ class GMPFeaturizer:
 
         return images
 
-    # TODO
-    def calculate_PCA(self, save_models=True, n_components=10, apply_PCA=True):
-        """
-        PCA transform of features, not implemented yet
-        """
-        raise NotImplementedError
-
-    # TODO
-    def calculate_scaling(
-        self,
-        separate_atomtypes=True,
-        save_models=True,
-        scaler_min=-1,
-        scaler_max=1,
-        apply_scaling=True,
-    ):
-        """
-        Scale features, not implemented yet
-        """
-        raise NotImplementedError
-
-    # TODO
-    def get_stats(self):
-        """
-        Get statistical information of the features, not implemented yet
-        """
-        raise NotImplementedError
 
     def _calculate_GMP_features(
         self,
         images,
-        ref_positions_list=None,
+        ref_positions_list,
         calc_derivatives=False,
         calc_occ_derivatives=False,
         save_features=False,
@@ -167,13 +140,6 @@ class GMPFeaturizer:
         """
         Private method for parallelized computation of the features
         """
-        # if ref_positions_list is None:
-        #     ref_positions_list = [image.get_positions() for image in images]
-
-        # assert len(images) == len(ref_positions_list)
-
-        # if save is true, create directories if not exist
-        # feature._setup_feature_database(save_features=save_features)
 
         if cores <= 1:
             feature = GMP(self.feature_setup, self.feature_database)
