@@ -15,7 +15,7 @@ install_requires = [
 
 setup(
     name="gmp-featurizer",
-    version="0.1",
+    version="1.0",
     description="Feature calculator for GMP features",
     author="Xiangyun Lei",
     author_email="ray.lei@tri.global",
