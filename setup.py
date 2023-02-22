@@ -17,7 +17,7 @@ setup(
     name="gmp-featurizer",
     version="1.0",
     description="Feature calculator for GMP features",
-    author="Xiangyun Lei",
+    author="Xiangyun Lei, Joseph Montoya",
     author_email="ray.lei@tri.global",
     url="https://github.com/TRI-AMDD/GMP-featurizer",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),

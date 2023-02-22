@@ -27,11 +27,18 @@ python install -e .
 #### Import modules and load data
 ```
 import numpy as np
-from GMPFeaturizer.GMP import GMP
+from GMPFeaturizer import GMPFeaturizer, ASEAtomsConverter, PymatgenStructureConverter
 from ase.io import read as aseread
 
-image = aseread("./test.cif")
-images = [image] # it should be a non-empty list
+# Loading cif file as a ase atoms object
+image = aseread("./test.cif") 
+# The input to the featurizer should be a non-empty list
+images = [image]
+
+# initialize the converter, in this case it's the converter for ASE atoms objects
+# There is also a pre-existing converter for pymatgen Structure objects as well
+converter = ASEAtomsConverter()
+# converter = PymatgenStructureConverter()
 ```
 
 #### Setup the featurizer
@@ -48,20 +55,24 @@ GMPs = {
         "orders": [-1, 0, 1, 2], 
         "sigmas": [0.1, 0.2, 0.3]   
     },
-    "psp_path": "./NC-SR.gpsp", # path to the pseudo potential file
-    "overlap_threshold": 1e-16, # basically the accuracy of the resulting features
-    # "square": False, # whether the features are squared, no need to change if you are not get the feature derivatives
+    # path to the pseudo potential file
+    "psp_path": "<path>/NC-SR.gpsp", 
+    # basically the accuracy of the resulting features
+    "overlap_threshold": 1e-16, 
+    # whether the features are squared, no need to change if you are not considering the feature derivatives
+    # "square": False, 
 }
 
-featurizer = GMPFeaturizer(GMPs=GMPs, calc_derivatives=True)
+featurizer = GMPFeaturizer(GMPs=GMPs, calc_derivatives=True, verbose=True)
 ```
-set calc_derivatives=True if you want to get the feature derivatives w.r.t. atom positions, which are stored in the form of sparse matrices
+Set calc_derivatives=True if you want to get the feature derivatives w.r.t. atom positions, which are stored in the form of sparse matrices.
+
 
 
 #### Calculate features and access data
-Use the "cores" argument to change the number of cores for parallelization
+Use the "cores" argument to change the number of cores for parallelization. Also converted needed to be specified,
 ```
-result = featurizer.prepare_features(images, cores=5)
+result = featurizer.prepare_features(images, cores=5, converter=converter)
 
 features = [entry["features"] for entry in result]
 feature_primes = [entry["feature_primes"] for entry in result]
@@ -81,12 +92,15 @@ GMPs = {
 #### Whole Script
 ```
 import numpy as np
-from GMPFeaturizer.GMP import GMP
+from GMPFeaturizer import GMPFeaturizer, ASEAtomsConverter, PymatgenStructureConverter
 
 # load data
 from ase.io import read as aseread
-image = aseread("./test.cif")
-images = [image] 
+image = aseread("./test.cif") 
+images = [image]
+
+converter = ASEAtomsConverter()
+# converter = PymatgenStructureConverter()
 
 # setup featurizer
 GMPs = {
@@ -94,16 +108,19 @@ GMPs = {
         "orders": [-1, 0, 1, 2], 
         "sigmas": [0.1, 0.2, 0.3]   
     },
-    "psp_path": "./NC-SR.gpsp", # path to the pseudo potential file
-    "overlap_threshold": 1e-16, # basically the accuracy of the resulting features
-    # "square": False, # whether the features are squared, no need to change if you are not get the feature derivatives
+    # path to the pseudo potential file
+    "psp_path": "<path>/NC-SR.gpsp", 
+    # basically the accuracy of the resulting features
+    "overlap_threshold": 1e-16, 
+    # whether the features are squared, no need to change if you are not considering the feature derivatives
+    # "square": False, 
 }
-featurizer = GMPFeaturizer(GMPs=GMPs, calc_derivatives=True)
+featurizer = GMPFeaturizer(GMPs=GMPs, calc_derivatives=True, verbose=True)
 
 
 
 # calculate features
-result = featurizer.prepare_features(images, cores=5)
+result = featurizer.prepare_features(images, cores=5, converter=converter)
 
 # access data
 features = [entry["features"] for entry in result]
@@ -116,7 +133,7 @@ Simply set "save_features=True" when calling the prepare_features function.
 The path to the local database is set when initializing the featurizer
 ```
 featurizer = GMPFeaturizer(GMPs=GMPs_2, calc_derivatives=False, feature_database="cache/features/")
-features = featurizer.prepare_features(images, cores=5, save_features=True)
+features = featurizer.prepare_features(images, cores=5, save_features=True, converter=converter)
 ```
 
 #### License
