@@ -11,7 +11,6 @@ from ray.util import ActorPool
 from .GMP import GMP
 
 from tqdm import tqdm
-from .converters import ASEAtomsConverter
 
 
 class GMPFeaturizer:
