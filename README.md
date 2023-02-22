@@ -24,6 +24,8 @@ python install -e .
 
 ## Basic usage
 
+#### Please refer to the example notebooks for better and detailed tutorials
+
 #### Import modules and load data
 ```
 import numpy as np
@@ -59,7 +61,8 @@ GMPs = {
     "psp_path": "<path>/NC-SR.gpsp", 
     # basically the accuracy of the resulting features
     "overlap_threshold": 1e-16, 
-    # whether the features are squared, no need to change if you are not considering the feature derivatives
+    # whether the features are squared, 
+    #no need to change if you are not considering the feature derivatives
     # "square": False, 
 }
 
@@ -112,7 +115,8 @@ GMPs = {
     "psp_path": "<path>/NC-SR.gpsp", 
     # basically the accuracy of the resulting features
     "overlap_threshold": 1e-16, 
-    # whether the features are squared, no need to change if you are not considering the feature derivatives
+    # whether the features are squared, 
+    #no need to change if you are not considering the feature derivatives
     # "square": False, 
 }
 featurizer = GMPFeaturizer(GMPs=GMPs, calc_derivatives=True, verbose=True)
@@ -132,7 +136,7 @@ Simply set "save_features=True" when calling the prepare_features function.
 
 The path to the local database is set when initializing the featurizer
 ```
-featurizer = GMPFeaturizer(GMPs=GMPs_2, calc_derivatives=False, feature_database="cache/features/")
+featurizer = GMPFeaturizer(GMPs=GMPs, calc_derivatives=False, feature_database="cache/features/")
 features = featurizer.prepare_features(images, cores=5, save_features=True, converter=converter)
 ```
 
