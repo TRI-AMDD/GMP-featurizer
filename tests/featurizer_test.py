@@ -26,21 +26,30 @@ class FeatruizerTest(unittest.TestCase):
         )
 
         featurizer_fp_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=True, calc_occ_derivatives=False, verbose=False,
+            GMPs=GMPs,
+            calc_derivatives=True,
+            calc_occ_derivatives=False,
+            verbose=False,
         )
         features_fp_deriv = featurizer_fp_deriv.prepare_features(
             images, cores=cores, converter=converter
         )
 
         featurizer_occ_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=False, calc_occ_derivatives=True, verbose=False,
+            GMPs=GMPs,
+            calc_derivatives=False,
+            calc_occ_derivatives=True,
+            verbose=False,
         )
         features_occ_deriv = featurizer_occ_deriv.prepare_features(
             images, cores=cores, converter=converter
         )
 
         featurizer_fp_occ_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=True, calc_occ_derivatives=True, verbose=False,
+            GMPs=GMPs,
+            calc_derivatives=True,
+            calc_occ_derivatives=True,
+            verbose=False,
         )
         features_fp_occ_deriv = featurizer_fp_occ_deriv.prepare_features(
             images, cores=cores, converter=converter
@@ -94,7 +103,10 @@ class FeatruizerTest(unittest.TestCase):
     def test_features_ref(self):
 
         GMPs = {
-            "GMPs": {"orders": [-1, 0, 1, 2, 3], "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],},
+            "GMPs": {
+                "orders": [-1, 0, 1, 2, 3],
+                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -107,7 +119,10 @@ class FeatruizerTest(unittest.TestCase):
     def test_features_method_0(self):
 
         GMPs = {
-            "GMPs": {"orders": [-1, 0, 1, 2, 3], "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],},
+            "GMPs": {
+                "orders": [-1, 0, 1, 2, 3],
+                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -120,7 +135,10 @@ class FeatruizerTest(unittest.TestCase):
     def test_features_method_1(self):
 
         GMPs = {
-            "GMPs": {"orders": [-1, 0, 1, 2, 3], "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],},
+            "GMPs": {
+                "orders": [-1, 0, 1, 2, 3],
+                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -133,7 +151,10 @@ class FeatruizerTest(unittest.TestCase):
     def test_features_method_2(self):
 
         GMPs = {
-            "GMPs": {"orders": [-1, 0, 1, 2, 3], "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],},
+            "GMPs": {
+                "orders": [-1, 0, 1, 2, 3],
+                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -146,7 +167,10 @@ class FeatruizerTest(unittest.TestCase):
     def test_features_method_3(self):
 
         GMPs = {
-            "GMPs": {"orders": [-1, 0, 1, 2, 3], "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],},
+            "GMPs": {
+                "orders": [-1, 0, 1, 2, 3],
+                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
@@ -159,7 +183,10 @@ class FeatruizerTest(unittest.TestCase):
     def test_features_method_4(self):
 
         GMPs = {
-            "GMPs": {"orders": [-1, 0, 1, 2, 3], "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],},
+            "GMPs": {
+                "orders": [-1, 0, 1, 2, 3],
+                "sigmas": [0.2, 0.4, 0.6, 0.8, 1.0],
+            },
             "psp_path": "./test_files/NC-SR.gpsp",
             "square": False,
             "solid_harmonics": True,
