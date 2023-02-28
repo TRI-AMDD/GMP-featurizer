@@ -57,8 +57,6 @@ class GMP(BaseFeature):
                 will be ignored.
             "psp_path" : str
                 path to the GMP pseudopotential file (.gpsp file)
-            "solid_harmonics" : bool (default: True)
-                Whether to use solid harmonics
             "square" : book (default: False)
                 Whether the resulting features are squared
             "custom_cutoff" : int (default: 4)
@@ -551,7 +549,8 @@ class GMP(BaseFeature):
         """
         private method for preparing the parameters of feature setup
         """
-        self.solid_harmonic = self.GMPs.get("solid_harmonics", True)
+        # self.solid_harmonic = self.GMPs.get("solid_harmonics", True)
+        self.solid_harmonic = True
         solid_harmonic_i = 1 if self.solid_harmonic else 0
         square = self.GMPs.get("square", False)
         square_i = 1 if square else 0
@@ -1570,107 +1569,4 @@ class GMP(BaseFeature):
                 )
 
         else:
-
-            if calc_derivatives is False and calc_occ_derivatives is False:
-                x = np.zeros(
-                    [cal_num, self.params_set["num"]], dtype=np.float64, order="C"
-                )
-                x_p = _gen_2Darray_for_ffi(x, ffi)
-                if self.custom_cutoff == -1:
-                    errno = lib.calculate_surface_gmpordernorm_noderiv_ref(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                    )
-
-                else:
-                    raise NotImplementedError
-
-                if errno == 1:
-                    raise NotImplementedError("Feature not implemented!")
-                fp = np.array(x, dtype=np.float64)
-
-                return (
-                    size_info,
-                    fp,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                )
-
-            elif calc_derivatives is False and calc_occ_derivatives is True:
-                raise NotImplementedError
-
-            elif calc_derivatives is True and calc_occ_derivatives is False:
-                x = np.zeros(
-                    [cal_num, self.params_set["num"]], dtype=np.float64, order="C"
-                )
-                dx = np.zeros(
-                    [cal_num * self.params_set["num"], atom_num * 3],
-                    dtype=np.float64,
-                    order="C",
-                )
-
-                x_p = _gen_2Darray_for_ffi(x, ffi)
-                dx_p = _gen_2Darray_for_ffi(dx, ffi)
-
-                if self.custom_cutoff == -1:
-                    errno = lib.calculate_surface_gmpordernorm_fp_deriv_ref(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                        dx_p,
-                    )
-
-                else:
-                    raise NotImplementedError
-
-                if errno == 1:
-                    raise NotImplementedError("Feature not implemented!")
-                fp = np.array(x, dtype=np.float64)
-                fp_prime = np.array(dx, dtype=np.float64)
-
-                scipy_sparse_fp_prime = sparse.coo_matrix(fp_prime)
-
-                return (
-                    size_info,
-                    fp,
-                    scipy_sparse_fp_prime.data,
-                    scipy_sparse_fp_prime.row,
-                    scipy_sparse_fp_prime.col,
-                    np.array(fp_prime.shape),
-                    None,
-                )
-
-            else:
-                raise NotImplementedError
+            raise ValueError
