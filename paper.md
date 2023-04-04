@@ -36,10 +36,6 @@ The main inputs of the workflow are a python dictionary that contains the necess
 By default, the package computes GMP features at each atom position, but it can also be used to compute the features at any set of reference points inside the atomic system by providing a list of the positions of interest for each atomic structure. Users can also specify the number of cores for parallel computing. Moreover, computed results can be cached locally for convenient reprocessing of datasets, e.g. after augmentation or modification. Two sets of standard pseudopotential files are also provided, which are necessary to specify GMP feature sets, but may be difficult to collect from either commercial or open-source density functional theory systems. Lastly, a series of tutorials are provided in the repository to help users with quick starting and understanding the various features of the codebase.
 
 
-# Example
-
-
-
 # Acknowledgements
 
 This work was supported by the Energy and Materials Division of the Toyota Research Institute. The authors acknowledge Jens Hummelshøj for helpful discussions regarding unit-testing frameworks.
