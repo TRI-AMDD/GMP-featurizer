@@ -19,6 +19,51 @@ from ..util import (
 )
 from ._libgmp import ffi, lib
 
+def _get_scaling_constant_radial(sigma):
+    return (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+
+def _get_scaling_constant_both_probes(order, sigma):
+    alpha = 1/(2*sigma*sigma)
+    const = math.pow((math.pi / (2 * alpha)), 1.5)
+    if order == 0:
+        temp = const
+        return 1/math.sqrt(temp)
+    if order == 1:
+        temp = 0.75 * math.pow( alpha, -1 ) * const
+        return 1/math.sqrt(temp)
+    if order == 2:
+        temp = 5.625 * math.pow( alpha, -2 ) * const
+        return 1/math.sqrt(temp)
+    if order == 3:
+        temp = 147.65625 * math.pow( alpha, -3 ) * const
+        return 1/math.sqrt(temp)
+    if order == 4:
+        temp = 9302.34375 * math.pow( alpha, -4 ) * const
+        return 1/math.sqrt(temp)
+    if order == 5:
+        temp = 1151165.0390625 * math.pow( alpha, -5 ) * const
+        return 1/math.sqrt(temp)
+    if order == 6:
+        temp = 246924900.87890625 * math.pow( alpha, -6 ) * const
+        return 1/math.sqrt(temp)
+    if order == 7:
+        temp = 84263122424.92676 * math.pow( alpha, -7 ) * const
+        return 1/math.sqrt(temp)
+    if order == 8:
+        temp = 42974192436712.65 * math.pow( alpha, -8 ) * const
+        return 1/math.sqrt(temp)
+    if order == 9:
+        temp = 3.163831150894136e+16 * math.pow( alpha, -9 ) * const
+        return 1/math.sqrt(temp)
+    raise NotImplementedError
+
+def get_scaling_constant(order, sigma, mode):
+    if mode == "radial":
+        return _get_scaling_constant_radial(sigma)
+    elif mode == "both":
+        return _get_scaling_constant_both_probes(order, sigma)
+    else:
+        raise NotImplementedError
 
 class GMP(BaseFeature):
     """
@@ -89,6 +134,8 @@ class GMP(BaseFeature):
         self.feature_database = feature_database
         self.GMPs = GMPs
         self.custom_cutoff = self.GMPs.get("custom_cutoff", 4)
+        self.scaling_mode = self.GMPs.get("scaling_mode", "radial")
+        assert self.scaling_mode in ["radial", "both"]
 
         self._load_psp_files()
         self._get_desc_list()
@@ -589,7 +636,8 @@ class GMP(BaseFeature):
                             0,
                             sigma,
                             1.0,
-                            (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            # (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            get_scaling_constant(order, sigma, self.scaling_mode),
                             1.0 / (2.0 * sigma * sigma),
                             self.cutoff,
                             (1.0 / (rs_scale * sigma))
@@ -624,7 +672,8 @@ class GMP(BaseFeature):
                             0,
                             sigma,
                             1.0,
-                            (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            # (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            get_scaling_constant(order, sigma, self.scaling_mode),
                             1.0 / (2.0 * sigma * sigma),
                             self.sigma_cutoffs[sigma],
                             (1.0 / (rs_scale * sigma))
@@ -659,7 +708,8 @@ class GMP(BaseFeature):
                             0,
                             sigma,
                             1.0,
-                            (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            # (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            get_scaling_constant(order, sigma, self.scaling_mode),
                             1.0 / (2.0 * sigma * sigma),
                             self.sigma_cutoffs[sigma],
                             (1.0 / (rs_scale * sigma))
@@ -693,7 +743,8 @@ class GMP(BaseFeature):
                             self.sigma_index_dict[sigma],
                             sigma,
                             1.0,
-                            (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            # (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            get_scaling_constant(order, sigma, self.scaling_mode),
                             1.0 / (2.0 * sigma * sigma),
                             (1.0 / (rs_scale * sigma))
                             if rs_scale > 0
@@ -726,7 +777,8 @@ class GMP(BaseFeature):
                             self.order_sigma_index_dict[(order, sigma)],
                             sigma,
                             1.0,
-                            (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            # (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            get_scaling_constant(order, sigma, self.scaling_mode),
                             1.0 / (2.0 * sigma * sigma),
                             (1.0 / (rs_scale * sigma))
                             if rs_scale > 0
@@ -759,7 +811,8 @@ class GMP(BaseFeature):
                             self.order_sigma_index_dict[(order, sigma)],
                             sigma,
                             1.0,
-                            (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            # (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+                            get_scaling_constant(order, sigma, self.scaling_mode),
                             1.0 / (2.0 * sigma * sigma),
                             (1.0 / (rs_scale * sigma))
                             if rs_scale > 0
