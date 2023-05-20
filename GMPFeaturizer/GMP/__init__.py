@@ -436,7 +436,6 @@ class GMP(BaseFeature):
         """
         return (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3
 
-
     def _get_scaling_constant_both_probes(self, order, sigma):
         """
         private method for calculating scaling parameters
@@ -475,7 +474,6 @@ class GMP(BaseFeature):
             temp = 3.163831150894136e16 * math.pow(alpha, -9) * const
             return 1 / math.sqrt(temp)
         raise NotImplementedError
-
 
     def get_scaling_constant(self, order, sigma, mode):
         """
