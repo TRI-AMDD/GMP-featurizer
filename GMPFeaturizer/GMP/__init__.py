@@ -19,43 +19,46 @@ from ..util import (
 )
 from ._libgmp import ffi, lib
 
+
 def _get_scaling_constant_radial(sigma):
     return (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3
 
+
 def _get_scaling_constant_both_probes(order, sigma):
-    alpha = 1/(2*sigma*sigma)
+    alpha = 1 / (2 * sigma * sigma)
     const = math.pow((math.pi / (2 * alpha)), 1.5)
     if order == 0:
         temp = const
-        return 1/math.sqrt(temp)
+        return 1 / math.sqrt(temp)
     if order == 1:
-        temp = 0.75 * math.pow( alpha, -1 ) * const
-        return 1/math.sqrt(temp)
+        temp = 0.75 * math.pow(alpha, -1) * const
+        return 1 / math.sqrt(temp)
     if order == 2:
-        temp = 5.625 * math.pow( alpha, -2 ) * const
-        return 1/math.sqrt(temp)
+        temp = 5.625 * math.pow(alpha, -2) * const
+        return 1 / math.sqrt(temp)
     if order == 3:
-        temp = 147.65625 * math.pow( alpha, -3 ) * const
-        return 1/math.sqrt(temp)
+        temp = 147.65625 * math.pow(alpha, -3) * const
+        return 1 / math.sqrt(temp)
     if order == 4:
-        temp = 9302.34375 * math.pow( alpha, -4 ) * const
-        return 1/math.sqrt(temp)
+        temp = 9302.34375 * math.pow(alpha, -4) * const
+        return 1 / math.sqrt(temp)
     if order == 5:
-        temp = 1151165.0390625 * math.pow( alpha, -5 ) * const
-        return 1/math.sqrt(temp)
+        temp = 1151165.0390625 * math.pow(alpha, -5) * const
+        return 1 / math.sqrt(temp)
     if order == 6:
-        temp = 246924900.87890625 * math.pow( alpha, -6 ) * const
-        return 1/math.sqrt(temp)
+        temp = 246924900.87890625 * math.pow(alpha, -6) * const
+        return 1 / math.sqrt(temp)
     if order == 7:
-        temp = 84263122424.92676 * math.pow( alpha, -7 ) * const
-        return 1/math.sqrt(temp)
+        temp = 84263122424.92676 * math.pow(alpha, -7) * const
+        return 1 / math.sqrt(temp)
     if order == 8:
-        temp = 42974192436712.65 * math.pow( alpha, -8 ) * const
-        return 1/math.sqrt(temp)
+        temp = 42974192436712.65 * math.pow(alpha, -8) * const
+        return 1 / math.sqrt(temp)
     if order == 9:
-        temp = 3.163831150894136e+16 * math.pow( alpha, -9 ) * const
-        return 1/math.sqrt(temp)
+        temp = 3.163831150894136e16 * math.pow(alpha, -9) * const
+        return 1 / math.sqrt(temp)
     raise NotImplementedError
+
 
 def get_scaling_constant(order, sigma, mode):
     if mode == "radial":
@@ -65,15 +68,14 @@ def get_scaling_constant(order, sigma, mode):
     else:
         raise NotImplementedError
 
+
 class GMP(BaseFeature):
     """
     Class for GMP feature
     """
 
     def __init__(
-        self,
-        GMPs,
-        feature_database="cache/features/",
+        self, GMPs, feature_database="cache/features/",
     ):
         """
         Parameters
@@ -284,9 +286,7 @@ class GMP(BaseFeature):
                 element_distances = []
                 for element, psp in self.atomic_psp.items():
                     element_distance = self._get_default_cutoff_single_element(
-                        sigma,
-                        psp,
-                        threshold=self.overlap_threshold * factors[order],
+                        sigma, psp, threshold=self.overlap_threshold * factors[order],
                     )
                     element_distances.append(element_distance)
                     # print(order, sigma, element, element_distance)
@@ -931,8 +931,7 @@ class GMP(BaseFeature):
         # scale = np.copy(atoms.get_scaled_positions(wrap=True), order="C")
         scale = get_scaled_position(cell, atom_positions)
         scale = np.array(
-            [np.array(v, dtype="float64") for v in scale],
-            dtype="float64",
+            [np.array(v, dtype="float64") for v in scale], dtype="float64",
         )
         atom_indices_p = ffi.cast("int *", atom_indices.ctypes.data)
         cell = np.copy(cell, order="C")
