@@ -20,7 +20,7 @@ from ..util import (
 from ._libgmp import ffi, lib
 
 def _get_scaling_constant_radial(sigma):
-    return (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3,
+    return (1.0 / (sigma * np.sqrt(2.0 * np.pi))) ** 3
 
 def _get_scaling_constant_both_probes(order, sigma):
     alpha = 1/(2*sigma*sigma)
