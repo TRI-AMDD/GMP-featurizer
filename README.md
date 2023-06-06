@@ -19,7 +19,7 @@ cd GMP-featurizer
 Then install the requirements and the package itself
 ```
 pip install -r requirements.txt
-python install -e .
+pip install -e .
 ```
 
 ## Basic usage
