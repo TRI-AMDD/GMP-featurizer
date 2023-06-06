@@ -1,4 +1,4 @@
-# Welcome to GMP-Featurizer contributing guide <!-- omit in toc -->
+# Welcome to GMP-Featurizer contributing guide
 
 Thank you for interesting in investing your time and contributing to our project! 
 
