@@ -59,3 +59,19 @@ Once you submit your PR, a Docs team member will review your proposal. We may as
 ### Your PR is merged!
 
 Congratulations :tada::tada: The GMP-Featurizer team thanks you :sparkles:.
+
+
+## Community Guidelines
+
+We value a friendly and inclusive community. Please adhere to the following guidelines when participating:
+
+- Be respectful and considerate to others, regardless of their background or experience level.
+- Avoid offensive, discriminatory, or inappropriate language and behavior.
+- Engage in constructive discussions and provide helpful feedback.
+- Help others and contribute positively to the community.
+
+## Contact
+
+If you have any questions, concerns, or suggestions, please reach out to us via [ray.lei@tri.global](mailto:ray.lei@tri.global).
+
+Thank you for your interest in contributing! We look forward to your valuable contributions.
