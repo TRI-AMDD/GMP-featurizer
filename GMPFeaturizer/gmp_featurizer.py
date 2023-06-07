@@ -68,11 +68,7 @@ class GMPFeaturizer:
         self.converter = converter
 
     def prepare_features(
-        self,
-        image_objects,
-        ref_positions_list=None,
-        cores=1,
-        save_features=False,
+        self, image_objects, ref_positions_list=None, cores=1, save_features=False,
     ):
         """
         computing features with given list of image objects

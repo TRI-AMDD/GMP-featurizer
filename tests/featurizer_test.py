@@ -22,26 +22,32 @@ class FeatruizerTest(unittest.TestCase):
             calc_occ_derivatives=False,
             verbose=False,
         )
-        features_noderiv = featurizer_noderiv.prepare_features(
-            images, cores=cores
-        )
+        features_noderiv = featurizer_noderiv.prepare_features(images, cores=cores)
 
         featurizer_fp_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=True, calc_occ_derivatives=False, verbose=False,
+            GMPs=GMPs,
+            converter=converter,
+            calc_derivatives=True,
+            calc_occ_derivatives=False,
+            verbose=False,
         )
-        features_fp_deriv = featurizer_fp_deriv.prepare_features(
-            images, cores=cores
-        )
+        features_fp_deriv = featurizer_fp_deriv.prepare_features(images, cores=cores)
 
         featurizer_occ_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=False, calc_occ_derivatives=True, verbose=False,
+            GMPs=GMPs,
+            converter=converter,
+            calc_derivatives=False,
+            calc_occ_derivatives=True,
+            verbose=False,
         )
-        features_occ_deriv = featurizer_occ_deriv.prepare_features(
-            images, cores=cores
-        )
+        features_occ_deriv = featurizer_occ_deriv.prepare_features(images, cores=cores)
 
         featurizer_fp_occ_deriv = GMPFeaturizer(
-            GMPs=GMPs, calc_derivatives=True, calc_occ_derivatives=True, verbose=False,
+            GMPs=GMPs,
+            converter=converter,
+            calc_derivatives=True,
+            calc_occ_derivatives=True,
+            verbose=False,
         )
         features_fp_occ_deriv = featurizer_fp_occ_deriv.prepare_features(
             images, cores=cores
