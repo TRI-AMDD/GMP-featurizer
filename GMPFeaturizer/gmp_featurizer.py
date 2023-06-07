@@ -19,6 +19,7 @@ class GMPFeaturizer:
     def __init__(
         self,
         GMPs,
+        converter=None,
         feature_database="cache/features/",
         calc_derivatives=False,
         calc_occ_derivatives=False,
@@ -29,6 +30,11 @@ class GMPFeaturizer:
         ----------
         GMPs : dict
             configuration dictionary for the GMP feature set
+        converter : converter_object (default: None)
+            converter to convert image objects to objects that
+            can be read. Examples can be found and imported from
+            GMPFeaturizer.ASEAtomsConverter
+            GMPFeaturizer.PymatgenStructureConverter
         feature_database : str, optional (default: "cache/features/")
             path to the database for storing calculated features
         calc_derivative : bool (default: False)
@@ -43,7 +49,23 @@ class GMPFeaturizer:
         self.feature_database = feature_database
         self.calc_derivatives = calc_derivatives
         self.calc_occ_derivatives = calc_occ_derivatives
+        self.converter = converter
         self.verbose = verbose
+
+    def set_converter(self, converter):
+        """
+        set/change the converter in case the featurizer is applied
+        to different kind of data
+
+        Parameters
+        ----------
+        converter : converter_object
+            converter to convert image objects to objects that
+            can be read. Examples can be found and imported from
+            GMPFeaturizer.ASEAtomsConverter
+            GMPFeaturizer.PymatgenStructureConverter
+        """
+        self.converter = converter
 
     def prepare_features(
         self,
@@ -51,7 +73,6 @@ class GMPFeaturizer:
         ref_positions_list=None,
         cores=1,
         save_features=False,
-        converter=None,
     ):
         """
         computing features with given list of image objects
@@ -67,11 +88,6 @@ class GMPFeaturizer:
             number of cores for computing the features
         save_features : bool (default: False)
             whether to save features to database
-        converter : converter_object (default: None)
-            converter to convert image objects to objects that
-            can be read. Examples can be found and imported from
-            GMPFeaturizer.ASEAtomsConverter
-            GMPFeaturizer.PymatgenStructureConverter
 
         Return
         ----------
@@ -79,7 +95,7 @@ class GMPFeaturizer:
             list of dicts that store the computed features and derivatives
         """
 
-        images = self._convert_validate_image_objects(image_objects, converter)
+        images = self._convert_validate_image_objects(image_objects, self.converter)
 
         if ref_positions_list is None:
             ref_positions_list = [image["atom_positions"] for image in images]
