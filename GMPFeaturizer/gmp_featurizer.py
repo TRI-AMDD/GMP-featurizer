@@ -94,7 +94,7 @@ class GMPFeaturizer:
             list of dicts that store the computed features and derivatives
         """
 
-        images = self._convert_validate_image_objects(image_objects, self.converter)
+        images = self._convert_validate_image_objects(image_objects)
 
         if ref_positions_list is None:
             ref_positions_list = [image["atom_positions"] for image in images]

@@ -98,7 +98,11 @@ class GMP(BaseFeature):
         self._prepare_feature_parameters()
 
     def __eq__(self, other):
-        """Overrides the default implementation"""
+        """
+        Overrides the default implementation
+        method for measuring whether two features are 
+        the same by definition.
+        """
         if isinstance(other, BaseFeature):
             if self.feature_type != other.feature_type:
                 return False
