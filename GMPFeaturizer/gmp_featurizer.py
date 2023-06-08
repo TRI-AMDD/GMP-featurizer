@@ -1,6 +1,7 @@
 # Copyright Toyota Research Institute 2023
 """
 Module for defining the featurizer class
+This is the main class of this package
 """
 
 
@@ -26,6 +27,8 @@ class GMPFeaturizer:
         verbose=True,
     ):
         """
+        Initialization function for the object.
+
         Parameters
         ----------
         GMPs : dict
@@ -71,7 +74,7 @@ class GMPFeaturizer:
         self, image_objects, ref_positions_list=None, cores=1, save_features=False,
     ):
         """
-        computing features with given list of image objects
+        Computing features with given list of image objects
 
         Parameters
         ----------
@@ -113,14 +116,27 @@ class GMPFeaturizer:
 
         return calculated_features_list
 
-    def _convert_validate_image_objects(self, image_objects, converter):
+    def _convert_validate_image_objects(self, image_objects):
         """
-        Private method for validating the image objects
+        Private method for validating the image objects using 
+        the converter, also make sure the converted objects matches
+        the format needed for this featurizer.
+
+        Parameters
+        ----------
+        image_objects : List
+            list of original image objects
+
+        Return
+        ----------
+        images : List
+            list of converted image objects
         """
-        if converter is None:
+
+        if self.converter is None:
             images = image_objects
         else:
-            images = converter.convert(image_objects)
+            images = self.converter.convert(image_objects)
 
         for image in images:
             assert isinstance(image, dict)
@@ -149,6 +165,30 @@ class GMPFeaturizer:
     ):
         """
         Private method for parallelized computation of the features
+
+        Parameters
+        ----------
+        images : List
+            list of image objects in the format of this featurizer
+        ref_positions_list : List
+            list of set of 3d cooridnates, each set corresponds to the
+            positions of reference points where the user wants to 
+            featurize
+        calc_derivative : bool (default False)
+            whether to compute feature derivatives w.r.t. atom positions
+        calc_occ_derivatives : bool (default False)
+            whether to compute feature derivatives w.r.t. occupancy
+        save_features : bool (default: False)
+            whether to save features to database
+        verbose : bool (default: True)
+            Whether to print information
+        cores : int (default: 1)
+            number of cores for computing the features
+
+        Return
+        ----------
+        images_feature_list : List
+            list of features and derivatives if specified
         """
 
         if cores <= 1:

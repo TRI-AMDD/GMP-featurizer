@@ -65,7 +65,31 @@ class BaseFeature(ABC):
     ):
         """
         Control method for computing the features for a given image object
+
+        Parameters
+        ----------
+        image : Dict
+            Information of a image object in the format readable by this package
+        ref_positions : numpy.ndarray
+            Size n*3, Cartesian coordinates of reference points that need
+            to be featurized
+        calc_derivatives : bool
+            Whether to calcualte feature derivatives w.r.t. atom positions
+        calc_occ_derivatives : bool
+            Whether to calcualte feature derivatives w.r.t. occupancies
+        save_features : bool
+            Whether to write resulting features to database
+        idx : int (default 0)
+            idx of the image, used to ordering
+
+        Return
+        ----------
+        temp_image_dict : Dict
+            Dictionary containing computed features, and derivatives if asked
+        idx : int
+            Needed for ordering 
         """
+        
         # print("start")
         ref_positions = np.array(ref_positions)
         # validate_image(image, ref_positions)
@@ -354,8 +378,8 @@ class BaseFeature(ABC):
             )
             self.save_feature_setup(feature_setup_path)
 
-    def get_element_list(self):
-        """
-        return the list of elements
-        """
-        return self.elements
+    # def get_element_list(self):
+    #     """
+    #     return the list of elements
+    #     """
+    #     return self.elements

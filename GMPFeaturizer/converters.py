@@ -32,8 +32,21 @@ class ASEAtomsConverter(ImageObjectConverter):
 
     def convert(self, object_list):
         """
-        Convert function definition
+        Convert function definition to convert a list a 
+        ASE Atoms objects to a format that's readable by
+        the featurizer
         note that occupacies for each site are always 1
+
+        Parameters
+        ----------
+        object_list : List
+            list of ASE Atoms of objects to be converted
+
+        Return
+        ----------
+        results : List
+            list of corresponding obejcts readable by the
+            featurizer
         """
         results = []
         for atoms in object_list:
@@ -56,7 +69,22 @@ class PymatgenStructureConverter(ImageObjectConverter):
     """
 
     def convert(self, object_list):
-        """Convert function definition"""
+        """
+        Convert function definition to convert a list a 
+        pymatgen Structure objects to a format that's readable by
+        the featurizer
+
+        Parameters
+        ----------
+        object_list : List
+            list of pymatgen Structure of objects to be converted
+
+        Return
+        ----------
+        results : List
+            list of corresponding obejcts readable by the
+            featurizer
+        """
         results = []
         for structure in object_list:
             temp = {}

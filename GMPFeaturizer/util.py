@@ -11,6 +11,7 @@ from .constants import ATOM_INDEX_TO_SYMBOL_DICT, ATOM_SYMBOL_TO_INDEX_DICT
 def _gen_2Darray_for_ffi(arr, ffi, cdata="double"):
     """
     Function to generate 2D pointer for cffi from 2D numpy array
+    Needed to interface the C code
     """
     shape = arr.shape
     arr_p = ffi.new(cdata + " *[%d]" % shape[0])
@@ -22,6 +23,7 @@ def _gen_2Darray_for_ffi(arr, ffi, cdata="double"):
 def _gen_2Darray_for_ffi2(arr, ffi, cdata="double"):
     """
     Function to generate 2D pointer for cffi from 2D numpy array
+    Needed to interface the C code
     """
     shape = arr.shape
     # dsize = ffi.sizeof(cdata)
@@ -36,6 +38,20 @@ def get_hash(image, ref_positions):
     """
     Get the hash based on the image object and positions for
     computing GMP features.
+
+    Parameters
+    ----------
+    image : Dict
+        image information in the format of this featrizer,
+        containing all information of a system
+    ref_positions : numpy.ndarray
+        size n*3, Cartesian coordinates of the reference
+        points want to be featurized
+
+    Return
+    ----------
+    complete_hash : str
+        hash based on the image and reference points.
     """
 
     string = ""
@@ -61,27 +77,51 @@ def get_hash(image, ref_positions):
     md5_2 = hashlib.md5(pos_string.encode("utf-8"))
     hash2 = md5_2.hexdigest()
 
-    return "{}-{}".format(hash1, hash2)
+    complete_hash = "{}-{}".format(hash1, hash2)
+    return complete_hash
 
 
 def list_symbols_to_indices(list_of_symbols):
     """
-    Chemical symbols to atomic number
+    Convert a list of hemical symbols to atomic numbers
+
+    Parameters
+    ----------
+    list_of_symbols : List
+        list of chemical symbols like ["C", "H", ...]
+
+    Return
+    ----------
+    list_of_indices : List
+        list of atomic numbers like [6, 1, ...]
     """
+
     list_indices = []
     for symbol in list_of_symbols:
         list_indices.append(ATOM_SYMBOL_TO_INDEX_DICT[symbol])
-    return np.array(list_indices, dtype=np.intc)
+    list_of_indices = np.array(list_indices, dtype=np.intc)
+    return list_of_indices
 
 
 def list_indices_to_symbols(list_of_indices):
     """
-    Atomic number to chemical symbols
+    Convert a list of atomic numbers to chemical symbols
+
+    Parameters
+    ----------
+    list_of_indices : List
+        list of atomic numbers like [6, 1, ...]
+
+    Return
+    ----------
+    list_of_symbols : List
+        list of chemical symbols like ["C", "H", ...]
     """
-    list_symbols = []
+
+    list_of_symbols = []
     for index in list_of_indices:
-        list_symbols.append(ATOM_INDEX_TO_SYMBOL_DICT[index])
-    return list_symbols
+        list_of_symbols.append(ATOM_INDEX_TO_SYMBOL_DICT[index])
+    return list_of_symbols
 
 
 # def istarmap(self, func, iterable, chunksize=1):
@@ -109,7 +149,21 @@ def list_indices_to_symbols(list_of_indices):
 
 def get_scaled_position(cell, positions):
     """
-    atomic positions to scaled atomic positions
+    Convert atomic positions to scaled atomic positions
+
+    Parameters
+    ----------
+    cell : numpy.ndarray
+        size 3*3, lattice vectors of a unit cell
+    positions : numpy.ndarray
+        size n*3, positions in Cartesian coordinate
+
+    Return
+    ----------
+    scaled_positions : numpy.ndarray
+        size n*3, corresponding scaled positions
     """
+
     assert cell.shape == (3, 3)
-    return np.linalg.solve(cell.T, np.transpose(positions)).T.round(6)
+    scaled_positions = np.linalg.solve(cell.T, np.transpose(positions)).T.round(6)
+    return scaled_positions
