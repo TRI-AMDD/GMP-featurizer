@@ -89,7 +89,7 @@ class BaseFeature(ABC):
         idx : int
             Needed for ordering 
         """
-        
+
         # print("start")
         ref_positions = np.array(ref_positions)
         # validate_image(image, ref_positions)
