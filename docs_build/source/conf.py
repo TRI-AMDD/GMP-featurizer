@@ -1,7 +1,3 @@
-import os
-import sys
-sys.path.insert(0, os.path.abspath("../"))
-
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -11,15 +7,13 @@ sys.path.insert(0, os.path.abspath("../"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'GMP-featurizer'
-copyright = '2023, Xiangyun Lei'
-author = 'Xiangyun Lei'
+copyright = '2023, Toyota Research Institute'
+author = 'Toyota Research Institute'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = [
-    "sphinx.ext.autodoc"
-]
+extensions = []
 
 templates_path = ['_templates']
 exclude_patterns = []

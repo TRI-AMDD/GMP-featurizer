@@ -29,61 +29,8 @@
 
           <div class="body" role="main">
             
-  <section id="module-GMPFeaturizer.gmp_featurizer">
-<span id="gmpfeaturizer-gmp-featurizer-module"></span><h1>GMPFeaturizer.gmp_featurizer module<a class="headerlink" href="#module-GMPFeaturizer.gmp_featurizer" title="Permalink to this heading">¶</a></h1>
-<p>Module for defining the featurizer class
-This is the main class of this package</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="GMPFeaturizer.gmp_featurizer.GMPFeaturizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.gmp_featurizer.</span></span><span class="sig-name descname"><span class="pre">GMPFeaturizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GMPs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">converter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cache/features/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_derivatives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_occ_derivatives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.gmp_featurizer.GMPFeaturizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>object for computing GMP features of checmical systems</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="GMPFeaturizer.gmp_featurizer.GMPFeaturizer.prepare_features">
-<span class="sig-name descname"><span class="pre">prepare_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_objects</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_positions_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.gmp_featurizer.GMPFeaturizer.prepare_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computing features with given list of image objects</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h2>
-<dl class="simple">
-<dt>image_objects<span class="classifier">list</span></dt><dd><p>list of image objects</p>
-</dd>
-<dt>ref_positions_list<span class="classifier">list</span></dt><dd><p>list of lists that contains for positions for computing
-GMP features</p>
-</dd>
-<dt>cores<span class="classifier">int (default: 1)</span></dt><dd><p>number of cores for computing the features</p>
-</dd>
-<dt>save_features<span class="classifier">bool (default: False)</span></dt><dd><p>whether to save features to database</p>
-</dd>
-</dl>
-</section>
-<section id="return">
-<h2>Return<a class="headerlink" href="#return" title="Permalink to this heading">¶</a></h2>
-<dl class="simple">
-<dt>calculated_features_list<span class="classifier">list</span></dt><dd><p>list of dicts that store the computed features and derivatives</p>
-</dd>
-</dl>
-</section>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="GMPFeaturizer.gmp_featurizer.GMPFeaturizer.set_converter">
-<span class="sig-name descname"><span class="pre">set_converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">converter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.gmp_featurizer.GMPFeaturizer.set_converter" title="Permalink to this definition">¶</a></dt>
-<dd><p>set/change the converter in case the featurizer is applied
-to different kind of data</p>
-<section id="id1">
-<h2>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
-<dl class="simple">
-<dt>converter<span class="classifier">converter_object</span></dt><dd><p>converter to convert image objects to objects that
-can be read. Examples can be found and imported from
-GMPFeaturizer.ASEAtomsConverter
-GMPFeaturizer.PymatgenStructureConverter</p>
-</dd>
-</dl>
-</section>
-</dd></dl>
-
-</dd></dl>
-
+  <section id="gmpfeaturizer-gmp-featurizer-module">
+<h1>GMPFeaturizer.gmp_featurizer module<a class="headerlink" href="#gmpfeaturizer-gmp-featurizer-module" title="Permalink to this heading">¶</a></h1>
 </section>
 
 
@@ -134,7 +81,7 @@ GMPFeaturizer.PymatgenStructureConverter</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2023, Xiangyun Lei.
+      &copy;2023, Toyota Research Institute.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
