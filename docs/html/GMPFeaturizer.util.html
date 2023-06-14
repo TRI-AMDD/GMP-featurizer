@@ -29,8 +29,86 @@
 
           <div class="body" role="main">
             
-  <section id="gmpfeaturizer-util-module">
-<h1>GMPFeaturizer.util module<a class="headerlink" href="#gmpfeaturizer-util-module" title="Permalink to this heading">¶</a></h1>
+  <section id="module-GMPFeaturizer.util">
+<span id="gmpfeaturizer-util-module"></span><h1>GMPFeaturizer.util module<a class="headerlink" href="#module-GMPFeaturizer.util" title="Permalink to this heading">¶</a></h1>
+<p>Module for defining some of the utility functions needed</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="GMPFeaturizer.util.get_hash">
+<span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.util.</span></span><span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_positions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.util.get_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the hash based on the image object and positions for
+computing GMP features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>Dict</em>) – image information in the format of this featrizer,
+containing all information of a system</p></li>
+<li><p><strong>ref_positions</strong> (<em>numpy.ndarray</em>) – size n*3, Cartesian coordinates of the reference
+points want to be featurized</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>complete_hash</strong> – hash based on the image and reference points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="GMPFeaturizer.util.get_scaled_position">
+<span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.util.</span></span><span class="sig-name descname"><span class="pre">get_scaled_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.util.get_scaled_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert atomic positions to scaled atomic positions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell</strong> (<em>numpy.ndarray</em>) – size 3*3, lattice vectors of a unit cell</p></li>
+<li><p><strong>positions</strong> (<em>numpy.ndarray</em>) – size n*3, positions in Cartesian coordinate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>scaled_positions</strong> – size n*3, corresponding scaled positions</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="GMPFeaturizer.util.list_indices_to_symbols">
+<span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.util.</span></span><span class="sig-name descname"><span class="pre">list_indices_to_symbols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.util.list_indices_to_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of atomic numbers to chemical symbols</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list_of_indices</strong> (<em>List</em>) – list of atomic numbers like [6, 1, …]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list_of_symbols</strong> – list of chemical symbols like [“C”, “H”, …]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="GMPFeaturizer.util.list_symbols_to_indices">
+<span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.util.</span></span><span class="sig-name descname"><span class="pre">list_symbols_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_symbols</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.util.list_symbols_to_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of hemical symbols to atomic numbers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list_of_symbols</strong> (<em>List</em>) – list of chemical symbols like [“C”, “H”, …]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>list_of_indices</strong> – list of atomic numbers like [6, 1, …]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

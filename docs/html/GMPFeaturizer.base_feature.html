@@ -29,8 +29,34 @@
 
           <div class="body" role="main">
             
-  <section id="gmpfeaturizer-base-feature-module">
-<h1>GMPFeaturizer.base_feature module<a class="headerlink" href="#gmpfeaturizer-base-feature-module" title="Permalink to this heading">¶</a></h1>
+  <section id="module-GMPFeaturizer.base_feature">
+<span id="gmpfeaturizer-base-feature-module"></span><h1>GMPFeaturizer.base_feature module<a class="headerlink" href="#module-GMPFeaturizer.base_feature" title="Permalink to this heading">¶</a></h1>
+<p>Module for defining the base class of features</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="GMPFeaturizer.base_feature.BaseFeature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.base_feature.</span></span><span class="sig-name descname"><span class="pre">BaseFeature</span></span><a class="headerlink" href="#GMPFeaturizer.base_feature.BaseFeature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for features</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.base_feature.BaseFeature.calculate_features">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_derivatives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.base_feature.BaseFeature.calculate_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>abstract method: calculating features</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.base_feature.BaseFeature.get_feature_setup_hash">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_feature_setup_hash</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.base_feature.BaseFeature.get_feature_setup_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>abstract method: getting hash for feature setup</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.base_feature.BaseFeature.save_feature_setup">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_feature_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.base_feature.BaseFeature.save_feature_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>abstract method: save feature setup to file</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
