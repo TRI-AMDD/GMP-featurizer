@@ -26,6 +26,8 @@ pip install -e .
 
 #### Please refer to the example notebooks for better and detailed tutorials
 
+An example "cif" file is provided in the "examples" directory
+
 #### Import modules and load data
 ```
 import numpy as np
@@ -33,7 +35,7 @@ from GMPFeaturizer import GMPFeaturizer, ASEAtomsConverter, PymatgenStructureCon
 from ase.io import read as aseread
 
 # Loading cif file as a ase atoms object
-image = aseread("./test.cif") 
+image = aseread("./examples/test.cif") 
 # The input to the featurizer should be a non-empty list
 images = [image]
 
@@ -99,7 +101,7 @@ from GMPFeaturizer import GMPFeaturizer, ASEAtomsConverter, PymatgenStructureCon
 
 # load data
 from ase.io import read as aseread
-image = aseread("./test.cif") 
+image = aseread("./examples/test.cif") 
 images = [image]
 
 converter = ASEAtomsConverter()
