@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Welcome to GMP-featurizer’s documentation! &#8212; GMP-featurizer  documentation</title>
+    <title>GMP-featurizer &#8212; GMP-featurizer  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -29,18 +29,108 @@
 
           <div class="body" role="main">
             
-  <section id="welcome-to-gmp-featurizer-s-documentation">
-<h1>Welcome to GMP-featurizer’s documentation!<a class="headerlink" href="#welcome-to-gmp-featurizer-s-documentation" title="Permalink to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
+  <div class="toctree-wrapper compound">
+</div>
+<section id="gmp-featurizer">
+<h1>GMP-featurizer<a class="headerlink" href="#gmp-featurizer" title="Permalink to this heading">¶</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
+<p>This package is used to efficiently compute the GMP features and their derivatives for any chemical system. The computation is also parallelized via Ray.  The details of the theory behind the Gaussian Multipole descriptors can be found in the <a class="reference external" href="https://pubs.acs.org/doi/10.1021/acs.jpclett.2c02100">original paper</a> or in its <a class="reference external" href="https://arxiv.org/abs/2102.02390">arxiv version</a>. Part of the code of this package is based on the <a class="reference external" href="https://github.com/ulissigroup/amptorch">AmpTorch package</a>, which is gratefully acknowledged.</p>
+<p>For a quickstart tutorial - we recommend reading the <a class="reference internal" href="#basic-usage"><span class="std std-ref">Basic usage</span></a> section below. For more detailed examples, please browser the <a class="reference external" href="https://github.com/TRI-AMDD/GMP-featurizer/tree/docs/examples">examples folder in the github repository</a>.</p>
+<p>To browse the API, associated functions, please refer to the <a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module index.</span></a>.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
+<p>To install this package, clone the <a class="reference external" href="https://github.com/TRI-AMDD/GMP-featurizer">repo</a> using git.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone https://github.com/TRI-AMDD/GMP-featurizer</span>
+<span class="go">cd GMP-featurizer</span>
+</pre></div>
+</div>
+<p>Then install the requirements and the package itself</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install -r requirements.txt</span>
+<span class="go">pip install -e .</span>
+</pre></div>
 </div>
 </section>
+<section id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this heading">¶</a></h2>
+<p>Shown below is a basic tutorial. Please refer to the <a class="reference external" href="https://github.com/TRI-AMDD/GMP-featurizer/tree/docs/examples">example notebooks</a> for detailed tutorials. An example “cif” file is provided in the “examples” directory</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import modules and load data</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">GMPFeaturizer</span> <span class="kn">import</span> <span class="n">GMPFeaturizer</span><span class="p">,</span> <span class="n">ASEAtomsConverter</span><span class="p">,</span> <span class="n">PymatgenStructureConverter</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">aseread</span>
+
+<span class="c1"># Loading cif file as a ase atoms object</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">aseread</span><span class="p">(</span><span class="s2">&quot;./examples/test.cif&quot;</span><span class="p">)</span>
+
+<span class="c1"># The input to the featurizer should be a non-empty list</span>
+<span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">image</span><span class="p">]</span>
+
+<span class="c1"># initialize the converter, in this case it&#39;s the converter for ASE atoms objects</span>
+<span class="c1"># There is also a pre-existing converter for pymatgen Structure objects as well</span>
+
+<span class="n">converter</span> <span class="o">=</span> <span class="n">ASEAtomsConverter</span><span class="p">()</span>
+<span class="n">converter</span> <span class="o">=</span> <span class="n">PymatgenStructureConverter</span><span class="p">()</span>
+
+<span class="c1">### Setup the featurizer</span>
+<span class="c1"># The list of features is the Cartesian product of orders and sigams</span>
+<span class="c1"># (except for order -1, which correspond just local electron density,</span>
+<span class="c1"># so different sigmas does not matter. Thus, there is only one feature for order -1).</span>
+<span class="c1"># With this setting, the list of features are</span>
+<span class="c1"># [(-1, 0), (0, 0.1), (0, 0.2), (0, 0.3), (1, 0.1),</span>
+<span class="c1">#  (1, 0.2), (1, 0.3), (2, 0.1), (2, 0.2), (2, 0.3)]</span>
+<span class="c1"># where the first number is the order of the MCSH angular probe,</span>
+<span class="c1"># and the second number is the sigma of the Gaussian radial probe</span>
+<span class="n">GMPs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;GMPs&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;orders&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="s2">&quot;sigmas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="c1"># path to the pseudo potential file</span>
+    <span class="s2">&quot;psp_path&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;path&gt;/NC-SR.gpsp&quot;</span><span class="p">,</span>
+
+    <span class="c1"># basically the accuracy of the resulting features</span>
+    <span class="s2">&quot;overlap_threshold&quot;</span><span class="p">:</span> <span class="mf">1e-16</span><span class="p">,</span>
+
+    <span class="c1"># whether the features are squared,</span>
+    <span class="c1"># no need to change if you are not considering the feature derivatives</span>
+    <span class="c1"># &quot;square&quot;: False,</span>
+<span class="p">}</span>
+
+<span class="n">featurizer</span> <span class="o">=</span> <span class="n">GMPFeaturizer</span><span class="p">(</span><span class="n">GMPs</span><span class="o">=</span><span class="n">GMPs</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="n">converter</span><span class="p">,</span> <span class="n">calc_derivatives</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Set calc_derivatives=True if you want to get the feature derivatives w.r.t. atom positions, which are stored in the form of sparse matrices.</span>
+
+<span class="c1">### Calculate features and access data</span>
+<span class="c1"># Use the &quot;cores&quot; argument to change the number of cores for parallelization. Also converted needed to be specified,</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">featurizer</span><span class="o">.</span><span class="n">prepare_features</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
+<span class="n">feature</span><span class="o">*</span><span class="n">primes</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;feature*primes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="specifying-the-list-of-gmp-features">
+<h3>Specifying the list of GMP features<a class="headerlink" href="#specifying-the-list-of-gmp-features" title="Permalink to this heading">¶</a></h3>
+<p>It’s also possible to manually specify the list of GMP features to be computed, instead of specifying orders and sigmas.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">GMPs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;GMPs_detailed_list&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)],</span>
+    <span class="s2">&quot;psp_path&quot;</span><span class="p">:</span> <span class="s2">&quot;./NC-SR.gpsp&quot;</span><span class="p">,</span> <span class="c1"># path to the pseudo potential file</span>
+    <span class="s2">&quot;overlap_threshold&quot;</span><span class="p">:</span> <span class="mf">1e-16</span><span class="p">,</span> <span class="c1"># basically the accuracy of the resulting features</span>
+    <span class="c1"># &quot;square&quot;: False, # whether the features are squared, no need to change if you are not get the feature derivatives</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Copyright 2023 Toyota Research Institute</p>
+</section>
+</section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
+</section>
 </section>
 
 
@@ -50,24 +140,22 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">GMP-featurizer</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="#">Documentation overview</a><ul>
-  </ul></li>
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">GMP-featurizer</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#basic-usage">Basic usage</a><ul>
+<li><a class="reference internal" href="#specifying-the-list-of-gmp-features">Specifying the list of GMP features</a></li>
 </ul>
-</div>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -78,14 +166,6 @@
     </div>
 </div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>

@@ -1,6 +1,3 @@
-GMPFeaturizer
-=============
-
 .. toctree::
    :maxdepth: 7
 
