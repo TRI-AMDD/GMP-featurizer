@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GMPFeaturizer.converters module &#8212; GMP-featurizer  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-GMPFeaturizer.converters">
+<span id="gmpfeaturizer-converters-module"></span><h1>GMPFeaturizer.converters module<a class="headerlink" href="#module-GMPFeaturizer.converters" title="Permalink to this heading">¶</a></h1>
+<p>Module for defining converter classes, that could translate
+objects like ase atoms or pymatgen structures to the format that
+can be read by a GMP feature object</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="GMPFeaturizer.converters.ASEAtomsConverter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.converters.</span></span><span class="sig-name descname"><span class="pre">ASEAtomsConverter</span></span><a class="headerlink" href="#GMPFeaturizer.converters.ASEAtomsConverter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#GMPFeaturizer.converters.ImageObjectConverter" title="GMPFeaturizer.converters.ImageObjectConverter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageObjectConverter</span></code></a></p>
+<p>Converter for converting list of ase atoms to a list
+of information that can be read by the featurizer</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.converters.ASEAtomsConverter.convert">
+<span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.converters.ASEAtomsConverter.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert function definition to convert a list a
+ASE Atoms objects to a format that’s readable by
+the featurizer
+note that occupacies for each site are always 1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>object_list</strong> (<em>List</em>) – list of ASE Atoms of objects to be converted</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>results</strong> – list of corresponding obejcts readable by the
+featurizer</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="GMPFeaturizer.converters.ImageObjectConverter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.converters.</span></span><span class="sig-name descname"><span class="pre">ImageObjectConverter</span></span><a class="headerlink" href="#GMPFeaturizer.converters.ImageObjectConverter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for image object converters</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.converters.ImageObjectConverter.convert">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.converters.ImageObjectConverter.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert function</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="GMPFeaturizer.converters.PymatgenStructureConverter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.converters.</span></span><span class="sig-name descname"><span class="pre">PymatgenStructureConverter</span></span><a class="headerlink" href="#GMPFeaturizer.converters.PymatgenStructureConverter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#GMPFeaturizer.converters.ImageObjectConverter" title="GMPFeaturizer.converters.ImageObjectConverter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageObjectConverter</span></code></a></p>
+<p>Converter for converting list of pymatgen structures to a list
+of information that can be read by the featurizer</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.converters.PymatgenStructureConverter.convert">
+<span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.converters.PymatgenStructureConverter.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert function definition to convert a list a
+pymatgen Structure objects to a format that’s readable by
+the featurizer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>object_list</strong> (<em>List</em>) – list of pymatgen Structure of objects to be converted</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>results</strong> – list of corresponding obejcts readable by the
+featurizer</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">GMPFeaturizer.converters module</a><ul>
+<li><a class="reference internal" href="#GMPFeaturizer.converters.ASEAtomsConverter"><code class="docutils literal notranslate"><span class="pre">ASEAtomsConverter</span></code></a><ul>
+<li><a class="reference internal" href="#GMPFeaturizer.converters.ASEAtomsConverter.convert"><code class="docutils literal notranslate"><span class="pre">ASEAtomsConverter.convert()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#GMPFeaturizer.converters.ImageObjectConverter"><code class="docutils literal notranslate"><span class="pre">ImageObjectConverter</span></code></a><ul>
+<li><a class="reference internal" href="#GMPFeaturizer.converters.ImageObjectConverter.convert"><code class="docutils literal notranslate"><span class="pre">ImageObjectConverter.convert()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#GMPFeaturizer.converters.PymatgenStructureConverter"><code class="docutils literal notranslate"><span class="pre">PymatgenStructureConverter</span></code></a><ul>
+<li><a class="reference internal" href="#GMPFeaturizer.converters.PymatgenStructureConverter.convert"><code class="docutils literal notranslate"><span class="pre">PymatgenStructureConverter.convert()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Toyota Research Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/GMPFeaturizer.converters.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
