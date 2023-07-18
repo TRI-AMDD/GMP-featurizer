@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GMPFeaturizer.base_feature module &#8212; GMP-featurizer  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-GMPFeaturizer.base_feature">
+<span id="gmpfeaturizer-base-feature-module"></span><h1>GMPFeaturizer.base_feature module<a class="headerlink" href="#module-GMPFeaturizer.base_feature" title="Permalink to this heading">¶</a></h1>
+<p>Module for defining the base class of features</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="GMPFeaturizer.base_feature.BaseFeature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GMPFeaturizer.base_feature.</span></span><span class="sig-name descname"><span class="pre">BaseFeature</span></span><a class="headerlink" href="#GMPFeaturizer.base_feature.BaseFeature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for features</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.base_feature.BaseFeature.calculate_features">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_derivatives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.base_feature.BaseFeature.calculate_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>abstract method: calculating features</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.base_feature.BaseFeature.get_feature_setup_hash">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_feature_setup_hash</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.base_feature.BaseFeature.get_feature_setup_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>abstract method: getting hash for feature setup</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GMPFeaturizer.base_feature.BaseFeature.save_feature_setup">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_feature_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#GMPFeaturizer.base_feature.BaseFeature.save_feature_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>abstract method: save feature setup to file</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">GMPFeaturizer.base_feature module</a><ul>
+<li><a class="reference internal" href="#GMPFeaturizer.base_feature.BaseFeature"><code class="docutils literal notranslate"><span class="pre">BaseFeature</span></code></a><ul>
+<li><a class="reference internal" href="#GMPFeaturizer.base_feature.BaseFeature.calculate_features"><code class="docutils literal notranslate"><span class="pre">BaseFeature.calculate_features()</span></code></a></li>
+<li><a class="reference internal" href="#GMPFeaturizer.base_feature.BaseFeature.get_feature_setup_hash"><code class="docutils literal notranslate"><span class="pre">BaseFeature.get_feature_setup_hash()</span></code></a></li>
+<li><a class="reference internal" href="#GMPFeaturizer.base_feature.BaseFeature.save_feature_setup"><code class="docutils literal notranslate"><span class="pre">BaseFeature.save_feature_setup()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Toyota Research Institute.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/GMPFeaturizer.base_feature.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
