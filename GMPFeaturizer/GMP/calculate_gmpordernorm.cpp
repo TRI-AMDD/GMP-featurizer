@@ -1225,6 +1225,7 @@ extern "C" int calculate_solid_gmpordernorm_noderiv_ref(double** cell, double** 
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -1618,6 +1619,7 @@ extern "C" int calculate_solid_gmpordernorm_occ_deriv_ref(double** cell, double*
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -2106,6 +2108,7 @@ extern "C" int calculate_solid_gmpordernorm_fp_deriv_ref(double** cell, double**
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -2661,6 +2664,7 @@ extern "C" int calculate_solid_gmpordernorm_fp_occ_deriv_ref(double** cell, doub
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -2806,6 +2810,7 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -3034,6 +3039,7 @@ extern "C" int calculate_solid_gmpordernorm_occ_deriv(double** cell, double** ca
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -3364,6 +3370,7 @@ extern "C" int calculate_solid_gmpordernorm_fp_deriv(double** cell, double** car
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -3762,6 +3769,7 @@ extern "C" int calculate_solid_gmpordernorm_fp_occ_deriv(double** cell, double**
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -3910,6 +3918,7 @@ extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_noderiv(double** cell, 
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -4143,6 +4152,7 @@ extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_occ_deriv(double** cell
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -4477,6 +4487,7 @@ extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_fp_deriv(double** cell,
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -4879,6 +4890,7 @@ extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_fp_occ_deriv(double** c
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -5035,6 +5047,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_noderiv(doubl
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -5275,6 +5288,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(dou
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -5619,6 +5633,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(doub
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -6072,6 +6087,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -6241,6 +6257,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -6496,6 +6513,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -6888,6 +6906,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_d
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
@@ -7314,6 +7333,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_o
         }
         delete[] nei_list_d;
         delete[] nei_list_i;
+        delete[] nei_list_occupancy;
     }
 
     for (int i=0; i<natoms; i++) {
