@@ -244,7 +244,7 @@ class GMPFeaturizer:
             ]
 
             ray.shutdown()
-            
+
             images_feature_list_raw.sort(key=lambda a: a[1])
             images_feature_list = [entry[0] for entry in images_feature_list_raw]
 
