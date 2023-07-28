@@ -242,8 +242,10 @@ class GMPFeaturizer:
             images_feature_list_raw = [
                 a for a in tqdm(poolmap, total=length, disable=not verbose)
             ]
+
+            ray.shutdown()
+            
             images_feature_list_raw.sort(key=lambda a: a[1])
             images_feature_list = [entry[0] for entry in images_feature_list_raw]
 
-            ray.shutdown()
             return images_feature_list

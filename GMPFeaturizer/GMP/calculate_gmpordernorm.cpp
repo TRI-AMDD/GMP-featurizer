@@ -1231,6 +1231,7 @@ extern "C" int calculate_solid_gmpordernorm_noderiv_ref(double** cell, double** 
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -1625,6 +1626,7 @@ extern "C" int calculate_solid_gmpordernorm_occ_deriv_ref(double** cell, double*
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -2114,6 +2116,7 @@ extern "C" int calculate_solid_gmpordernorm_fp_deriv_ref(double** cell, double**
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -2670,6 +2673,7 @@ extern "C" int calculate_solid_gmpordernorm_fp_occ_deriv_ref(double** cell, doub
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -2816,6 +2820,7 @@ extern "C" int calculate_solid_gmpordernorm_noderiv(double** cell, double** cart
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -3045,6 +3050,7 @@ extern "C" int calculate_solid_gmpordernorm_occ_deriv(double** cell, double** ca
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -3376,6 +3382,7 @@ extern "C" int calculate_solid_gmpordernorm_fp_deriv(double** cell, double** car
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -3775,6 +3782,7 @@ extern "C" int calculate_solid_gmpordernorm_fp_occ_deriv(double** cell, double**
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -3924,6 +3932,7 @@ extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_noderiv(double** cell, 
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -4158,6 +4167,7 @@ extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_occ_deriv(double** cell
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -4493,6 +4503,7 @@ extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_fp_deriv(double** cell,
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -4896,6 +4907,7 @@ extern "C" int calculate_solid_gmpordernorm_sigma_cutoff_fp_occ_deriv(double** c
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -5053,6 +5065,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_noderiv(doubl
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -5294,6 +5307,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_occ_deriv(dou
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -5639,6 +5653,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_deriv(doub
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -6093,6 +6108,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_cutoff_fp_occ_deriv(
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -6263,6 +6279,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -6519,6 +6536,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -6912,6 +6930,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_d
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
@@ -7339,6 +7358,7 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_o
     for (int i=0; i<natoms; i++) {
         delete[] bin_i[i];
     }
+    delete[] bin_i;
     return 0;
 }
 
