@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from ..base_feature import BaseFeature
-from ..constants import ATOM_SYMBOL_TO_INDEX_DICT
+from ..constants import ATOM_SYMBOL_TO_INDEX_DICT, ATOM_LIST
 from ..util import (
     _gen_2Darray_for_ffi,
     list_symbols_to_indices,
@@ -228,10 +228,15 @@ class GMP(BaseFeature):
 
             if order == -1:
                 element_distances = []
-                for element, psp in self.atomic_psp.items():
-                    element_distance = self._get_default_cutoff_single_element(
-                        0, psp, threshold=self.overlap_threshold
-                    )
+                # for element, psp in self.atomic_psp.items():
+                for element in ATOM_LIST:
+                    try:
+                        psp = self.atomic_psp[element]
+                        element_distance = self._get_default_cutoff_single_element(
+                            0, psp, threshold=self.overlap_threshold
+                        )
+                    except:
+                        element_distance = 0
                     element_distances.append(element_distance)
                 elemental_order_sigma_cutoffs.append(element_distances)
                 order_sigma_index_dict[(-1, 0)] = order_sigma_index
@@ -239,10 +244,15 @@ class GMP(BaseFeature):
 
             else:
                 element_distances = []
-                for element, psp in self.atomic_psp.items():
-                    element_distance = self._get_default_cutoff_single_element(
-                        sigma, psp, threshold=self.overlap_threshold * factors[order],
-                    )
+                # for element, psp in self.atomic_psp.items():
+                for element in ATOM_LIST:
+                    try:
+                        psp = self.atomic_psp[element]
+                        element_distance = self._get_default_cutoff_single_element(
+                            sigma, psp, threshold=self.overlap_threshold * factors[order],
+                        )
+                    except:
+                        element_distance = 0
                     element_distances.append(element_distance)
                     # print(order, sigma, element, element_distance)
                 elemental_order_sigma_cutoffs.append(element_distances)
@@ -302,10 +312,15 @@ class GMP(BaseFeature):
             if order == -1:
                 element_gaussian_distances = []
                 element_distances = []
-                for element, psp in self.atomic_psp.items():
-                    gaussian_distances = self._get_default_cutoff_element_gaussians(
-                        0, psp, self.max_num_gaussians, threshold=self.overlap_threshold
-                    )
+                # for element, psp in self.atomic_psp.items():
+                for element in ATOM_LIST:
+                    try: 
+                        psp = self.atomic_psp[element]
+                        gaussian_distances = self._get_default_cutoff_element_gaussians(
+                            0, psp, self.max_num_gaussians, threshold=self.overlap_threshold
+                        )
+                    except:
+                        gaussian_distances = [0] * self.max_num_gaussians
                     element_distance = np.max(gaussian_distances).item()
                     element_distances.append(element_distance)
                     element_gaussian_distances += gaussian_distances
@@ -320,13 +335,19 @@ class GMP(BaseFeature):
             else:
                 element_gaussian_distances = []
                 element_distances = []
-                for element, psp in self.atomic_psp.items():
-                    gaussian_distances = self._get_default_cutoff_element_gaussians(
-                        sigma,
-                        psp,
-                        self.max_num_gaussians,
-                        threshold=self.overlap_threshold * factors[order],
-                    )
+                for element in ATOM_LIST:
+                    try: 
+                        psp = self.atomic_psp[element]
+                # for element, psp in self.atomic_psp.items():
+                    # print(element)
+                        gaussian_distances = self._get_default_cutoff_element_gaussians(
+                            sigma,
+                            psp,
+                            self.max_num_gaussians,
+                            threshold=self.overlap_threshold * factors[order],
+                        )
+                    except:
+                        gaussian_distances = [0] * self.max_num_gaussians
                     element_distance = np.max(gaussian_distances).item()
                     element_distances.append(element_distance)
                     element_gaussian_distances += gaussian_distances
@@ -347,6 +368,10 @@ class GMP(BaseFeature):
         elemental_order_sigma_cutoffs = np.asarray(
             elemental_order_sigma_cutoffs, dtype=np.float64, order="C"
         )
+
+        # print("Shape of elemental_order_sigma_gaussian_cutoffs: ", elemental_order_sigma_gaussian_cutoffs.shape)
+        # print("Shape of elemental_order_sigma_cutoffs: ", elemental_order_sigma_cutoffs.shape)
+
 
         self.params_set[
             "elemental_order_sigma_gaussian_cutoffs"
@@ -385,10 +410,14 @@ class GMP(BaseFeature):
                 continue
             sigma_index_dict[sigma] = sigma_index
             element_distances = []
-            for element, psp in self.atomic_psp.items():
-                element_distance = self._get_default_cutoff_single_element(
-                    sigma, psp, threshold=self.overlap_threshold
-                )
+            # for element, psp in self.atomic_psp.items():
+            for element in ATOM_LIST:
+                try: 
+                    psp = self.atomic_psp[element]
+                except:
+                    element_distance = self._get_default_cutoff_single_element(
+                        sigma, psp, threshold=self.overlap_threshold
+                    )
                 element_distances.append(element_distance)
             elemental_sigma_cutoffs.append(element_distances)
 
@@ -419,10 +448,15 @@ class GMP(BaseFeature):
             if sigma in result:
                 continue
             element_distances = []
-            for element, psp in self.atomic_psp.items():
-                element_distance = self._get_default_cutoff_single_element(
-                    sigma, psp, threshold=self.overlap_threshold
-                )
+            # for element, psp in self.atomic_psp.items():
+            for element in ATOM_LIST:
+                try:
+                    psp = self.atomic_psp[element]
+                    element_distance = self._get_default_cutoff_single_element(
+                        sigma, psp, threshold=self.overlap_threshold
+                    )
+                except:
+                    element_distance = 0
                 element_distances.append(element_distance)
             result[sigma] = np.max(element_distances)
 
@@ -565,7 +599,8 @@ class GMP(BaseFeature):
         self.element_indices = list_symbols_to_indices(self.elements)
 
         max_gaussian_count = 0
-        ngaussian_list = list()
+        # ngaussian_list = list()
+        ngaussian_list = np.zeros(120, dtype=np.intc, order="C")
         self.params_set = dict()
         for element_index in self.element_indices:
             self.params_set[element_index] = dict()
@@ -575,26 +610,35 @@ class GMP(BaseFeature):
             self.params_set[element_index]["gaussian_count"] = int(
                 len(self.atomic_gaussian_setup[element_index]) / 2
             )
-            ngaussian_list.append(self.params_set[element_index]["gaussian_count"])
+            # ngaussian_list.append(self.params_set[element_index]["gaussian_count"])
+            ngaussian_list[element_index] = self.params_set[element_index]["gaussian_count"]
             # print("self.params_set[element_index]: {}".format(self.params_set[element_index]))
 
-        ngaussian_list = np.asarray(ngaussian_list, dtype=np.intc, order="C")
+        # ngaussian_list = np.asarray(ngaussian_list, dtype=np.intc, order="C")
         max_gaussian_count = np.max(ngaussian_list)
-        overall_gaussian_params = list()
+        overall_gaussian_params = np.zeros((120, max_gaussian_count * 2), dtype=np.float64, order="C")
         for element_index in self.element_indices:
-            temp = np.zeros(max_gaussian_count * 2)
-            temp[
+            # temp = np.zeros(max_gaussian_count * 2)
+            # temp[
+            #     : self.params_set[element_index]["gaussian_count"] * 2
+            # ] = self.params_set[element_index]["gaussian_params"]
+            # overall_gaussian_params.append(temp)
+            overall_gaussian_params[element_index, 
                 : self.params_set[element_index]["gaussian_count"] * 2
             ] = self.params_set[element_index]["gaussian_params"]
-            overall_gaussian_params.append(temp)
 
         element_index_to_order_list = np.zeros(120, dtype=np.intc)
-        for i, element_index in enumerate(self.element_indices):
-            element_index_to_order_list[element_index] = i
+        # for i, element_index in enumerate(self.element_indices):
+        #     element_index_to_order_list[element_index] = i
+        for i, _ in enumerate(element_index_to_order_list):
+            element_index_to_order_list[i] = i
 
-        overall_gaussian_params = np.asarray(
-            overall_gaussian_params, dtype=np.float64, order="C"
-        )
+        # print(element_index_to_order_list)
+        # # overall_gaussian_params = np.asarray(
+        # #     overall_gaussian_params, dtype=np.float64, order="C"
+        # # )
+        # print(overall_gaussian_params.shape)
+        # print(ngaussian_list.shape)
         self.params_set["ngaussians"] = ngaussian_list
         self.params_set["ngaussians_p"] = ffi.cast("int *", ngaussian_list.ctypes.data)
         self.params_set["gaussian_params"] = overall_gaussian_params

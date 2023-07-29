@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "calculate_gmpordernorm.h"
 #include <iostream>
+#include <memory>
+#include <cassert>
+
 
 // ##################################################
 // ####             Helper function              ####
@@ -51,6 +54,12 @@ void calculate_bin_ranges(double** cell, double** scale, int natoms, double cuto
     inv[2][1] = cross[1][2]/vol;
     inv[2][2] = cross[2][2]/vol;
 
+    int min_bins[3];
+    for (int i=0; i<3; ++i) {
+        double cell_dim = sqrt(cell[i][0]*cell[i][0] + cell[i][1]*cell[i][1] + cell[i][2]*cell[i][2]);
+        min_bins[i] = ceil(cell_dim / cutoff)*2;
+    }
+
     // bin: number of repetitive cells?
     for (int i=0; i<3; ++i) {
         tmp = 0;
@@ -60,6 +69,11 @@ void calculate_bin_ranges(double** cell, double** scale, int natoms, double cuto
         }
         plane_d[i] = 1/sqrt(tmp);
         nbins[i] = ceil(plane_d[i]/cutoff);
+        
+        if (nbins[i] < min_bins[i]) {
+            nbins[i] = min_bins[i];
+        }
+        
         total_bins *= nbins[i];
     }
 
@@ -70,8 +84,12 @@ void calculate_bin_ranges(double** cell, double** scale, int natoms, double cuto
     // assign the bin index to each atom
     for (int i=0; i<natoms; ++i) {
         for (int j=0; j<3; ++j) {
-            bin_i[i][j] = scale[i][j] * (double) nbins[j];
+            bin_i[i][j] = floor(scale[i][j] * (double) nbins[j]);
+            if (bin_i[i][j] == nbins[j]) {
+                bin_i[i][j]--;
+            }
         }
+
         bin_i[i][3] = bin_i[i][0] + nbins[0]*bin_i[i][1] + nbins[0]*nbins[1]*bin_i[i][2];
         atoms_bin[bin_i[i][3]]++;
     }
@@ -6179,14 +6197,20 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        assert(neigh_atom_element_index >= 0 && neigh_atom_element_index < 120);
+                        assert(neigh_atom_element_order >= 0 && neigh_atom_element_order < 120);
+                        assert(j*2 < max_atoms_bin * 2 * neigh_check_bins);
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
+                            assert(sigma_index < nmcsh && sigma_index >= 0);
+                            assert(neigh_atom_element_order*max_n_gaussian+g < 119 * max_n_gaussian);
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
                             if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
                                 continue;
+                            assert(g*2+1 < max_n_gaussian*2);
                             double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
                             if (B == 0.0)
                                 continue;
@@ -6205,11 +6229,16 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        assert(neigh_atom_element_index >= 0 && neigh_atom_element_index < 120);
+                        assert(neigh_atom_element_order >= 0 && neigh_atom_element_order < 120);
+                        assert(j*2 < max_atoms_bin * 2 * neigh_check_bins);
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
+                            assert(sigma_index < nmcsh && sigma_index >= 0);
+                            assert(neigh_atom_element_order*max_n_gaussian+g < 119 * max_n_gaussian);
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
                             if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
                                 continue;
@@ -6236,11 +6265,16 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
                         double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                         int neigh_atom_element_index = nei_list_i[j*2];
                         int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                        assert(neigh_atom_element_index >= 0 && neigh_atom_element_index < 120);
+                        assert(neigh_atom_element_order >= 0 && neigh_atom_element_order < 120);
+                        assert(j*2 < max_atoms_bin * 2 * neigh_check_bins);
                         double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
                         if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
                             continue;
                         double occ = nei_list_occupancy[j];
                         for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
+                            assert(sigma_index < nmcsh && sigma_index >= 0);
+                            assert(neigh_atom_element_order*max_n_gaussian+g < 119 * max_n_gaussian);
                             double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
                             if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
                                 continue;

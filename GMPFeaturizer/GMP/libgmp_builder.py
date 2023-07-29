@@ -162,6 +162,7 @@ ffibuilder.set_source(
     ],
     source_extension=".cpp",
     include_dirs=["GMPFeaturizer/GMP/"],
+    extra_compile_args=["-g"],
 )
 
 if __name__ == "__main__":
