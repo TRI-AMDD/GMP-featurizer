@@ -227,7 +227,7 @@ class GMPFeaturizer:
                 idx_list,
             )
 
-            ray.init(num_cpus=cores)
+            ray.init(num_cpus=cores, include_dashboard=False)
             actors = [
                 remote_feature_actor.remote(self.feature_setup, self.feature_database)
                 for _ in range(cores)
