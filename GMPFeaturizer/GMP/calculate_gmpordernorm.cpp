@@ -57,7 +57,7 @@ void calculate_bin_ranges(double** cell, double** scale, int natoms, double cuto
     int min_bins[3];
     for (int i=0; i<3; ++i) {
         double cell_dim = sqrt(cell[i][0]*cell[i][0] + cell[i][1]*cell[i][1] + cell[i][2]*cell[i][2]);
-        min_bins[i] = ceil(cell_dim / cutoff)*2;
+        min_bins[i] = ceil(cell_dim / cutoff);
     }
 
     // bin: number of repetitive cells?

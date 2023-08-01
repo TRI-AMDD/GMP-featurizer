@@ -230,12 +230,12 @@ class GMP(BaseFeature):
                 element_distances = []
                 # for element, psp in self.atomic_psp.items():
                 for element in ATOM_LIST:
-                    try:
+                    if element in self.atomic_psp:
                         psp = self.atomic_psp[element]
                         element_distance = self._get_default_cutoff_single_element(
                             0, psp, threshold=self.overlap_threshold
                         )
-                    except:
+                    else:
                         element_distance = 0
                     element_distances.append(element_distance)
                 elemental_order_sigma_cutoffs.append(element_distances)
@@ -246,14 +246,14 @@ class GMP(BaseFeature):
                 element_distances = []
                 # for element, psp in self.atomic_psp.items():
                 for element in ATOM_LIST:
-                    try:
+                    if element in self.atomic_psp:
                         psp = self.atomic_psp[element]
                         element_distance = self._get_default_cutoff_single_element(
                             sigma,
                             psp,
                             threshold=self.overlap_threshold * factors[order],
                         )
-                    except:
+                    else:
                         element_distance = 0
                     element_distances.append(element_distance)
                     # print(order, sigma, element, element_distance)
@@ -316,7 +316,7 @@ class GMP(BaseFeature):
                 element_distances = []
                 # for element, psp in self.atomic_psp.items():
                 for element in ATOM_LIST:
-                    try:
+                    if element in self.atomic_psp:
                         psp = self.atomic_psp[element]
                         gaussian_distances = self._get_default_cutoff_element_gaussians(
                             0,
@@ -324,7 +324,7 @@ class GMP(BaseFeature):
                             self.max_num_gaussians,
                             threshold=self.overlap_threshold,
                         )
-                    except:
+                    else:
                         gaussian_distances = [0] * self.max_num_gaussians
                     element_distance = np.max(gaussian_distances).item()
                     element_distances.append(element_distance)
@@ -341,7 +341,7 @@ class GMP(BaseFeature):
                 element_gaussian_distances = []
                 element_distances = []
                 for element in ATOM_LIST:
-                    try:
+                    if element in self.atomic_psp:
                         psp = self.atomic_psp[element]
                         # for element, psp in self.atomic_psp.items():
                         # print(element)
@@ -351,7 +351,7 @@ class GMP(BaseFeature):
                             self.max_num_gaussians,
                             threshold=self.overlap_threshold * factors[order],
                         )
-                    except:
+                    else:
                         gaussian_distances = [0] * self.max_num_gaussians
                     element_distance = np.max(gaussian_distances).item()
                     element_distances.append(element_distance)
@@ -416,12 +416,13 @@ class GMP(BaseFeature):
             element_distances = []
             # for element, psp in self.atomic_psp.items():
             for element in ATOM_LIST:
-                try:
+                if element in self.atomic_psp:
                     psp = self.atomic_psp[element]
-                except:
                     element_distance = self._get_default_cutoff_single_element(
                         sigma, psp, threshold=self.overlap_threshold
                     )
+                else:
+                    element_distance = 0
                 element_distances.append(element_distance)
             elemental_sigma_cutoffs.append(element_distances)
 
@@ -454,12 +455,12 @@ class GMP(BaseFeature):
             element_distances = []
             # for element, psp in self.atomic_psp.items():
             for element in ATOM_LIST:
-                try:
+                if element in self.atomic_psp:
                     psp = self.atomic_psp[element]
                     element_distance = self._get_default_cutoff_single_element(
                         sigma, psp, threshold=self.overlap_threshold
                     )
-                except:
+                else:
                     element_distance = 0
                 element_distances.append(element_distance)
             result[sigma] = np.max(element_distances)
