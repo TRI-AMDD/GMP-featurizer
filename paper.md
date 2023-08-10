@@ -15,7 +15,7 @@ authors:
     orcid: 0000-0001-5760-2860
     affiliation: 1
 affiliations:
- - name: Toyota Research Institute, Los Altos, CA, USA
+ - name: Toyota Research Institute, Los Altos, CA, United States of America
    index: 1
 date: 4 April 2023
 bibliography: paper.bib
