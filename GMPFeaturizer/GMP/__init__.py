@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from ..base_feature import BaseFeature
-from ..constants import ATOM_SYMBOL_TO_INDEX_DICT, ATOM_LIST
+from ..constants import ATOM_SYMBOL_TO_INDEX_DICT, ATOM_LIST, PI
 from ..util import (
     _gen_2Darray_for_ffi,
     list_symbols_to_indices,
@@ -88,6 +88,7 @@ class GMP(BaseFeature):
         self.GMPs = GMPs
         self.custom_cutoff = self.GMPs.get("custom_cutoff", 4)
         self.scaling_mode = self.GMPs.get("scaling_mode", "radial")
+        self.optimization_test_mode = self.GMPs.get("optimization_test_mode", False)
         assert self.scaling_mode in ["radial", "both"]
 
         self._load_psp_files()
@@ -96,6 +97,9 @@ class GMP(BaseFeature):
         self._get_cutoffs()
         self._get_feature_setup()
         self._prepare_feature_parameters()
+        if self.optimization_test_mode:
+            self._precompute_constants_vec()
+
 
     def __eq__(self, other):
         """
@@ -528,6 +532,149 @@ class GMP(BaseFeature):
             return self._get_scaling_constant_both_probes(order, sigma)
         else:
             raise NotImplementedError
+
+    # *******************************************************
+    # pre compute constants
+    # *******************************************************
+
+    # double calc_C1(double A, double B, double alpha, double beta){
+    #     double temp = sqrt(M_PI / (alpha + beta));
+    #     return A * B * temp * temp * temp;
+    # }
+
+    # double calc_C2(double alpha, double beta){
+    #     return -1.0 * (alpha * beta / (alpha + beta));
+    # }
+
+
+    # double calc_lambda(double alpha, double beta){
+    #     // return  alpha / (alpha + beta);
+    #     return beta / (alpha + beta);
+    # }
+
+    # double calc_gamma(double alpha, double beta){
+    #     return alpha + beta;
+    # }
+
+    def _precompute_constants(self):
+        n_atom_types = 120
+        max_ngaussians = self.max_num_gaussians
+        n_desc = len(self.feature_setup)
+        
+        total_size = n_desc * n_atom_types * max_ngaussians
+        
+        C1_precompute_array = np.zeros(total_size, dtype=np.float64, order="C")
+        C2_precompute_array = np.zeros(total_size, dtype=np.float64, order="C")
+        lambda_precompute_array = np.zeros(total_size, dtype=np.float64, order="C")
+        gamma_precompute_array = np.zeros(total_size, dtype=np.float64, order="C")
+
+        for i, feature_entry in enumerate(self.feature_setup):
+            A = feature_entry[6]
+            alpha = feature_entry[7]
+            for j, element in enumerate(ATOM_LIST):
+                if element in self.atomic_psp:
+                    psp = self.atomic_psp[element]
+                    for k, gaussian in enumerate(psp):
+                        B, beta = gaussian
+                        gamma = alpha + beta
+                        lamb = beta / gamma
+                        if alpha == 0:
+                            C1 = B
+                            C2 = -1.0 * beta
+                        else:
+                            temp = math.sqrt(math.pi / gamma)
+                            C1 = A * B * temp**3
+                            C2 = -1.0 * (alpha * beta / gamma)
+                        
+                        idx = i * n_atom_types * max_ngaussians + j * max_ngaussians + k
+                        
+                        C1_precompute_array[idx] = C1
+                        C2_precompute_array[idx] = C2
+                        lambda_precompute_array[idx] = lamb
+                        gamma_precompute_array[idx] = gamma
+        
+        return C1_precompute_array, C2_precompute_array, lambda_precompute_array, gamma_precompute_array
+        # self.C1_precompute_array = C1_precompute_array
+        # self.C2_precompute_array = C2_precompute_array
+        # self.lambda_precompute_array = lambda_precompute_array
+        # self.gamma_precompute_array = gamma_precompute_array
+        
+        # self.C1_precompute_array_p = ffi.cast("double *", C1_precompute_array.ctypes.data)
+        # self.C2_precompute_array_p = ffi.cast("double *", C2_precompute_array.ctypes.data)
+        # self.lambda_precompute_array_p = ffi.cast("double *", lambda_precompute_array.ctypes.data)
+        # self.gamma_precompute_array_p = ffi.cast("double *", gamma_precompute_array.ctypes.data)
+
+    def _precompute_constants_vec(self):
+        n_atom_types = 120
+        max_ngaussians = self.max_num_gaussians
+        n_desc = len(self.feature_setup)
+        
+        total_size = n_desc * n_atom_types * max_ngaussians
+        
+        C1_precompute_array = np.zeros(total_size, dtype=np.float64, order="C")
+        C2_precompute_array = np.zeros(total_size, dtype=np.float64, order="C")
+        lambda_precompute_array = np.zeros(total_size, dtype=np.float64, order="C")
+        gamma_precompute_array = np.zeros(total_size, dtype=np.float64, order="C")
+
+        A_values = np.array([entry[6] for entry in self.feature_setup])
+        alpha_values = np.array([entry[7] for entry in self.feature_setup])
+
+        for j, element in enumerate(ATOM_LIST):
+            if element in self.atomic_psp:
+                psp = np.array(self.atomic_psp[element])
+                B_values, beta_values = psp[:, 0], psp[:, 1]
+
+                # Broadcasting to calculate for all combinations of alpha and beta
+                gamma_values = alpha_values[:, None] + beta_values
+                lambda_values = beta_values / gamma_values
+
+                temp_values = np.sqrt(math.pi / gamma_values)
+                C1_values = np.where(alpha_values[:, None] == 0, 
+                                    B_values, 
+                                    A_values[:, None] * B_values * temp_values**3)
+                C2_values = np.where(alpha_values[:, None] == 0, 
+                                    -1.0 * beta_values, 
+                                    -1.0 * (alpha_values[:, None] * beta_values / gamma_values))
+
+                idx = np.arange(n_desc)[:, None] * n_atom_types * max_ngaussians + j * max_ngaussians + np.arange(len(psp))
+                C1_precompute_array[idx] = C1_values
+                C2_precompute_array[idx] = C2_values
+                lambda_precompute_array[idx] = lambda_values
+                gamma_precompute_array[idx] = gamma_values
+                            
+        self.C1_precompute_array = C1_precompute_array
+        self.C2_precompute_array = C2_precompute_array
+        self.lambda_precompute_array = lambda_precompute_array
+        self.gamma_precompute_array = gamma_precompute_array
+
+        # refs = self._precompute_constants()
+        # assert np.array_equal(C1_precompute_array, refs[0])
+        # assert np.array_equal(C2_precompute_array, refs[1])
+        # assert np.array_equal(lambda_precompute_array, refs[2])
+        # assert np.array_equal(gamma_precompute_array, refs[3])
+
+        # print("precompute all equal")
+        
+        self.C1_precompute_array_p = ffi.cast("double *", C1_precompute_array.ctypes.data)
+        self.C2_precompute_array_p = ffi.cast("double *", C2_precompute_array.ctypes.data)
+        self.lambda_precompute_array_p = ffi.cast("double *", lambda_precompute_array.ctypes.data)
+        self.gamma_precompute_array_p = ffi.cast("double *", gamma_precompute_array.ctypes.data)
+    #     self._pre_compute_C1()
+    #     self._pre_compute_C2()
+    #     self._pre_compute_lambda()
+    #     self._pre_compute_gamma()
+
+    # def _pre_compute_C1(self):
+    #     C1_precompute_array = np.zeros()
+    
+    # def _pre_compute_C2(self):
+    #     pass
+
+    # def _pre_compute_lambda(self):
+    #     lambda_precompute_array = np.zeros(n_desc * 120 * max_ngaussians)
+    
+    # def _pre_compute_gamma(self):
+    #     pass
 
     # *******************************************************
     # setup parameters
@@ -1135,29 +1282,82 @@ class GMP(BaseFeature):
                     )
 
                 elif self.custom_cutoff == 4:
-                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.nsigmas,
-                        self.max_num_gaussians,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["elemental_order_sigma_cutoffs_p"],
-                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                    )
+                    if self.optimization_test_mode:
+                        # print("start computing")
+                        errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt2(
+                            cell_p,
+                            cart_p,
+                            occupancies_p,
+                            ref_cart_p,
+                            scale_p,
+                            ref_scale_p,
+                            pbc_p,
+                            atom_indices_p,
+                            atom_num,
+                            cal_num,
+                            self.nsigmas,
+                            self.max_num_gaussians,
+                            self.params_set["ip"],
+                            self.params_set["dp"],
+                            self.params_set["num"],
+                            self.params_set["gaussian_params_p"],
+                            self.params_set["ngaussians_p"],
+                            self.params_set["elemental_order_sigma_cutoffs_p"],
+                            self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                            self.params_set["element_index_to_order_p"],
+                            self.C1_precompute_array_p,
+                            self.C2_precompute_array_p,
+                            self.lambda_precompute_array_p,
+                            self.gamma_precompute_array_p,
+                            x_p,
+                        )
+                        # errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv(
+                        #     cell_p,
+                        #     cart_p,
+                        #     occupancies_p,
+                        #     ref_cart_p,
+                        #     scale_p,
+                        #     ref_scale_p,
+                        #     pbc_p,
+                        #     atom_indices_p,
+                        #     atom_num,
+                        #     cal_num,
+                        #     self.nsigmas,
+                        #     self.max_num_gaussians,
+                        #     self.params_set["ip"],
+                        #     self.params_set["dp"],
+                        #     self.params_set["num"],
+                        #     self.params_set["gaussian_params_p"],
+                        #     self.params_set["ngaussians_p"],
+                        #     self.params_set["elemental_order_sigma_cutoffs_p"],
+                        #     self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                        #     self.params_set["element_index_to_order_p"],
+                        #     x_p,
+                        # )
+                    else:
+                        errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv(
+                            cell_p,
+                            cart_p,
+                            occupancies_p,
+                            ref_cart_p,
+                            scale_p,
+                            ref_scale_p,
+                            pbc_p,
+                            atom_indices_p,
+                            atom_num,
+                            cal_num,
+                            self.nsigmas,
+                            self.max_num_gaussians,
+                            self.params_set["ip"],
+                            self.params_set["dp"],
+                            self.params_set["num"],
+                            self.params_set["gaussian_params_p"],
+                            self.params_set["ngaussians_p"],
+                            self.params_set["elemental_order_sigma_cutoffs_p"],
+                            self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                            self.params_set["element_index_to_order_p"],
+                            x_p,
+                        )
 
                 else:
                     raise NotImplementedError

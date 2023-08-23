@@ -4,6 +4,9 @@
 // #include "helper.h"
 #include "surface_harmonics.h"
 #include "solid_harmonics.h"
+#include "solid_harmonics_optimization.h"
+#include "solid_harmonics_optimization2.h"
+#include "solid_harmonics_optimization3.h"
 
         
 extern "C" int calculate_surface_gmpordernorm_fp_deriv_ref(double**, double**, double*, double**, double**, double**, int*,
@@ -110,6 +113,31 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
                                         int*, int, int, int, int,
                                         int**, double**, int, double**, int*, double**, double**, int*,
                                         double**);
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double*, double*, double*, double*,
+                                        double**);
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt2(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double*, double*, double*, double*,
+                                        double**);
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double*, double*, double*, double*,
+                                        double**);
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3_2(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double*, double*, double*, double*,
+                                        double**);
+
 
 extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int, int, int,

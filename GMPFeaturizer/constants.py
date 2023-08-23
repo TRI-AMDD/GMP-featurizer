@@ -3,6 +3,8 @@
 Module for defining the constants needed
 """
 
+PI = 3.14159265358979323846
+
 ATOM_LIST = [
     "X",
     "H",
@@ -368,3 +370,29 @@ ATOM_SYMBOL_TO_INDEX_DICT = {
     "Ts": 117,
     "Og": 118,
 }
+
+
+def get_GMP_group_info(mcsh_order):
+    if mcsh_order == -1:
+        return [1]
+    if mcsh_order == 0:
+        return [1]
+    if mcsh_order == 1:
+        return [3]
+    if mcsh_order == 2:
+        return [3,3]
+    if mcsh_order == 3:
+        return [3,6,1]
+    if mcsh_order == 4:
+        return [3,6,3,3]
+    if mcsh_order == 5:
+        return [3,6,6,3,3]
+    if mcsh_order == 6:
+        return [3,6,6,3,3,6,1]
+    if mcsh_order == 7:
+        return [3,6,6,3,6,6,3,3]
+    if mcsh_order == 8:
+        return [3,6,6,3,6,6,3,6,3,3]
+    if mcsh_order == 9:
+        return [3,6,6,3,6,6,6,6,3,3,6,1]
+

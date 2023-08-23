@@ -7,9 +7,11 @@ This is the main class of this package
 
 import os
 import numpy as np
+import math
 import ray
 from ray.util import ActorPool
 from .GMP import GMP
+from .GMP_individual import GMPInd
 
 from tqdm import tqdm
 
@@ -20,6 +22,7 @@ class GMPFeaturizer:
     def __init__(
         self,
         GMPs,
+        ordernorm=True,
         converter=None,
         feature_database="cache/features/",
         calc_derivatives=False,
@@ -54,6 +57,7 @@ class GMPFeaturizer:
         self.calc_occ_derivatives = calc_occ_derivatives
         self.converter = converter
         self.verbose = verbose
+        self.ordernorm = ordernorm
 
     def set_converter(self, converter):
         """
@@ -71,7 +75,7 @@ class GMPFeaturizer:
         self.converter = converter
 
     def prepare_features(
-        self, image_objects, ref_positions_list=None, cores=1, save_features=False,
+        self, image_objects, ref_positions_list=None, cores=1, save_features=False, divide_single_system=False, max_ref_positions=10000,
     ):
         """
         Computing features with given list of image objects
@@ -104,17 +108,66 @@ class GMPFeaturizer:
         if cores == 0:
             cores = os.cpu_count()
 
-        calculated_features_list = self._calculate_GMP_features(
-            images,
-            ref_positions_list,
-            calc_derivatives=self.calc_derivatives,
-            calc_occ_derivatives=self.calc_occ_derivatives,
-            save_features=save_features,
-            cores=cores,
-            verbose=self.verbose,
-        )
+        if divide_single_system:
+            calc_images = []
+            calc_ref_positions_list = []
+            num_divide_list = []
+            for i, image in enumerate(images):
+                num_ref_positions = len(ref_positions_list[i])
+                num_sublists = math.ceil(num_ref_positions / max_ref_positions)
+                # print(num_sublists)
+                num_divide_list.append(num_sublists)
+                # elements_per_sublist = num_ref_positions // num_sublists
+                # for j in range(0, num_ref_positions, elements_per_sublist):
+                #     calc_images.append(image)
+                #     calc_ref_positions_list.append(ref_positions_list[i][j:j+elements_per_sublist])
 
-        return calculated_features_list
+                # Calculate base elements per sublist and the remainder
+                base_elements_per_sublist, remainder = divmod(num_ref_positions, num_sublists)
+
+                start = 0
+                for j in range(num_sublists):
+                    end = start + base_elements_per_sublist + (1 if j < remainder else 0)
+                    calc_ref_positions_list.append(ref_positions_list[i][start:end])
+                    calc_images.append(image)
+                    start = end
+
+
+
+            raw_calculated_features_list = self._calculate_GMP_features(
+                calc_images,
+                calc_ref_positions_list,
+                calc_derivatives=self.calc_derivatives,
+                calc_occ_derivatives=self.calc_occ_derivatives,
+                save_features=save_features,
+                cores=cores,
+                verbose=self.verbose,
+            )
+
+            calculated_features_list = []
+            counter = 0
+            for num_divide in num_divide_list:
+                temp_features = np.vstack([entry["features"] for entry in raw_calculated_features_list[counter : counter + num_divide]])
+                calculated_features_list.append({"features": temp_features})
+
+                counter += num_divide
+
+            # assert len(calculated_features_list) == len(images)
+
+            return calculated_features_list
+
+        else:
+            calculated_features_list = self._calculate_GMP_features(
+                images,
+                ref_positions_list,
+                calc_derivatives=self.calc_derivatives,
+                calc_occ_derivatives=self.calc_occ_derivatives,
+                save_features=save_features,
+                cores=cores,
+                verbose=self.verbose,
+            )
+
+            return calculated_features_list
 
     def _convert_validate_image_objects(self, image_objects):
         """
@@ -152,6 +205,13 @@ class GMPFeaturizer:
             assert len(image["atom_positions"]) == len(image["occupancies"])
 
         return images
+
+    def get_group_info_list(self):
+        if self.ordernorm:
+            raise NotImplementedError
+        else:
+            feature = GMPInd(self.feature_setup, self.feature_database)
+            return feature.get_group_info_list()
 
     def _calculate_GMP_features(
         self,
@@ -192,7 +252,10 @@ class GMPFeaturizer:
         """
 
         if cores <= 1:
-            feature = GMP(self.feature_setup, self.feature_database)
+            if self.ordernorm:
+                feature = GMP(self.feature_setup, self.feature_database)
+            else:
+                feature = GMPInd(self.feature_setup, self.feature_database)
             images_feature_list = []
             for image, ref_positions in tqdm(
                 zip(images, ref_positions_list),
@@ -212,7 +275,11 @@ class GMPFeaturizer:
 
         elif cores > 1:
 
-            remote_feature_actor = ray.remote(GMP)
+            # remote_feature_actor = ray.remote(GMP)
+            if self.ordernorm:
+                remote_feature_actor = ray.remote(GMP)
+            else:
+                remote_feature_actor = ray.remote(GMPInd)
             length = len(images)
             calc_deriv_list = [calc_derivatives] * length
             calc_occ_deriv_list = [calc_occ_derivatives] * length
