@@ -396,3 +396,26 @@ def get_GMP_group_info(mcsh_order):
     if mcsh_order == 9:
         return [3,6,6,3,6,6,6,6,3,3,6,1]
 
+def get_GMP_group_info2(mcsh_order):
+    if mcsh_order == -1:
+        return (-1, 1)
+    if mcsh_order == 0:
+        return (0, 1)
+    if mcsh_order == 1:
+        return (1, 3)
+    if mcsh_order == 2:
+        return (2, 6)
+    if mcsh_order == 3:
+        return (3, 10)
+    if mcsh_order == 4:
+        return (4, 15)
+    if mcsh_order == 5:
+        return (5, 21)
+    if mcsh_order == 6:
+        return (6, 28)
+    if mcsh_order == 7:
+        return (7, 36)
+    if mcsh_order == 8:
+        return (8, 45)
+    if mcsh_order == 9:
+        return (9, 55)

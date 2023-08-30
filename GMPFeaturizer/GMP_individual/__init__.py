@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from ..base_feature import BaseFeature
-from ..constants import ATOM_SYMBOL_TO_INDEX_DICT, ATOM_LIST, PI, get_GMP_group_info
+from ..constants import ATOM_SYMBOL_TO_INDEX_DICT, ATOM_LIST, PI, get_GMP_group_info, get_GMP_group_info2
 from ..util import (
     _gen_2Darray_for_ffi,
     list_symbols_to_indices,
@@ -737,7 +737,7 @@ class GMPInd(BaseFeature):
         group_info_list = []
         if self.custom_cutoff == 4:
             for order, sigma in self.desc_list:
-                group_info_list += get_GMP_group_info(order)
+                group_info_list.append(get_GMP_group_info2(order))
                 if order == -1:
                     feature_setup.append(
                         [
@@ -802,8 +802,8 @@ class GMPInd(BaseFeature):
         )
         self.params_set["num"] = len(self.params_set["total"])
 
-        self.params_set["total_num"] = int(np.sum(self.group_info_list))
-
+        # self.params_set["total_num"] = int(np.sum(self.group_info_list))
+        self.params_set["total_num"] = int(np.sum([entry[1] for entry in self.group_info_list]))
         # if "prime_threshold" in self.GMPs:
         #     self.params_set["prime_threshold"] = float(self.GMPs["prime_threshold"])
 
