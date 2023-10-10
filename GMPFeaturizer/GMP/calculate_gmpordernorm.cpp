@@ -6870,509 +6870,509 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
 }
 
 
-extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
-                                        int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
-                                        int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
-                                        double* C1_precompute_array, double* C2_precompute_array, double* lambda_precompute_array, double* gamma_precompute_array,
-                                        double** mcsh) {
+// extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+//                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
+//                                         int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
+//                                         double* C1_precompute_array, double* C2_precompute_array, double* lambda_precompute_array, double* gamma_precompute_array,
+//                                         double** mcsh) {
 
-    double cutoff, cutoff_sqr;
+//     double cutoff, cutoff_sqr;
 
-    // Check for not implemented mcsh type.
-    if (!check_implementation(nmcsh,params_i)) return 1;
+//     // Check for not implemented mcsh type.
+//     if (!check_implementation(nmcsh,params_i)) return 1;
 
-    cutoff = 0.0;
+//     cutoff = 0.0;
 
-    for (int i = 0; i < nsigmas; ++i) {
-        for (int j = 0; j < natoms; ++j){
-            int atom_index = atom_i[j];
-            int atom_order = element_index_to_order[atom_index];
-            if (cutoff < elemental_sigma_cutoffs[i][atom_order] )
-                cutoff = elemental_sigma_cutoffs[i][atom_order];
-        }
-    }
-    // cutoff = 30.0;
+//     for (int i = 0; i < nsigmas; ++i) {
+//         for (int j = 0; j < natoms; ++j){
+//             int atom_index = atom_i[j];
+//             int atom_order = element_index_to_order[atom_index];
+//             if (cutoff < elemental_sigma_cutoffs[i][atom_order] )
+//                 cutoff = elemental_sigma_cutoffs[i][atom_order];
+//         }
+//     }
+//     // cutoff = 30.0;
 
-    cutoff_sqr = cutoff * cutoff;
+//     cutoff_sqr = cutoff * cutoff;
 
-    int max_atoms_bin, neigh_check_bins, nneigh;
-    int bin_range[3], nbins[3]; 
-    int **bin_i = new int*[natoms];
-    for (int i=0; i<natoms; i++) {
-        bin_i[i] = new int[4];
-    }
+//     int max_atoms_bin, neigh_check_bins, nneigh;
+//     int bin_range[3], nbins[3]; 
+//     int **bin_i = new int*[natoms];
+//     for (int i=0; i<natoms; i++) {
+//         bin_i[i] = new int[4];
+//     }
 
-    calculate_bin_ranges(cell, scale, natoms, cutoff, max_atoms_bin, neigh_check_bins, bin_i, bin_range, nbins);
+//     calculate_bin_ranges(cell, scale, natoms, cutoff, max_atoms_bin, neigh_check_bins, bin_i, bin_range, nbins);
 
-    double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
-    int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
-    double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
-    int nneigh_gaussian;
-    //for (int i=0; i < natoms; ++i) {
-    for (int ii=0; ii < cal_num; ++ii) {
-        // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
-        // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
-        // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
-        nneigh = 0;
+//     double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+//     int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+//     double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+//     int nneigh_gaussian;
+//     //for (int i=0; i < natoms; ++i) {
+//     for (int ii=0; ii < cal_num; ++ii) {
+//         // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+//         // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+//         // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+//         nneigh = 0;
         
-        find_neighbors(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
-                       ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
+//         find_neighbors(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
+//                        ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
         
-        double* C1_array = new double[nneigh * max_n_gaussian];
-        double* C2_array = new double[nneigh * max_n_gaussian];
-        double* lambda_array = new double[nneigh * max_n_gaussian];
-        double* gamma_array = new double[nneigh * max_n_gaussian];
-        double* x0_array = new double[nneigh * max_n_gaussian];
-        double* y0_array = new double[nneigh * max_n_gaussian];
-        double* z0_array = new double[nneigh * max_n_gaussian];
-        double* r0sqr_array = new double[nneigh * max_n_gaussian];
-        double* occ_array = new double[nneigh * max_n_gaussian];
+//         double* C1_array = new double[nneigh * max_n_gaussian];
+//         double* C2_array = new double[nneigh * max_n_gaussian];
+//         double* lambda_array = new double[nneigh * max_n_gaussian];
+//         double* gamma_array = new double[nneigh * max_n_gaussian];
+//         double* x0_array = new double[nneigh * max_n_gaussian];
+//         double* y0_array = new double[nneigh * max_n_gaussian];
+//         double* z0_array = new double[nneigh * max_n_gaussian];
+//         double* r0sqr_array = new double[nneigh * max_n_gaussian];
+//         double* occ_array = new double[nneigh * max_n_gaussian];
 
         
-        // std::cout << "loop" << std::endl;
-        for (int m = 0; m < nmcsh; ++m) {
-            int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
-            // int num_groups = get_num_groups(mcsh_order);
-            // params_d: sigma, weight, A, alpha, inv_rs
-            double A = params_d[m][2], alpha = params_d[m][3];
-            double weight = 1.0;
+//         // std::cout << "loop" << std::endl;
+//         for (int m = 0; m < nmcsh; ++m) {
+//             int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
+//             // int num_groups = get_num_groups(mcsh_order);
+//             // params_d: sigma, weight, A, alpha, inv_rs
+//             double A = params_d[m][2], alpha = params_d[m][3];
+//             double weight = 1.0;
             
-            SolidGMPFunctionNoderivOpt3 mcsh_function = get_solid_mcsh_function_noderiv_opt3(mcsh_order);
+//             SolidGMPFunctionNoderivOpt3 mcsh_function = get_solid_mcsh_function_noderiv_opt3(mcsh_order);
             
 
-            // int num_order_values = get_num_order_values(mcsh_order);
-            // double* desc_values = new double[num_order_values]();
+//             // int num_order_values = get_num_order_values(mcsh_order);
+//             // double* desc_values = new double[num_order_values]();
 
-            nneigh_gaussian = 0;
-            for (int j = 0; j < nneigh; ++j) {
-                double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+//             nneigh_gaussian = 0;
+//             for (int j = 0; j < nneigh; ++j) {
+//                 double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                 
-                int neigh_atom_element_index = nei_list_i[j*2];
-                int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
-                if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
-                    continue;
-                double occ = nei_list_occupancy[j];
-                int precompute_access_index_const = m * 120 * max_n_gaussian + neigh_atom_element_order * max_n_gaussian;
-                for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
-                    double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
-                    if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
-                        continue;
-                    double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                    if (B == 0.0)
-                        continue;
+//                 int neigh_atom_element_index = nei_list_i[j*2];
+//                 int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+//                 double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+//                 if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
+//                     continue;
+//                 double occ = nei_list_occupancy[j];
+//                 int precompute_access_index_const = m * 120 * max_n_gaussian + neigh_atom_element_order * max_n_gaussian;
+//                 for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
+//                     double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
+//                     if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
+//                         continue;
+//                     double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+//                     if (B == 0.0)
+//                         continue;
 
-                    C1_array[nneigh_gaussian] = C1_precompute_array[precompute_access_index_const + g];
-                    C2_array[nneigh_gaussian] = C2_precompute_array[precompute_access_index_const + g];
-                    lambda_array[nneigh_gaussian] = lambda_precompute_array[precompute_access_index_const + g];
-                    gamma_array[nneigh_gaussian] = gamma_precompute_array[precompute_access_index_const + g];
-                    x0_array[nneigh_gaussian] = x0;
-                    y0_array[nneigh_gaussian] = y0;
-                    z0_array[nneigh_gaussian] = z0;
-                    r0sqr_array[nneigh_gaussian] = r0_sqr;
-                    occ_array[nneigh_gaussian] = occ;
-                    nneigh_gaussian++;
-                    // double C1 = C1_precompute_array[precompute_access_index_const + g];
-                    // double C2 = C2_precompute_array[precompute_access_index_const + g];
-                    // double temp = C1 * exp(C2 * r0_sqr) * occ;
-                    // double lambda = lambda_precompute_array[precompute_access_index_const + g]; 
-                    // double gamma = gamma_precompute_array[precompute_access_index_const + g];
-                    // mcsh_function(x0, y0, z0, r0_sqr, temp, lambda, gamma, desc_values);
-                    // sum_miu += m_desc[0]*occ;
-                }
-            }
+//                     C1_array[nneigh_gaussian] = C1_precompute_array[precompute_access_index_const + g];
+//                     C2_array[nneigh_gaussian] = C2_precompute_array[precompute_access_index_const + g];
+//                     lambda_array[nneigh_gaussian] = lambda_precompute_array[precompute_access_index_const + g];
+//                     gamma_array[nneigh_gaussian] = gamma_precompute_array[precompute_access_index_const + g];
+//                     x0_array[nneigh_gaussian] = x0;
+//                     y0_array[nneigh_gaussian] = y0;
+//                     z0_array[nneigh_gaussian] = z0;
+//                     r0sqr_array[nneigh_gaussian] = r0_sqr;
+//                     occ_array[nneigh_gaussian] = occ;
+//                     nneigh_gaussian++;
+//                     // double C1 = C1_precompute_array[precompute_access_index_const + g];
+//                     // double C2 = C2_precompute_array[precompute_access_index_const + g];
+//                     // double temp = C1 * exp(C2 * r0_sqr) * occ;
+//                     // double lambda = lambda_precompute_array[precompute_access_index_const + g]; 
+//                     // double gamma = gamma_precompute_array[precompute_access_index_const + g];
+//                     // mcsh_function(x0, y0, z0, r0_sqr, temp, lambda, gamma, desc_values);
+//                     // sum_miu += m_desc[0]*occ;
+//                 }
+//             }
 
-            // double sum_square = get_desc_value_opt2(mcsh_order, desc_values);
-            double sum_square = mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
+//             // double sum_square = get_desc_value_opt2(mcsh_order, desc_values);
+//             double sum_square = mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
 
-            // sum_square = sum_square * weight;
-            if (square != 0){
-                mcsh[ii][m] = sum_square;
-            }
-            else {
-                mcsh[ii][m] = sqrt(sum_square);
-            }
+//             // sum_square = sum_square * weight;
+//             if (square != 0){
+//                 mcsh[ii][m] = sum_square;
+//             }
+//             else {
+//                 mcsh[ii][m] = sqrt(sum_square);
+//             }
 
-            // delete[] desc_values;
-        }
+//             // delete[] desc_values;
+//         }
 
-        delete[] C1_array;
-        delete[] C2_array;
-        delete[] lambda_array;
-        delete[] gamma_array;
-        delete[] x0_array;
-        delete[] y0_array;
-        delete[] z0_array;
-        delete[] r0sqr_array;
-        delete[] occ_array;
+//         delete[] C1_array;
+//         delete[] C2_array;
+//         delete[] lambda_array;
+//         delete[] gamma_array;
+//         delete[] x0_array;
+//         delete[] y0_array;
+//         delete[] z0_array;
+//         delete[] r0sqr_array;
+//         delete[] occ_array;
         
-    }
-    delete[] nei_list_d;
-    delete[] nei_list_i;
-    delete[] nei_list_occupancy;
+//     }
+//     delete[] nei_list_d;
+//     delete[] nei_list_i;
+//     delete[] nei_list_occupancy;
 
 
-    for (int i=0; i<natoms; i++) {
-        delete[] bin_i[i];
-    }
-    delete[] bin_i;
-    return 0;
-}
+//     for (int i=0; i<natoms; i++) {
+//         delete[] bin_i[i];
+//     }
+//     delete[] bin_i;
+//     return 0;
+// }
 
 
 
-extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3_2_back(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
-                                        int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
-                                        int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
-                                        double* C1_precompute_array, double* C2_precompute_array, double* lambda_precompute_array, double* gamma_precompute_array,
-                                        double** mcsh) {
+// extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3_2_back(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+//                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
+//                                         int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
+//                                         double* C1_precompute_array, double* C2_precompute_array, double* lambda_precompute_array, double* gamma_precompute_array,
+//                                         double** mcsh) {
 
-    double cutoff, cutoff_sqr;
+//     double cutoff, cutoff_sqr;
 
-    // Check for not implemented mcsh type.
-    if (!check_implementation(nmcsh,params_i)) return 1;
+//     // Check for not implemented mcsh type.
+//     if (!check_implementation(nmcsh,params_i)) return 1;
 
-    cutoff = 0.0;
+//     cutoff = 0.0;
 
-    for (int i = 0; i < nsigmas; ++i) {
-        for (int j = 0; j < natoms; ++j){
-            int atom_index = atom_i[j];
-            int atom_order = element_index_to_order[atom_index];
-            if (cutoff < elemental_sigma_cutoffs[i][atom_order] )
-                cutoff = elemental_sigma_cutoffs[i][atom_order];
-        }
-    }
-    // cutoff = 30.0;
+//     for (int i = 0; i < nsigmas; ++i) {
+//         for (int j = 0; j < natoms; ++j){
+//             int atom_index = atom_i[j];
+//             int atom_order = element_index_to_order[atom_index];
+//             if (cutoff < elemental_sigma_cutoffs[i][atom_order] )
+//                 cutoff = elemental_sigma_cutoffs[i][atom_order];
+//         }
+//     }
+//     // cutoff = 30.0;
 
-    cutoff_sqr = cutoff * cutoff;
+//     cutoff_sqr = cutoff * cutoff;
 
-    int max_atoms_bin, neigh_check_bins, nneigh;
-    int bin_range[3], nbins[3]; 
-    int **bin_i = new int*[natoms];
-    for (int i=0; i<natoms; i++) {
-        bin_i[i] = new int[4];
-    }
+//     int max_atoms_bin, neigh_check_bins, nneigh;
+//     int bin_range[3], nbins[3]; 
+//     int **bin_i = new int*[natoms];
+//     for (int i=0; i<natoms; i++) {
+//         bin_i[i] = new int[4];
+//     }
 
-    calculate_bin_ranges(cell, scale, natoms, cutoff, max_atoms_bin, neigh_check_bins, bin_i, bin_range, nbins);
+//     calculate_bin_ranges(cell, scale, natoms, cutoff, max_atoms_bin, neigh_check_bins, bin_i, bin_range, nbins);
 
-    double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
-    int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
-    double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+//     double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+//     int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+//     double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
 
-    // double* C1_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
-    // double* C2_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
-    // double* lambda_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
-    // double* gamma_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
-    // double* x0_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
-    // double* y0_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
-    // double* z0_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
-    // double* r0sqr_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
-    // double* occ_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* C1_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* C2_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* lambda_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* gamma_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* x0_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* y0_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* z0_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* r0sqr_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
+//     // double* occ_array = new double[max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num];
 
-    // double* C1_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    // double* C2_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    // double* lambda_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    // double* gamma_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    // double* x0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    // double* y0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    // double* z0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    // double* r0sqr_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    // double* occ_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* C1_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* C2_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* lambda_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* gamma_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* x0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* y0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* z0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* r0sqr_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     // double* occ_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
 
-    int nneigh_gaussian;
+//     int nneigh_gaussian;
 
-    // std::cout << "loop" << std::endl;
-    for (int m = 0; m < nmcsh; ++m) {
-        int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
-        // int num_groups = get_num_groups(mcsh_order);
-        // params_d: sigma, weight, A, alpha, inv_rs
-        double A = params_d[m][2], alpha = params_d[m][3];
-        double weight = 1.0;
+//     // std::cout << "loop" << std::endl;
+//     for (int m = 0; m < nmcsh; ++m) {
+//         int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
+//         // int num_groups = get_num_groups(mcsh_order);
+//         // params_d: sigma, weight, A, alpha, inv_rs
+//         double A = params_d[m][2], alpha = params_d[m][3];
+//         double weight = 1.0;
         
-        SolidGMPFunctionNoderivOpt3 mcsh_function = get_solid_mcsh_function_noderiv_opt3(mcsh_order);
-        nneigh_gaussian = 0;
-        //for (int i=0; i < natoms; ++i) {
-        for (int ii=0; ii < cal_num; ++ii) {
-            // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
-            // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
-            // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
-            nneigh = 0;
+//         SolidGMPFunctionNoderivOpt3 mcsh_function = get_solid_mcsh_function_noderiv_opt3(mcsh_order);
+//         nneigh_gaussian = 0;
+//         //for (int i=0; i < natoms; ++i) {
+//         for (int ii=0; ii < cal_num; ++ii) {
+//             // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+//             // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+//             // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+//             nneigh = 0;
             
-            find_neighbors(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
-                        ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
+//             find_neighbors(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
+//                         ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
 
-            // int num_order_values = get_num_order_values(mcsh_order);
-            // double* desc_values = new double[num_order_values]();
+//             // int num_order_values = get_num_order_values(mcsh_order);
+//             // double* desc_values = new double[num_order_values]();
 
             
-            for (int j = 0; j < nneigh; ++j) {
-                double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+//             for (int j = 0; j < nneigh; ++j) {
+//                 double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
                 
-                int neigh_atom_element_index = nei_list_i[j*2];
-                int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
-                if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
-                    continue;
-                double occ = nei_list_occupancy[j];
-                int precompute_access_index_const = m * 120 * max_n_gaussian + neigh_atom_element_order * max_n_gaussian;
-                for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
-                    double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
-                    if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
-                        continue;
-                    double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                    if (B == 0.0)
-                        continue;
+//                 int neigh_atom_element_index = nei_list_i[j*2];
+//                 int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+//                 double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+//                 if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
+//                     continue;
+//                 double occ = nei_list_occupancy[j];
+//                 int precompute_access_index_const = m * 120 * max_n_gaussian + neigh_atom_element_order * max_n_gaussian;
+//                 for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
+//                     double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
+//                     if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
+//                         continue;
+//                     double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+//                     if (B == 0.0)
+//                         continue;
 
-                    // C1_array[nneigh_gaussian] = C1_precompute_array[precompute_access_index_const + g];
-                    // C2_array[nneigh_gaussian] = C2_precompute_array[precompute_access_index_const + g];
-                    // lambda_array[nneigh_gaussian] = lambda_precompute_array[precompute_access_index_const + g];
-                    // gamma_array[nneigh_gaussian] = gamma_precompute_array[precompute_access_index_const + g];
-                    // x0_array[nneigh_gaussian] = x0;
-                    // y0_array[nneigh_gaussian] = y0;
-                    // z0_array[nneigh_gaussian] = z0;
-                    // r0sqr_array[nneigh_gaussian] = r0_sqr;
-                    // occ_array[nneigh_gaussian] = occ;
-                    // nneigh_gaussian++;
-                    // double C1 = C1_precompute_array[precompute_access_index_const + g];
-                    // double C2 = C2_precompute_array[precompute_access_index_const + g];
-                    // double temp = C1 * exp(C2 * r0_sqr) * occ;
-                    // double lambda = lambda_precompute_array[precompute_access_index_const + g]; 
-                    // double gamma = gamma_precompute_array[precompute_access_index_const + g];
-                    // mcsh_function(x0, y0, z0, r0_sqr, temp, lambda, gamma, desc_values);
-                    // sum_miu += m_desc[0]*occ;
-                }
-            }
+//                     // C1_array[nneigh_gaussian] = C1_precompute_array[precompute_access_index_const + g];
+//                     // C2_array[nneigh_gaussian] = C2_precompute_array[precompute_access_index_const + g];
+//                     // lambda_array[nneigh_gaussian] = lambda_precompute_array[precompute_access_index_const + g];
+//                     // gamma_array[nneigh_gaussian] = gamma_precompute_array[precompute_access_index_const + g];
+//                     // x0_array[nneigh_gaussian] = x0;
+//                     // y0_array[nneigh_gaussian] = y0;
+//                     // z0_array[nneigh_gaussian] = z0;
+//                     // r0sqr_array[nneigh_gaussian] = r0_sqr;
+//                     // occ_array[nneigh_gaussian] = occ;
+//                     // nneigh_gaussian++;
+//                     // double C1 = C1_precompute_array[precompute_access_index_const + g];
+//                     // double C2 = C2_precompute_array[precompute_access_index_const + g];
+//                     // double temp = C1 * exp(C2 * r0_sqr) * occ;
+//                     // double lambda = lambda_precompute_array[precompute_access_index_const + g]; 
+//                     // double gamma = gamma_precompute_array[precompute_access_index_const + g];
+//                     // mcsh_function(x0, y0, z0, r0_sqr, temp, lambda, gamma, desc_values);
+//                     // sum_miu += m_desc[0]*occ;
+//                 }
+//             }
 
-            // // double sum_square = get_desc_value_opt2(mcsh_order, desc_values);
-            // double sum_square = mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
+//             // // double sum_square = get_desc_value_opt2(mcsh_order, desc_values);
+//             // double sum_square = mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
 
-            // // sum_square = sum_square * weight;
-            // if (square != 0){
-            //     mcsh[ii][m] = sum_square;
-            // }
-            // else {
-            //     mcsh[ii][m] = sqrt(sum_square);
-            // }
+//             // // sum_square = sum_square * weight;
+//             // if (square != 0){
+//             //     mcsh[ii][m] = sum_square;
+//             // }
+//             // else {
+//             //     mcsh[ii][m] = sqrt(sum_square);
+//             // }
 
-            // delete[] desc_values;
-        }
+//             // delete[] desc_values;
+//         }
 
-        // mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
+//         // mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
 
         
         
-    }
+//     }
 
-    // delete[] C1_array;
-    // delete[] C2_array;
-    // delete[] lambda_array;
-    // delete[] gamma_array;
-    // delete[] x0_array;
-    // delete[] y0_array;
-    // delete[] z0_array;
-    // delete[] r0sqr_array;
-    // delete[] occ_array;
+//     // delete[] C1_array;
+//     // delete[] C2_array;
+//     // delete[] lambda_array;
+//     // delete[] gamma_array;
+//     // delete[] x0_array;
+//     // delete[] y0_array;
+//     // delete[] z0_array;
+//     // delete[] r0sqr_array;
+//     // delete[] occ_array;
 
-    // mkl_free(C1_array);
-    // mkl_free(C2_array);
-    // mkl_free(lambda_array);
-    // mkl_free(gamma_array);
-    // mkl_free(x0_array);
-    // mkl_free(y0_array);
-    // mkl_free(z0_array);
-    // mkl_free(r0sqr_array);
-    // mkl_free(occ_array);
-
-
-    delete[] nei_list_d;
-    delete[] nei_list_i;
-    delete[] nei_list_occupancy;
+//     // mkl_free(C1_array);
+//     // mkl_free(C2_array);
+//     // mkl_free(lambda_array);
+//     // mkl_free(gamma_array);
+//     // mkl_free(x0_array);
+//     // mkl_free(y0_array);
+//     // mkl_free(z0_array);
+//     // mkl_free(r0sqr_array);
+//     // mkl_free(occ_array);
 
 
-    for (int i=0; i<natoms; i++) {
-        delete[] bin_i[i];
-    }
-    delete[] bin_i;
-    return 0;
-}
+//     delete[] nei_list_d;
+//     delete[] nei_list_i;
+//     delete[] nei_list_occupancy;
 
 
-extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3_2(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
-                                        int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
-                                        int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
-                                        double* C1_precompute_array, double* C2_precompute_array, double* lambda_precompute_array, double* gamma_precompute_array,
-                                        double** mcsh) {
+//     for (int i=0; i<natoms; i++) {
+//         delete[] bin_i[i];
+//     }
+//     delete[] bin_i;
+//     return 0;
+// }
 
-    double cutoff, cutoff_sqr;
 
-    // Check for not implemented mcsh type.
-    if (!check_implementation(nmcsh,params_i)) return 1;
+// extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3_2(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+//                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
+//                                         int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
+//                                         double* C1_precompute_array, double* C2_precompute_array, double* lambda_precompute_array, double* gamma_precompute_array,
+//                                         double** mcsh) {
 
-    cutoff = 0.0;
+//     double cutoff, cutoff_sqr;
 
-    for (int i = 0; i < nsigmas; ++i) {
-        for (int j = 0; j < natoms; ++j){
-            int atom_index = atom_i[j];
-            int atom_order = element_index_to_order[atom_index];
-            if (cutoff < elemental_sigma_cutoffs[i][atom_order] )
-                cutoff = elemental_sigma_cutoffs[i][atom_order];
-        }
-    }
-    // cutoff = 30.0;
+//     // Check for not implemented mcsh type.
+//     if (!check_implementation(nmcsh,params_i)) return 1;
 
-    cutoff_sqr = cutoff * cutoff;
+//     cutoff = 0.0;
 
-    int max_atoms_bin, neigh_check_bins, nneigh;
-    int bin_range[3], nbins[3]; 
-    int **bin_i = new int*[natoms];
-    for (int i=0; i<natoms; i++) {
-        bin_i[i] = new int[4];
-    }
+//     for (int i = 0; i < nsigmas; ++i) {
+//         for (int j = 0; j < natoms; ++j){
+//             int atom_index = atom_i[j];
+//             int atom_order = element_index_to_order[atom_index];
+//             if (cutoff < elemental_sigma_cutoffs[i][atom_order] )
+//                 cutoff = elemental_sigma_cutoffs[i][atom_order];
+//         }
+//     }
+//     // cutoff = 30.0;
 
-    calculate_bin_ranges(cell, scale, natoms, cutoff, max_atoms_bin, neigh_check_bins, bin_i, bin_range, nbins);
+//     cutoff_sqr = cutoff * cutoff;
 
-    double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins * cal_num];
-    int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins * cal_num];
-    double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins * cal_num];
+//     int max_atoms_bin, neigh_check_bins, nneigh;
+//     int bin_range[3], nbins[3]; 
+//     int **bin_i = new int*[natoms];
+//     for (int i=0; i<natoms; i++) {
+//         bin_i[i] = new int[4];
+//     }
 
-    int*    nneigh_list = new int[cal_num];
-    int*    nneigh_counter_list = new int[cal_num];
-    int nneigh_counter = 0;
+//     calculate_bin_ranges(cell, scale, natoms, cutoff, max_atoms_bin, neigh_check_bins, bin_i, bin_range, nbins);
 
-    for (int ii=0; ii < cal_num; ++ii) {
-        // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
-        // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
-        // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
-        nneigh = 0;
-        nneigh_counter_list[ii] = nneigh_counter;
-        find_neighbors2(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
-                       ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy, nneigh_counter);
+//     double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins * cal_num];
+//     int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins * cal_num];
+//     double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins * cal_num];
 
-        nneigh_list[ii] = nneigh;
-        nneigh_counter += nneigh;
+//     int*    nneigh_list = new int[cal_num];
+//     int*    nneigh_counter_list = new int[cal_num];
+//     int nneigh_counter = 0;
 
-    }
+//     for (int ii=0; ii < cal_num; ++ii) {
+//         // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+//         // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+//         // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+//         nneigh = 0;
+//         nneigh_counter_list[ii] = nneigh_counter;
+//         find_neighbors2(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
+//                        ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy, nneigh_counter);
 
-    double* C1_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    double* C2_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    double* lambda_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    double* gamma_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    double* x0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    double* y0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    double* z0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    double* r0sqr_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    double* occ_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
-    int nneigh_gaussian;
+//         nneigh_list[ii] = nneigh;
+//         nneigh_counter += nneigh;
 
-    // std::cout << "loop" << std::endl;
-    for (int m = 0; m < nmcsh; ++m) {
-        int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
-        // int num_groups = get_num_groups(mcsh_order);
-        // params_d: sigma, weight, A, alpha, inv_rs
-        double A = params_d[m][2], alpha = params_d[m][3];
-        double weight = 1.0;
+//     }
+
+//     double* C1_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     double* C2_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     double* lambda_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     double* gamma_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     double* x0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     double* y0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     double* z0_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     double* r0sqr_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     double* occ_array = (double*)mkl_malloc(max_atoms_bin * neigh_check_bins * max_n_gaussian * cal_num * sizeof(double), 64);
+//     int nneigh_gaussian;
+
+//     // std::cout << "loop" << std::endl;
+//     for (int m = 0; m < nmcsh; ++m) {
+//         int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
+//         // int num_groups = get_num_groups(mcsh_order);
+//         // params_d: sigma, weight, A, alpha, inv_rs
+//         double A = params_d[m][2], alpha = params_d[m][3];
+//         double weight = 1.0;
         
-        SolidGMPFunctionNoderivOpt3 mcsh_function = get_solid_mcsh_function_noderiv_opt3(mcsh_order);
-        //for (int i=0; i < natoms; ++i) {
-        for (int ii=0; ii < cal_num; ++ii) {
-            // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
-            // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
-            // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
-            nneigh = nneigh_list[ii];
-            nneigh_counter = nneigh_counter_list[ii];
+//         SolidGMPFunctionNoderivOpt3 mcsh_function = get_solid_mcsh_function_noderiv_opt3(mcsh_order);
+//         //for (int i=0; i < natoms; ++i) {
+//         for (int ii=0; ii < cal_num; ++ii) {
+//             // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+//             // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+//             // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+//             nneigh = nneigh_list[ii];
+//             nneigh_counter = nneigh_counter_list[ii];
         
-            // find_neighbors(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
-            //                ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
+//             // find_neighbors(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
+//             //                ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
 
 
         
         
             
 
-            // int num_order_values = get_num_order_values(mcsh_order);
-            // double* desc_values = new double[num_order_values]();
+//             // int num_order_values = get_num_order_values(mcsh_order);
+//             // double* desc_values = new double[num_order_values]();
 
-            nneigh_gaussian = 0;
-            for (int j = 0; j < nneigh; ++j) {
-                double x0 = nei_list_d[(nneigh_counter+j)*4], y0 = nei_list_d[(nneigh_counter+j)*4+1], z0 = nei_list_d[(nneigh_counter+j)*4+2], r0_sqr = nei_list_d[(nneigh_counter+j)*4+3];
+//             nneigh_gaussian = 0;
+//             for (int j = 0; j < nneigh; ++j) {
+//                 double x0 = nei_list_d[(nneigh_counter+j)*4], y0 = nei_list_d[(nneigh_counter+j)*4+1], z0 = nei_list_d[(nneigh_counter+j)*4+2], r0_sqr = nei_list_d[(nneigh_counter+j)*4+3];
                 
-                int neigh_atom_element_index = nei_list_i[(nneigh_counter+j)*2];
-                int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
-                double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
-                if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
-                    continue;
-                double occ = nei_list_occupancy[j];
-                int precompute_access_index_const = m * 120 * max_n_gaussian + neigh_atom_element_order * max_n_gaussian;
-                for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
-                    double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
-                    if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
-                        continue;
-                    double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
-                    if (B == 0.0)
-                        continue;
+//                 int neigh_atom_element_index = nei_list_i[(nneigh_counter+j)*2];
+//                 int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+//                 double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+//                 if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
+//                     continue;
+//                 double occ = nei_list_occupancy[j];
+//                 int precompute_access_index_const = m * 120 * max_n_gaussian + neigh_atom_element_order * max_n_gaussian;
+//                 for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
+//                     double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
+//                     if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
+//                         continue;
+//                     double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+//                     if (B == 0.0)
+//                         continue;
 
-                    C1_array[nneigh_gaussian] = C1_precompute_array[precompute_access_index_const + g];
-                    C2_array[nneigh_gaussian] = C2_precompute_array[precompute_access_index_const + g];
-                    lambda_array[nneigh_gaussian] = lambda_precompute_array[precompute_access_index_const + g];
-                    gamma_array[nneigh_gaussian] = gamma_precompute_array[precompute_access_index_const + g];
-                    x0_array[nneigh_gaussian] = x0;
-                    y0_array[nneigh_gaussian] = y0;
-                    z0_array[nneigh_gaussian] = z0;
-                    r0sqr_array[nneigh_gaussian] = r0_sqr;
-                    occ_array[nneigh_gaussian] = occ;
-                    nneigh_gaussian++;
+//                     C1_array[nneigh_gaussian] = C1_precompute_array[precompute_access_index_const + g];
+//                     C2_array[nneigh_gaussian] = C2_precompute_array[precompute_access_index_const + g];
+//                     lambda_array[nneigh_gaussian] = lambda_precompute_array[precompute_access_index_const + g];
+//                     gamma_array[nneigh_gaussian] = gamma_precompute_array[precompute_access_index_const + g];
+//                     x0_array[nneigh_gaussian] = x0;
+//                     y0_array[nneigh_gaussian] = y0;
+//                     z0_array[nneigh_gaussian] = z0;
+//                     r0sqr_array[nneigh_gaussian] = r0_sqr;
+//                     occ_array[nneigh_gaussian] = occ;
+//                     nneigh_gaussian++;
 
-                }
-            }
+//                 }
+//             }
 
-            // double sum_square = get_desc_value_opt2(mcsh_order, desc_values);
-            // double sum_square = mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
+//             // double sum_square = get_desc_value_opt2(mcsh_order, desc_values);
+//             // double sum_square = mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
 
-            // // sum_square = sum_square * weight;
-            // if (square != 0){
-            //     mcsh[ii][m] = sum_square;
-            // }
-            // else {
-            //     mcsh[ii][m] = sqrt(sum_square);
-            // }
+//             // // sum_square = sum_square * weight;
+//             // if (square != 0){
+//             //     mcsh[ii][m] = sum_square;
+//             // }
+//             // else {
+//             //     mcsh[ii][m] = sqrt(sum_square);
+//             // }
 
-            // delete[] desc_values;
-        }
-        mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
+//             // delete[] desc_values;
+//         }
+//         mcsh_function(x0_array, y0_array, z0_array, r0sqr_array, occ_array, C1_array, C2_array, lambda_array, gamma_array, nneigh_gaussian);
 
-        // delete[] C1_array;
-        // delete[] C2_array;
-        // delete[] lambda_array;
-        // delete[] gamma_array;
-        // delete[] x0_array;
-        // delete[] y0_array;
-        // delete[] z0_array;
-        // delete[] r0sqr_array;
-        // delete[] occ_array;
+//         // delete[] C1_array;
+//         // delete[] C2_array;
+//         // delete[] lambda_array;
+//         // delete[] gamma_array;
+//         // delete[] x0_array;
+//         // delete[] y0_array;
+//         // delete[] z0_array;
+//         // delete[] r0sqr_array;
+//         // delete[] occ_array;
         
-    }
+//     }
 
-    mkl_free(C1_array);
-    mkl_free(C2_array);
-    mkl_free(lambda_array);
-    mkl_free(gamma_array);
-    mkl_free(x0_array);
-    mkl_free(y0_array);
-    mkl_free(z0_array);
-    mkl_free(r0sqr_array);
-    mkl_free(occ_array);
+//     mkl_free(C1_array);
+//     mkl_free(C2_array);
+//     mkl_free(lambda_array);
+//     mkl_free(gamma_array);
+//     mkl_free(x0_array);
+//     mkl_free(y0_array);
+//     mkl_free(z0_array);
+//     mkl_free(r0sqr_array);
+//     mkl_free(occ_array);
 
-    delete[] nei_list_d;
-    delete[] nei_list_i;
-    delete[] nei_list_occupancy;
+//     delete[] nei_list_d;
+//     delete[] nei_list_i;
+//     delete[] nei_list_occupancy;
 
 
-    for (int i=0; i<natoms; i++) {
-        delete[] bin_i[i];
-    }
-    delete[] bin_i;
-    return 0;
-}
+//     for (int i=0; i<natoms; i++) {
+//         delete[] bin_i[i];
+//     }
+//     delete[] bin_i;
+//     return 0;
+// }
 
 extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
