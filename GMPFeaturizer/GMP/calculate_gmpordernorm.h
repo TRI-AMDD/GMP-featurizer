@@ -126,6 +126,12 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
                                         double*, double*, double*, double*,
                                         double**);
 
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt2_2(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double*, double*, double*, double*,
+                                        double**);
+
 extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int, int, int,
                                         int**, double**, int, double**, int*, double**, double**, int*,
@@ -142,6 +148,12 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
 extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv(double**, double**, double*, double**, double**, double**, int*,
                                         int*, int, int, int, int,
                                         int**, double**, int, double**, int*, double**, double**, int*,
+                                        double**, double**);
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv_opt2_2(double**, double**, double*, double**, double**, double**, int*,
+                                        int*, int, int, int, int,
+                                        int**, double**, int, double**, int*, double**, double**, int*,
+                                        double*, double*, double*, double*,
                                         double**, double**);
 
 extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_deriv(double**, double**, double*, double**, double**, double**, int*,

@@ -6749,6 +6749,127 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_node
 }
 
 
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt2_2(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+                                        int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
+                                        int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
+                                        double* C1_precompute_array, double* C2_precompute_array, double* lambda_precompute_array, double* gamma_precompute_array,
+                                        double** mcsh) {
+
+    double cutoff, cutoff_sqr;
+
+    // Check for not implemented mcsh type.
+    if (!check_implementation(nmcsh,params_i)) return 1;
+
+    cutoff = 0.0;
+
+    for (int i = 0; i < nsigmas; ++i) {
+        for (int j = 0; j < natoms; ++j){
+            int atom_index = atom_i[j];
+            int atom_order = element_index_to_order[atom_index];
+            if (cutoff < elemental_sigma_cutoffs[i][atom_order] )
+                cutoff = elemental_sigma_cutoffs[i][atom_order];
+        }
+    }
+    // cutoff = 30.0;
+
+    cutoff_sqr = cutoff * cutoff;
+
+    int max_atoms_bin, neigh_check_bins, nneigh;
+    int bin_range[3], nbins[3]; 
+    int **bin_i = new int*[natoms];
+    for (int i=0; i<natoms; i++) {
+        bin_i[i] = new int[4];
+    }
+
+    calculate_bin_ranges(cell, scale, natoms, cutoff, max_atoms_bin, neigh_check_bins, bin_i, bin_range, nbins);
+
+    double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+    int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+    double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+    //for (int i=0; i < natoms; ++i) {
+    for (int ii=0; ii < cal_num; ++ii) {
+        // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+        // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+        // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+        nneigh = 0;
+        
+        find_neighbors(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
+                       ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
+        
+
+        // std::cout << "loop" << std::endl;
+        for (int m = 0; m < nmcsh; ++m) {
+            int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
+            // int num_groups = get_num_groups(mcsh_order);
+            // params_d: sigma, weight, A, alpha, inv_rs
+            double A = params_d[m][2], alpha = params_d[m][3];
+            double weight = 1.0;
+            
+            SolidGMPFunctionNoderivOpt2_2 mcsh_function = get_solid_mcsh_function_noderiv_opt2_2(mcsh_order);
+            
+
+            int num_order_values = get_num_order_values(mcsh_order);
+            double* desc_values = new double[num_order_values]();
+            double* temp_desc_values = new double[num_order_values]();
+
+            for (int j = 0; j < nneigh; ++j) {
+                double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                
+                int neigh_atom_element_index = nei_list_i[j*2];
+                int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+                if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
+                    continue;
+                double occ = nei_list_occupancy[j];
+                int precompute_access_index_const = m * 120 * max_n_gaussian + neigh_atom_element_order * max_n_gaussian;
+                for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
+                    double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
+                    if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
+                        continue;
+                    double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+                    if (B == 0.0)
+                        continue;
+                    double C1 = C1_precompute_array[precompute_access_index_const + g];
+                    double C2 = C2_precompute_array[precompute_access_index_const + g];
+                    double temp = C1 * exp(C2 * r0_sqr) * occ;
+                    double lambda = lambda_precompute_array[precompute_access_index_const + g]; 
+                    double gamma = gamma_precompute_array[precompute_access_index_const + g];
+                    mcsh_function(x0, y0, z0, r0_sqr, temp, lambda, gamma, temp_desc_values);
+                    for (int iii = 0; iii < num_order_values; ++iii) {
+                        desc_values[iii] += temp_desc_values[iii];
+                    }
+                    // sum_miu += m_desc[0]*occ;
+                }
+            }
+
+            double sum_square = get_desc_value_opt2(mcsh_order, desc_values);
+
+            // sum_square = sum_square * weight;
+            if (square != 0){
+                mcsh[ii][m] = sum_square;
+            }
+            else {
+                mcsh[ii][m] = sqrt(sum_square);
+            }
+
+            delete[] desc_values;
+            delete[] temp_desc_values;
+        }
+        
+    }
+    delete[] nei_list_d;
+    delete[] nei_list_i;
+    delete[] nei_list_occupancy;
+
+
+    for (int i=0; i<natoms; i++) {
+        delete[] bin_i[i];
+    }
+    delete[] bin_i;
+    return 0;
+}
+
+
 extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_noderiv_opt3(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
                                         int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
@@ -7509,6 +7630,158 @@ extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_
     delete[] bin_i;
     return 0;
 }
+
+
+extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv_opt2_2(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
+                                        int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,
+                                        int** params_i, double** params_d, int nmcsh, double** atom_gaussian, int* ngaussians, double** elemental_sigma_cutoffs, double** elemental_sigma_gaussian_cutoffs, int* element_index_to_order,
+                                        double* C1_precompute_array, double* C2_precompute_array, double* lambda_precompute_array, double* gamma_precompute_array,
+                                        double** mcsh, double** dmcsh_docc) {
+
+    double cutoff, cutoff_sqr;
+
+    // Check for not implemented mcsh type.
+    if (!check_implementation(nmcsh,params_i)) return 1;
+
+    cutoff = 0.0;
+
+    for (int i = 0; i < nsigmas; ++i) {
+        for (int j = 0; j < natoms; ++j){
+            int atom_index = atom_i[j];
+            int atom_order = element_index_to_order[atom_index];
+            if (cutoff < elemental_sigma_cutoffs[i][atom_order] )
+                cutoff = elemental_sigma_cutoffs[i][atom_order];
+        }
+    }
+    // cutoff = 30.0;
+
+    cutoff_sqr = cutoff * cutoff;
+
+    int max_atoms_bin, neigh_check_bins, nneigh;
+    int bin_range[3], nbins[3]; 
+    int **bin_i = new int*[natoms];
+    for (int i=0; i<natoms; i++) {
+        bin_i[i] = new int[4];
+    }
+
+    calculate_bin_ranges(cell, scale, natoms, cutoff, max_atoms_bin, neigh_check_bins, bin_i, bin_range, nbins);
+
+    double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+    int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+    double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+    //for (int i=0; i < natoms; ++i) {
+    for (int ii=0; ii < cal_num; ++ii) {
+        // double* nei_list_d = new double[max_atoms_bin * 4 * neigh_check_bins];
+        // int*    nei_list_i = new int[max_atoms_bin * 2 * neigh_check_bins];
+        // double* nei_list_occupancy = new double[max_atoms_bin * neigh_check_bins];
+        nneigh = 0;
+        
+        find_neighbors(cell, cart, occupancies, ref_cart, scale, ref_scale, pbc_bools, atom_i, natoms,
+                       ii, cutoff_sqr, bin_range, nbins, bin_i, nneigh, nei_list_d, nei_list_i, nei_list_occupancy);
+        
+
+        // std::cout << "loop" << std::endl;
+        for (int m = 0; m < nmcsh; ++m) {
+            int mcsh_order = params_i[m][0], square = params_i[m][1], sigma_index = params_i[m][3];
+            // int num_groups = get_num_groups(mcsh_order);
+            // params_d: sigma, weight, A, alpha, inv_rs
+            double A = params_d[m][2], alpha = params_d[m][3];
+            double weight = 1.0;
+            
+            SolidGMPFunctionNoderivOpt2_2 mcsh_function = get_solid_mcsh_function_noderiv_opt2_2(mcsh_order);
+            
+
+            int num_order_values = get_num_order_values(mcsh_order);
+            double* desc_values = new double[num_order_values]();
+            double* temp_desc_values = new double[num_order_values]();
+            double* temp_occ_sum_values = new double[nneigh * num_order_values]();
+
+            for (int j = 0; j < nneigh; ++j) {
+                double x0 = nei_list_d[j*4], y0 = nei_list_d[j*4+1], z0 = nei_list_d[j*4+2], r0_sqr = nei_list_d[j*4+3];
+                
+                int neigh_atom_element_index = nei_list_i[j*2];
+                int neigh_atom_element_order = element_index_to_order[neigh_atom_element_index];
+                double elemental_sigma_cutoff = elemental_sigma_cutoffs[sigma_index][neigh_atom_element_order];
+                if (r0_sqr > (elemental_sigma_cutoff * elemental_sigma_cutoff))
+                    continue;
+                double occ = nei_list_occupancy[j];
+                int precompute_access_index_const = m * 120 * max_n_gaussian + neigh_atom_element_order * max_n_gaussian;
+                for (int g = 0; g < ngaussians[neigh_atom_element_order]; ++g){
+                    double elemental_sigma_gausisan_cutoff = elemental_sigma_gaussian_cutoffs[sigma_index][neigh_atom_element_order*max_n_gaussian+g];
+                    if (r0_sqr > (elemental_sigma_gausisan_cutoff * elemental_sigma_gausisan_cutoff))
+                        continue;
+                    double B = atom_gaussian[neigh_atom_element_order][g*2], beta = atom_gaussian[neigh_atom_element_order][g*2+1];
+                    if (B == 0.0)
+                        continue;
+                    double C1 = C1_precompute_array[precompute_access_index_const + g];
+                    double C2 = C2_precompute_array[precompute_access_index_const + g];
+                    double temp = C1 * exp(C2 * r0_sqr) ;
+                    double lambda = lambda_precompute_array[precompute_access_index_const + g]; 
+                    double gamma = gamma_precompute_array[precompute_access_index_const + g];
+                    mcsh_function(x0, y0, z0, r0_sqr, temp, lambda, gamma, temp_desc_values);
+                    for (int iii = 0; iii < num_order_values; ++iii) {
+                        desc_values[iii] += temp_desc_values[iii] * occ;
+                        temp_occ_sum_values[j * num_order_values + iii] += temp_desc_values[iii];
+                    }
+                    // sum_miu += m_desc[0]*occ;
+                }
+            }
+
+            int desc_idx = ii*nmcsh + m;
+            double* temp_occ_sum_values2 = new double[num_order_values]();
+            for (int j = 0; j < nneigh; ++j) {
+                for (int iii = 0; iii < num_order_values; ++iii) {
+                    temp_occ_sum_values2[iii] = temp_occ_sum_values[j * num_order_values + iii];
+                }
+                int atom_idx = nei_list_i[j*2 + 1];
+                dmcsh_docc[desc_idx][atom_idx] = 2.0 * get_docc_value_opt2(mcsh_order, desc_values, temp_occ_sum_values2);
+            }
+            delete[] temp_occ_sum_values2;
+
+
+            double sum_square = get_desc_value_opt2(mcsh_order, desc_values);
+
+            
+
+            // sum_square = sum_square * weight;
+            if (square != 0){
+                mcsh[ii][m] = sum_square;
+            }
+            else {
+                double temp = sqrt(sum_square);
+                if (fabs(temp) < 1e-15){
+                    mcsh[ii][m] = 0.0;
+                    for (int jj = 0; jj < natoms; ++jj) {
+                        dmcsh_docc[ii*nmcsh + m][jj] = 0.0;
+                    }
+                }
+                else {
+                    mcsh[ii][m] = temp;
+                    for (int jj = 0; jj < natoms; ++jj) {
+                        dmcsh_docc[ii*nmcsh + m][jj] *= (0.5 / temp);
+                    }
+                }
+            }
+
+
+            delete[] desc_values;
+            delete[] temp_desc_values;
+            delete[] temp_occ_sum_values;
+        }
+        
+    }
+    delete[] nei_list_d;
+    delete[] nei_list_i;
+    delete[] nei_list_occupancy;
+
+
+    for (int i=0; i<natoms; i++) {
+        delete[] bin_i[i];
+    }
+    delete[] bin_i;
+    return 0;
+}
+
 
 extern "C" int calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_fp_deriv(double** cell, double** cart, double* occupancies, double** ref_cart, double** scale, double** ref_scale, int* pbc_bools,
                                         int* atom_i, int natoms, /*int* cal_atoms,*/ int cal_num, int nsigmas, int max_n_gaussian,

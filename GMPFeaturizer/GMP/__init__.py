@@ -1496,30 +1496,62 @@ class GMP(BaseFeature):
                     )
 
                 elif self.custom_cutoff == 4:
-                    errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv(
-                        cell_p,
-                        cart_p,
-                        occupancies_p,
-                        ref_cart_p,
-                        scale_p,
-                        ref_scale_p,
-                        pbc_p,
-                        atom_indices_p,
-                        atom_num,
-                        cal_num,
-                        self.nsigmas,
-                        self.max_num_gaussians,
-                        self.params_set["ip"],
-                        self.params_set["dp"],
-                        self.params_set["num"],
-                        self.params_set["gaussian_params_p"],
-                        self.params_set["ngaussians_p"],
-                        self.params_set["elemental_order_sigma_cutoffs_p"],
-                        self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
-                        self.params_set["element_index_to_order_p"],
-                        x_p,
-                        dxdocc_p,
-                    )
+                    if self.optimization_test_mode:
+                        errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv_opt2_2(
+                            cell_p,
+                            cart_p,
+                            occupancies_p,
+                            ref_cart_p,
+                            scale_p,
+                            ref_scale_p,
+                            pbc_p,
+                            atom_indices_p,
+                            atom_num,
+                            cal_num,
+                            self.nsigmas,
+                            self.max_num_gaussians,
+                            self.params_set["ip"],
+                            self.params_set["dp"],
+                            self.params_set["num"],
+                            self.params_set["gaussian_params_p"],
+                            self.params_set["ngaussians_p"],
+                            self.params_set["elemental_order_sigma_cutoffs_p"],
+                            self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                            self.params_set["element_index_to_order_p"],
+                            self.C1_precompute_array_p,
+                            self.C2_precompute_array_p,
+                            self.lambda_precompute_array_p,
+                            self.gamma_precompute_array_p,
+                            x_p,
+                            dxdocc_p,
+                        )
+                        
+
+                    else:
+                        errno = lib.calculate_solid_gmpordernorm_elemental_sigma_gaussian_cutoff_occ_deriv(
+                            cell_p,
+                            cart_p,
+                            occupancies_p,
+                            ref_cart_p,
+                            scale_p,
+                            ref_scale_p,
+                            pbc_p,
+                            atom_indices_p,
+                            atom_num,
+                            cal_num,
+                            self.nsigmas,
+                            self.max_num_gaussians,
+                            self.params_set["ip"],
+                            self.params_set["dp"],
+                            self.params_set["num"],
+                            self.params_set["gaussian_params_p"],
+                            self.params_set["ngaussians_p"],
+                            self.params_set["elemental_order_sigma_cutoffs_p"],
+                            self.params_set["elemental_order_sigma_gaussian_cutoffs_p"],
+                            self.params_set["element_index_to_order_p"],
+                            x_p,
+                            dxdocc_p,
+                        )
 
                 else:
                     raise NotImplementedError
