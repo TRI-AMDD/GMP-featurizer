@@ -29,7 +29,7 @@ ffibuilder.set_source(
         "GMPFeaturizer/GMP_individual/solid_harmonics_optimization2.cpp",
     ],
     source_extension=".cpp",
-    include_dirs=["GMPFeaturizer/GMP/"],
+    include_dirs=["GMPFeaturizer/GMP_individual/"],
     extra_compile_args=["-g", "-O2"],
 
     # source_extension=".cpp",
